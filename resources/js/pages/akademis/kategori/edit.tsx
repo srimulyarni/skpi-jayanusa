@@ -37,7 +37,7 @@ export default function KategoriEdit({ kategori }: { kategori: Kategori }) {
                     <h1 className="text-xl font-semibold">Edit Kategori</h1>
                 </div>
 
-                <Card className="mx-auto max-w-lg">
+                <Card className="max-w-lg">
                     <CardContent className="space-y-4 pt-6">
                         <div className="grid gap-2">
                             <Label htmlFor="nama_kategori">Nama Kategori</Label>

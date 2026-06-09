@@ -43,7 +43,7 @@ export default function JurusanEdit({ jurusan, identitas }: { jurusan: Jurusan; 
                     <h1 className="text-xl font-semibold">Edit Jurusan</h1>
                 </div>
 
-                <Card className="mx-auto max-w-lg">
+                <Card className="max-w-lg">
                     <CardContent className="space-y-4 pt-6">
                         <div className="grid gap-2">
                             <Label>Kode</Label>

@@ -43,7 +43,7 @@ export default function MahasiswaCreate({ jurusan }: { jurusan: Jurusan[] }) {
                     <h1 className="text-xl font-semibold">Tambah Mahasiswa</h1>
                 </div>
 
-                <Card className="mx-auto max-w-2xl">
+                <Card className="max-w-2xl">
                     <CardContent className="pt-6">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">

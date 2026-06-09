@@ -56,7 +56,7 @@ export default function MahasiswaEdit({ mahasiswa, jurusan }: { mahasiswa: Mahas
                     <h1 className="text-xl font-semibold">Edit Mahasiswa</h1>
                 </div>
 
-                <Card className="mx-auto max-w-2xl">
+                <Card className="max-w-2xl">
                     <CardContent className="pt-6">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
