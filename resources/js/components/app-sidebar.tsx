@@ -1,5 +1,16 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    Award,
+    BookOpen,
+    Building2,
+    FileText,
+    LayoutGrid,
+    Package,
+    Printer,
+    Tag,
+    User,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,38 +24,44 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import type { Auth, NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+const navByRole: Record<string, NavItem[]> = {
+    mahasiswa: [
+        { title: 'Dashboard', href: '/mahasiswa/dashboard', icon: LayoutGrid },
+        { title: 'Profil Saya', href: '/mahasiswa/profil', icon: User },
+        { title: 'Pengajuan SKPI', href: '/mahasiswa/pengajuan', icon: FileText },
+    ],
+    akademis: [
+        { title: 'Dashboard', href: '/akademis/dashboard', icon: LayoutGrid },
+        { title: 'Data Mahasiswa', href: '/akademis/mahasiswa', icon: Users },
+        { title: 'Pengajuan', href: '/akademis/pengajuan', icon: FileText },
+        { title: 'Kategori Kegiatan', href: '/akademis/kategori', icon: Tag },
+        { title: 'Identitas PT', href: '/akademis/identitas-pt', icon: Building2 },
+        { title: 'Jurusan', href: '/akademis/jurusan', icon: BookOpen },
+        { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
+        { title: 'Terbitkan SKPI', href: '/akademis/skpi', icon: Award },
+        { title: 'Laporan', href: '/akademis/laporan', icon: Printer },
+    ],
+    ketua: [
+        { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
+        { title: 'Laporan', href: '/ketua/laporan', icon: Printer },
+    ],
+};
 
 export function AppSidebar() {
+    const { auth } = usePage<{ auth: Auth }>().props;
+    const role = auth?.user?.role ?? 'mahasiswa';
+    const mainNavItems = navByRole[role] ?? [];
+    const dashboardHref = `/${role}/dashboard`;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={dashboardHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -57,7 +74,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

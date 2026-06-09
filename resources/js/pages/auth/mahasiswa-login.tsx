@@ -1,4 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
@@ -7,39 +8,39 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 
-export default function Login({ status }: { status?: string }) {
+export default function MahasiswaLogin({ status }: { status?: string }) {
     const { data, setData, post, processing, errors } = useForm({
-        username: '',
+        nobp: '',
         password: '',
         remember: false,
     });
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        post('/login', { preserveScroll: true });
+        post('/mahasiswa/login', { preserveScroll: true });
     }
 
     return (
         <>
-            <Head title="Masuk" />
+            <Head title="Login Mahasiswa" />
 
             <form onSubmit={submit} className="flex flex-col gap-6">
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="nobp">NOBP</Label>
                         <Input
-                            id="username"
+                            id="nobp"
                             type="text"
-                            name="username"
+                            name="nobp"
                             required
                             autoFocus
                             tabIndex={1}
                             autoComplete="username"
-                            placeholder="Masukkan username"
-                            value={data.username}
-                            onChange={(e) => setData('username', e.target.value)}
+                            placeholder="Masukkan NOBP"
+                            value={data.nobp}
+                            onChange={(e) => setData('nobp', e.target.value)}
                         />
-                        <InputError message={errors.username} />
+                        <InputError message={errors.nobp} />
                     </div>
 
                     <div className="grid gap-2">
@@ -89,7 +90,7 @@ export default function Login({ status }: { status?: string }) {
     );
 }
 
-Login.layout = {
-    title: 'Masuk ke akun Anda',
-    description: 'Masukkan username dan password untuk masuk',
+MahasiswaLogin.layout = {
+    title: 'Login Mahasiswa',
+    description: 'Masukkan NOBP dan password untuk masuk',
 };
