@@ -30,16 +30,26 @@ export default function SkpiIndex({ skpi, siap_terbit }: { skpi: Skpi[]; siap_te
     const [selectedSkpi, setSelectedSkpi] = useState<Skpi | null>(null);
 
     function terbitkan() {
-        if (!selectedPengajuan) return;
+        if (!selectedPengajuan) {
+return;
+}
+
         router.post('/akademis/skpi', { pengajuan_id: selectedPengajuan.id }, {
-            onSuccess: () => { setOpenTerbitkan(false); toast.success('Berhasil!'); },
+            onSuccess: () => {
+ setOpenTerbitkan(false); toast.success('Berhasil!'); 
+},
         });
     }
 
     function batalkan() {
-        if (!selectedSkpi) return;
+        if (!selectedSkpi) {
+return;
+}
+
         router.patch(`/akademis/skpi/${selectedSkpi.id}/batalkan`, {}, {
-            onSuccess: () => { setOpenBatalkan(false); toast.success('Berhasil!'); },
+            onSuccess: () => {
+ setOpenBatalkan(false); toast.success('Berhasil!'); 
+},
         });
     }
 
@@ -74,7 +84,9 @@ export default function SkpiIndex({ skpi, siap_terbit }: { skpi: Skpi[]; siap_te
             id: 'aksi',
             header: 'Aksi',
             cell: ({ row }) => (
-                <Button size="sm" onClick={() => { setSelectedPengajuan(row.original); setOpenTerbitkan(true); }}>
+                <Button size="sm" onClick={() => {
+ setSelectedPengajuan(row.original); setOpenTerbitkan(true); 
+}}>
                     <CheckCircle className="mr-1 h-4 w-4" /> Terbitkan
                 </Button>
             ),
@@ -125,9 +137,14 @@ export default function SkpiIndex({ skpi, siap_terbit }: { skpi: Skpi[]; siap_te
             id: 'aksi',
             header: 'Aksi',
             cell: ({ row }) => {
-                if (row.original.status !== 'diterbitkan') return null;
+                if (row.original.status !== 'diterbitkan') {
+return null;
+}
+
                 return (
-                    <Button size="icon" variant="ghost" onClick={() => { setSelectedSkpi(row.original); setOpenBatalkan(true); }}>
+                    <Button size="icon" variant="ghost" onClick={() => {
+ setSelectedSkpi(row.original); setOpenBatalkan(true); 
+}}>
                         <XCircle className="h-4 w-4 text-destructive" />
                     </Button>
                 );

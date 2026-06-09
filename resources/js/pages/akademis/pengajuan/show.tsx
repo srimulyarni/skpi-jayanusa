@@ -45,7 +45,9 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
 
     function simpan() {
         form.patch(`/akademis/pengajuan/${pengajuan.id}/status`, {
-            onSuccess: () => { setOpenKonfirm(false); toast.success('Berhasil!'); },
+            onSuccess: () => {
+ setOpenKonfirm(false); toast.success('Berhasil!'); 
+},
         });
     }
 

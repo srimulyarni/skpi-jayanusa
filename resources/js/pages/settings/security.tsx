@@ -35,8 +35,13 @@ export default function Security({ passwordRules }: Props) {
                     resetOnError={['password', 'password_confirmation', 'current_password']}
                     resetOnSuccess
                     onError={(errors) => {
-                        if (errors.password) passwordInput.current?.focus();
-                        if (errors.current_password) currentPasswordInput.current?.focus();
+                        if (errors.password) {
+passwordInput.current?.focus();
+}
+
+                        if (errors.current_password) {
+currentPasswordInput.current?.focus();
+}
                     }}
                     className="space-y-6"
                 >
