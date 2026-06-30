@@ -6,6 +6,8 @@ import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,31 +16,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 type Jurusan = { id: number; nama: string; singkatan: string };
 type Mahasiswa = {
-    id: number; nobp: string; nama: string; tempat_lahir: string | null;
-    tanggal_lahir: string | null; jk: string | null; alamat: string | null;
-    nohp: string | null; jurusan_id: number | null; akreditasi_prodi: string | null;
-    nomor_ijazah: string | null; gelar: string | null; tahun_lulus: string | null;
+    id: number; nobp: string; nama: string; foto: string | null;
+    tempat_lahir: string | null; tanggal_lahir: string | null; jk: string | null;
+    alamat: string | null; nohp: string | null; jurusan_id: number | null;
+    akreditasi_prodi: string | null; nomor_ijazah: string | null;
+    gelar: string | null; tahun_lulus: string | null;
+    jurusan: Jurusan | null;
 };
 
-export default function MahasiswaEdit({ mahasiswa, jurusan }: { mahasiswa: Mahasiswa; jurusan: Jurusan[] }) {
+export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
     const [openKonfirm, setOpenKonfirm] = useState(false);
+    const [fotoPreview, setFotoPreview] = useState<string | null>(
+        mahasiswa.foto ? `/storage/${mahasiswa.foto}` : null,
+    );
     const form = useForm({
-        nobp: mahasiswa.nobp,
-        nama: mahasiswa.nama,
+        _method: 'PUT' as const,
         tempat_lahir: mahasiswa.tempat_lahir ?? '',
         tanggal_lahir: mahasiswa.tanggal_lahir ?? '',
         jk: mahasiswa.jk ?? '',
         alamat: mahasiswa.alamat ?? '',
         nohp: mahasiswa.nohp ?? '',
-        jurusan_id: mahasiswa.jurusan_id ? String(mahasiswa.jurusan_id) : '',
+        foto: null as File | null,
         akreditasi_prodi: mahasiswa.akreditasi_prodi ?? '',
         nomor_ijazah: mahasiswa.nomor_ijazah ?? '',
         gelar: mahasiswa.gelar ?? '',
         tahun_lulus: mahasiswa.tahun_lulus ?? '',
     });
 
+    function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0] ?? null;
+        form.setData('foto', file);
+
+        if (file) {
+            setFotoPreview(URL.createObjectURL(file));
+        }
+    }
+
     function simpan() {
-        form.put(`/akademis/mahasiswa/${mahasiswa.id}`, {
+        form.post(`/akademis/mahasiswa/${mahasiswa.id}`, {
             onSuccess: () => toast.success('Berhasil!'),
             onError: () => setOpenKonfirm(false),
         });
@@ -46,49 +61,52 @@ export default function MahasiswaEdit({ mahasiswa, jurusan }: { mahasiswa: Mahas
 
     return (
         <>
-            <Head title="Edit Mahasiswa" />
+            <Head title={`Edit — ${mahasiswa.nama}`} />
 
             <div className="space-y-6 p-4 md:p-6">
                 <div className="flex items-center gap-3">
                     <Button variant="outline" size="icon" asChild>
                         <Link href="/akademis/mahasiswa"><ArrowLeft className="h-4 w-4" /></Link>
                     </Button>
-                    <h1 className="text-xl font-semibold">Edit Mahasiswa</h1>
+                    <div>
+                        <h1 className="text-xl font-semibold">Edit Mahasiswa</h1>
+                        <p className="text-sm text-muted-foreground">{mahasiswa.nobp}</p>
+                    </div>
                 </div>
 
-                <Card className="max-w-2xl">
+                <Card className="mx-auto max-w-2xl">
                     <CardContent className="pt-6">
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="grid gap-2">
-                                <Label>NOBP</Label>
-                                <Input value={form.data.nobp} disabled className="bg-muted" />
+                            {/* API Fields — Read Only */}
+                            <div className="sm:col-span-2 flex items-end gap-3">
+                                <div className="grid flex-1 gap-2">
+                                    <Label>NOBP <Badge variant="secondary" className="ml-1 text-[10px]">API</Badge></Label>
+                                    <Input value={mahasiswa.nobp} disabled className="bg-muted" />
+                                </div>
+                                <div className="grid flex-1 gap-2">
+                                    <Label>Jurusan <Badge variant="secondary" className="ml-1 text-[10px]">API</Badge></Label>
+                                    <Input value={mahasiswa.jurusan ? `${mahasiswa.jurusan.singkatan} — ${mahasiswa.jurusan.nama}` : '-'} disabled className="bg-muted" />
+                                </div>
                             </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="nama">Nama Lengkap</Label>
-                                <Input id="nama" value={form.data.nama} onChange={(e) => form.setData('nama', e.target.value)} />
-                                {form.errors.nama && <p className="text-xs text-destructive">{form.errors.nama}</p>}
+                            <div className="sm:col-span-2 grid gap-2">
+                                <Label>Nama Lengkap <Badge variant="secondary" className="ml-1 text-[10px]">API</Badge></Label>
+                                <Input value={mahasiswa.nama} disabled className="bg-muted" />
                             </div>
-                            <div className="grid gap-2">
-                                <Label>Jurusan</Label>
-                                <Select value={form.data.jurusan_id} onValueChange={(v) => form.setData('jurusan_id', v)}>
-                                    <SelectTrigger><SelectValue placeholder="Pilih jurusan" /></SelectTrigger>
-                                    <SelectContent>
-                                        {jurusan.map((j) => (
-                                            <SelectItem key={j.id} value={String(j.id)}>{j.singkatan} — {j.nama}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+
+                            {/* Foto */}
+                            <div className="sm:col-span-2 grid gap-2">
+                                <Label htmlFor="foto">Foto</Label>
+                                <div className="flex items-center gap-4">
+                                    <Avatar className="h-16 w-16">
+                                        <AvatarImage src={fotoPreview ?? undefined} alt={mahasiswa.nama} />
+                                        <AvatarFallback>{mahasiswa.nama.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <Input id="foto" type="file" accept="image/jpeg,image/png" onChange={handleFotoChange} />
+                                </div>
+                                {form.errors.foto && <p className="text-xs text-destructive">{form.errors.foto}</p>}
                             </div>
-                            <div className="grid gap-2">
-                                <Label>Jenis Kelamin</Label>
-                                <Select value={form.data.jk} onValueChange={(v) => form.setData('jk', v)}>
-                                    <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="L">Laki-laki</SelectItem>
-                                        <SelectItem value="P">Perempuan</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+
+                            {/* Admin Fields */}
                             <div className="grid gap-2">
                                 <Label htmlFor="tempat_lahir">Tempat Lahir</Label>
                                 <Input id="tempat_lahir" value={form.data.tempat_lahir} onChange={(e) => form.setData('tempat_lahir', e.target.value)} />
@@ -98,12 +116,38 @@ export default function MahasiswaEdit({ mahasiswa, jurusan }: { mahasiswa: Mahas
                                 <Input id="tanggal_lahir" type="date" value={form.data.tanggal_lahir} onChange={(e) => form.setData('tanggal_lahir', e.target.value)} />
                             </div>
                             <div className="grid gap-2">
+                                <Label>Jenis Kelamin</Label>
+                                <Select value={form.data.jk} onValueChange={(v) => form.setData('jk', v)}>
+                                    <SelectTrigger className="w-full"><SelectValue placeholder="Silahkan Pilih Jenis Kelamin" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="L">Laki-laki</SelectItem>
+                                        <SelectItem value="P">Perempuan</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-2">
                                 <Label htmlFor="nohp">No. HP</Label>
                                 <Input id="nohp" value={form.data.nohp} onChange={(e) => form.setData('nohp', e.target.value)} />
                             </div>
+                            <div className="sm:col-span-2 grid gap-2">
+                                <Label htmlFor="alamat">Alamat</Label>
+                                <Input id="alamat" value={form.data.alamat} onChange={(e) => form.setData('alamat', e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="akreditasi_prodi">Akreditasi Prodi</Label>
+                                <Input id="akreditasi_prodi" value={form.data.akreditasi_prodi} onChange={(e) => form.setData('akreditasi_prodi', e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="nomor_ijazah">Nomor Ijazah</Label>
+                                <Input id="nomor_ijazah" value={form.data.nomor_ijazah} onChange={(e) => form.setData('nomor_ijazah', e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="gelar">Gelar</Label>
+                                <Input id="gelar" value={form.data.gelar} onChange={(e) => form.setData('gelar', e.target.value)} />
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="tahun_lulus">Tahun Lulus</Label>
-                                <Input id="tahun_lulus" value={form.data.tahun_lulus} onChange={(e) => form.setData('tahun_lulus', e.target.value)} placeholder="2024" />
+                                <Input id="tahun_lulus" value={form.data.tahun_lulus} onChange={(e) => form.setData('tahun_lulus', e.target.value)} placeholder="ex: 2024" />
                             </div>
                             <div className="sm:col-span-2">
                                 <div className="flex gap-3 pt-2">

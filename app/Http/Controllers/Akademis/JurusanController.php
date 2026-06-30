@@ -7,16 +7,29 @@ use App\Http\Requests\Akademis\JurusanRequest;
 use App\Models\IdentitasPt;
 use App\Models\Jurusan;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class JurusanController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->input('search');
+
+        $jurusan = Jurusan::with('identitasPt')
+            ->when($search, function ($query, $search) {
+                $query->where('nama', 'like', "%{$search}%")
+                    ->orWhere('kode', 'like', "%{$search}%");
+            })
+            ->orderBy('kode')
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('akademis/jurusan/index', [
-            'jurusan'   => Jurusan::with('identitasPt')->orderBy('kode')->get(),
+            'jurusan'   => $jurusan,
             'identitas' => IdentitasPt::orderBy('kode_institusi')->select('id', 'kode_institusi', 'nama_singkat')->get(),
+            'filters'   => ['search' => $search],
         ]);
     }
 

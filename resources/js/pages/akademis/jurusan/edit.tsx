@@ -43,12 +43,12 @@ export default function JurusanEdit({ jurusan, identitas }: { jurusan: Jurusan; 
                     <h1 className="text-xl font-semibold">Edit Jurusan</h1>
                 </div>
 
-                <Card className="max-w-lg">
+                <Card className="mx-auto max-w-lg">
                     <CardContent className="space-y-4 pt-6">
                         <div className="grid gap-2">
                             <Label>Kode</Label>
                             <Select value={form.data.kode} onValueChange={(v) => form.setData('kode', v)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="000">000 — MI</SelectItem>
                                     <SelectItem value="100">100 — SI</SelectItem>
@@ -67,7 +67,7 @@ export default function JurusanEdit({ jurusan, identitas }: { jurusan: Jurusan; 
                         <div className="grid gap-2">
                             <Label>Institusi</Label>
                             <Select value={form.data.identitas_pt_id} onValueChange={(v) => form.setData('identitas_pt_id', v)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     {identitas.map((pt) => (
                                         <SelectItem key={pt.id} value={String(pt.id)}>

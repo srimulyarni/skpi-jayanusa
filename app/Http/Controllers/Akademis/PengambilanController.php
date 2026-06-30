@@ -5,17 +5,30 @@ namespace App\Http\Controllers\Akademis;
 use App\Http\Controllers\Controller;
 use App\Models\Pengambilan;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PengambilanController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->input('search');
+
+        $pengambilan = Pengambilan::with(['skpi', 'mahasiswa.jurusan'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('mahasiswa', function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nobp', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('akademis/pengambilan/index', [
-            'pengambilan' => Pengambilan::with(['skpi', 'mahasiswa.jurusan'])
-                ->orderByDesc('created_at')
-                ->get(),
+            'pengambilan' => $pengambilan,
+            'filters'     => ['search' => $search],
         ]);
     }
 

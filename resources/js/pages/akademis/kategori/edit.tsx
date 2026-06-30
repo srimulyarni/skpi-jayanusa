@@ -37,7 +37,7 @@ export default function KategoriEdit({ kategori }: { kategori: Kategori }) {
                     <h1 className="text-xl font-semibold">Edit Kategori</h1>
                 </div>
 
-                <Card className="max-w-lg">
+                <Card className="mx-auto max-w-lg">
                     <CardContent className="space-y-4 pt-6">
                         <div className="grid gap-2">
                             <Label htmlFor="nama_kategori">Nama Kategori</Label>
@@ -52,8 +52,8 @@ export default function KategoriEdit({ kategori }: { kategori: Kategori }) {
                         </div>
                         <div className="grid gap-2">
                             <Label>Status</Label>
-                            <Select value={form.data.status} onValueChange={(v) => form.setData('status', v)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                            <Select value={form.data.status} onValueChange={(v: 'aktif' | 'nonaktif') => form.setData('status', v)}>
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="aktif">Aktif</SelectItem>
                                     <SelectItem value="nonaktif">Nonaktif</SelectItem>

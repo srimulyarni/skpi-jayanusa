@@ -6,17 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Akademis\PengajuanStatusRequest;
 use App\Models\Pengajuan;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PengajuanController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->input('search');
+
+        $pengajuan = Pengajuan::with(['mahasiswa.jurusan'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('mahasiswa', function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nobp', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('tgl_pengajuan')
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('akademis/pengajuan/index', [
-            'pengajuan' => Pengajuan::with(['mahasiswa.jurusan'])
-                ->orderByDesc('tgl_pengajuan')
-                ->get(),
+            'pengajuan' => $pengajuan,
+            'filters'   => ['search' => $search],
         ]);
     }
 

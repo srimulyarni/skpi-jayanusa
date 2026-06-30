@@ -6,15 +6,37 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Akademis\IdentitasPtRequest;
 use App\Models\IdentitasPt;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class IdentitasPtController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->input('search');
+        $kodeInstitusi = $request->input('kode_institusi');
+
+        $identitas = IdentitasPt::when($search, function ($query, $search) {
+                $query->where('nama_pt', 'like', "%{$search}%")
+                    ->orWhere('kode_institusi', 'like', "%{$search}%");
+            })
+            ->when($kodeInstitusi, function ($query, $kodeInstitusi) {
+                $query->where('kode_institusi', $kodeInstitusi);
+            })
+            ->orderBy('kode_institusi')
+            ->paginate(10)
+            ->withQueryString();
+
+        $instansiList = IdentitasPt::distinct()->pluck('kode_institusi');
+
         return Inertia::render('akademis/identitas-pt/index', [
-            'identitas' => IdentitasPt::orderBy('kode_institusi')->get(),
+            'identitas'    => $identitas,
+            'instansiList' => $instansiList,
+            'filters'      => [
+                'search'         => $search,
+                'kode_institusi' => $kodeInstitusi,
+            ],
         ]);
     }
 

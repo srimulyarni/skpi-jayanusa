@@ -105,7 +105,7 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                             <div className="grid gap-2">
                                 <Label>Status</Label>
                                 <Select value={form.data.status} onValueChange={(v) => form.setData('status', v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         {statusList.map((s) => (
                                             <SelectItem key={s} value={s}>{s}</SelectItem>

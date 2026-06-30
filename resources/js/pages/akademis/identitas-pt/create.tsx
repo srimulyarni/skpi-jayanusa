@@ -64,7 +64,7 @@ export default function IdentitasPtCreate() {
                                     value={form.data.kode_institusi}
                                     onValueChange={(v) => form.setData('kode_institusi', v)}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Pilih kode institusi" />
                                     </SelectTrigger>
                                     <SelectContent>

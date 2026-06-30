@@ -13,16 +13,31 @@ use Inertia\Response;
 
 class SkpiController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->input('search');
+
+        $skpi = Skpi::with(['pengajuan.mahasiswa.jurusan', 'pengambilan'])
+            ->when($search, function ($query, $search) {
+                $query->where('no_skpi', 'like', "%{$search}%")
+                    ->orWhereHas('pengajuan.mahasiswa', function ($q) use ($search) {
+                        $q->where('nama', 'like', "%{$search}%")
+                            ->orWhere('nobp', 'like', "%{$search}%");
+                    });
+            })
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $siap_terbit = Pengajuan::where('status', 'disetujui')
+            ->whereDoesntHave('skpi')
+            ->with('mahasiswa.jurusan.identitasPt')
+            ->get();
+
         return Inertia::render('akademis/skpi/index', [
-            'skpi' => Skpi::with(['pengajuan.mahasiswa.jurusan', 'pengambilan'])
-                ->orderByDesc('created_at')
-                ->get(),
-            'siap_terbit' => Pengajuan::where('status', 'disetujui')
-                ->whereDoesntHave('skpi')
-                ->with('mahasiswa.jurusan.identitasPt')
-                ->get(),
+            'skpi'        => $skpi,
+            'siap_terbit' => $siap_terbit,
+            'filters'     => ['search' => $search],
         ]);
     }
 

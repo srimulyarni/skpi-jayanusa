@@ -9,7 +9,7 @@ class JurusanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'kode'           => ['required', 'in:000,100,200'],
+            'kode'           => ['required', 'string', 'max:255'],
             'nama'           => ['required', 'string', 'max:255'],
             'singkatan'      => ['required', 'string', 'max:10'],
             'identitas_pt_id'=> ['required', 'exists:identitas_pt,id'],

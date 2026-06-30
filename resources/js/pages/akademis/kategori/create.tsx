@@ -35,7 +35,7 @@ export default function KategoriCreate() {
                     <h1 className="text-xl font-semibold">Tambah Kategori</h1>
                 </div>
 
-                <Card className="max-w-lg">
+                <Card className="mx-auto max-w-lg">
                     <CardContent className="space-y-4 pt-6">
                         <div className="grid gap-2">
                             <Label htmlFor="nama_kategori">Nama Kategori</Label>
@@ -52,7 +52,7 @@ export default function KategoriCreate() {
                         <div className="grid gap-2">
                             <Label>Status</Label>
                             <Select value={form.data.status} onValueChange={(v) => form.setData('status', v)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="aktif">Aktif</SelectItem>
                                     <SelectItem value="nonaktif">Nonaktif</SelectItem>

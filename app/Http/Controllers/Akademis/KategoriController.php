@@ -6,15 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Akademis\KategoriRequest;
 use App\Models\Kategori;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class KategoriController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $search = $request->input('search');
+
+        $kategori = Kategori::when($search, function ($query, $search) {
+                $query->where('nama_kategori', 'like', "%{$search}%");
+            })
+            ->orderBy('nama_kategori')
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('akademis/kategori/index', [
-            'kategori' => Kategori::orderBy('nama_kategori')->get(),
+            'kategori' => $kategori,
+            'filters'  => ['search' => $search],
         ]);
     }
 

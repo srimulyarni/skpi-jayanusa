@@ -12,7 +12,6 @@ import {
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -26,33 +25,59 @@ import {
 } from '@/components/ui/sidebar';
 import type { Auth, NavItem } from '@/types';
 
-const navByRole: Record<string, NavItem[]> = {
+type NavGroup = { label: string; items: NavItem[] };
+
+const navByRole: Record<string, NavGroup[]> = {
     mahasiswa: [
-        { title: 'Dashboard', href: '/mahasiswa/dashboard', icon: LayoutGrid },
-        { title: 'Profil Saya', href: '/mahasiswa/profil', icon: User },
-        { title: 'Pengajuan SKPI', href: '/mahasiswa/pengajuan', icon: FileText },
+        {
+            label: 'Menu',
+            items: [
+                { title: 'Dashboard', href: '/mahasiswa/dashboard', icon: LayoutGrid },
+                { title: 'Profil Saya', href: '/mahasiswa/profil', icon: User },
+            ],
+        },
     ],
     akademis: [
-        { title: 'Dashboard', href: '/akademis/dashboard', icon: LayoutGrid },
-        { title: 'Data Mahasiswa', href: '/akademis/mahasiswa', icon: Users },
-        { title: 'Pengajuan', href: '/akademis/pengajuan', icon: FileText },
-        { title: 'Kategori Kegiatan', href: '/akademis/kategori', icon: Tag },
-        { title: 'Identitas PT', href: '/akademis/identitas-pt', icon: Building2 },
-        { title: 'Jurusan', href: '/akademis/jurusan', icon: BookOpen },
-        { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
-        { title: 'Terbitkan SKPI', href: '/akademis/skpi', icon: Award },
-        { title: 'Laporan', href: '/akademis/laporan', icon: Printer },
+        {
+            label: 'Master',
+            items: [
+                { title: 'Dashboard', href: '/akademis/dashboard', icon: LayoutGrid },
+                { title: 'Data Mahasiswa', href: '/akademis/mahasiswa', icon: Users },
+                { title: 'Kategori Kegiatan', href: '/akademis/kategori', icon: Tag },
+                { title: 'Identitas PT', href: '/akademis/identitas-pt', icon: Building2 },
+                { title: 'Jurusan', href: '/akademis/jurusan', icon: BookOpen },
+            ],
+        },
+        {
+            label: 'Transaksi',
+            items: [
+                { title: 'Pengajuan', href: '/akademis/pengajuan', icon: FileText },
+                { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
+                { title: 'Terbitkan SKPI', href: '/akademis/skpi', icon: Award },
+            ],
+        },
+        {
+            label: 'Laporan',
+            items: [
+                { title: 'Laporan', href: '/akademis/laporan', icon: Printer },
+            ],
+        },
     ],
     ketua: [
-        { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
-        { title: 'Laporan', href: '/ketua/laporan', icon: Printer },
+        {
+            label: 'Menu',
+            items: [
+                { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
+                { title: 'Laporan', href: '/ketua/laporan', icon: Printer },
+            ],
+        },
     ],
 };
 
 export function AppSidebar() {
     const { auth } = usePage<{ auth: Auth }>().props;
     const role = auth?.user?.role ?? 'mahasiswa';
-    const mainNavItems = navByRole[role] ?? [];
+    const navGroups = navByRole[role] ?? [];
     const dashboardHref = `/${role}/dashboard`;
 
     return (
@@ -70,7 +95,9 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {navGroups.map((group) => (
+                    <NavMain key={group.label} label={group.label} items={group.items} />
+                ))}
             </SidebarContent>
 
             <SidebarFooter>
