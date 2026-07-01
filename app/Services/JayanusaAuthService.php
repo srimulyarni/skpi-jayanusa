@@ -17,7 +17,7 @@ class JayanusaAuthService
                 'password' => $password,
             ]);
 
-        if (!$response->successful() || !$response->json('success')) {
+        if (! $response->successful() || ! $response->json('success')) {
             return null;
         }
 

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('identitas_pt', function (Blueprint $table) {
             $table->id();
-            $table->enum('kode_institusi', ['STMIK', 'AMIK', 'AKPER']);
+            $table->string('kode_institusi', 20)->unique();
             $table->string('nama_pt');
             $table->string('nama_singkat');
             $table->string('nama_en');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('akreditasi_institusi');
             $table->string('nama_pimpinan');
             $table->string('nidn');
-            $table->string('logo')->nullable();
+            $table->string('gelar')->nullable();
             $table->timestamps();
         });
     }

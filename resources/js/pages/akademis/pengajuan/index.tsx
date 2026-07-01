@@ -1,6 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Eye } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import { DataTablePagination } from '@/components/data-table-pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,11 +26,21 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
 
 export default function PengajuanIndex({ pengajuan, filters }: { pengajuan: PaginatedData; filters: { search?: string } }) {
     const [search, setSearch] = useState(filters.search ?? '');
+    const isInitialMount = useRef(true);
 
-    const doSearch = useCallback((value: string) => {
-        setSearch(value);
-        router.get('/akademis/pengajuan', { search: value || undefined }, { preserveState: true, preserveScroll: true });
-    }, []);
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get('/akademis/pengajuan', { search: value || undefined }, { preserveState: true, preserveScroll: true, replace: true });
+    }, 500);
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+
+            return;
+        }
+
+        debouncedSearch(search);
+    }, [search, debouncedSearch]);
 
     return (
         <>
@@ -36,7 +48,7 @@ export default function PengajuanIndex({ pengajuan, filters }: { pengajuan: Pagi
             <div className="space-y-4 p-4 md:p-6">
                 <h1 className="text-xl font-semibold">Kelola Pengajuan SKPI</h1>
 
-                <Input placeholder="Cari mahasiswa..." value={search} onChange={(e) => doSearch(e.target.value)} className="max-w-sm" />
+                <Input placeholder="Cari mahasiswa..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
 
                 <div className="overflow-hidden rounded-md border">
                     <Table>
@@ -76,26 +88,7 @@ export default function PengajuanIndex({ pengajuan, filters }: { pengajuan: Pagi
                     </Table>
                 </div>
 
-                {pengajuan.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                            Menampilkan {((pengajuan.current_page - 1) * pengajuan.per_page) + 1} - {Math.min(pengajuan.current_page * pengajuan.per_page, pengajuan.total)} dari {pengajuan.total} data
-                        </div>
-                        <div className="flex gap-1">
-                            {pengajuan.links.map((link, index) => {
-                                if (link.label === '&laquo; Previous') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronLeft className="h-4 w-4" /></Button>;
-}
-
-                                if (link.label === 'Next &raquo;') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronRight className="h-4 w-4" /></Button>;
-}
-
-                                return <Button key={index} variant={link.active ? 'default' : 'outline'} size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>{link.label}</Button>;
-                            })}
-                        </div>
-                    </div>
-                )}
+                <DataTablePagination data={pengajuan} />
             </div>
         </>
     );

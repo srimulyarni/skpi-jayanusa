@@ -35,9 +35,9 @@ class SkpiController extends Controller
             ->get();
 
         return Inertia::render('akademis/skpi/index', [
-            'skpi'        => $skpi,
+            'skpi' => $skpi,
             'siap_terbit' => $siap_terbit,
-            'filters'     => ['search' => $search],
+            'filters' => ['search' => $search],
         ]);
     }
 
@@ -54,18 +54,18 @@ class SkpiController extends Controller
         $noSkpi = sprintf('SKPI/%s/%s/%04d/%s', $tahun, $bulan, $urutan, $identitasPt->kode_institusi);
 
         $skpi = Skpi::create([
-            'no_skpi'        => $noSkpi,
-            'pengajuan_id'   => $pengajuan->id,
+            'no_skpi' => $noSkpi,
+            'pengajuan_id' => $pengajuan->id,
             'identitas_pt_id' => $identitasPt->id,
-            'tgl_terbit'     => now()->toDateString(),
-            'status'         => 'diterbitkan',
+            'tgl_terbit' => now()->toDateString(),
+            'status' => 'diterbitkan',
         ]);
 
         Pengambilan::create([
-            'skpi_id'         => $skpi->id,
-            'mahasiswa_id'    => $pengajuan->mahasiswa_id,
+            'skpi_id' => $skpi->id,
+            'mahasiswa_id' => $pengajuan->mahasiswa_id,
             'tgl_pengambilan' => now()->toDateString(),
-            'status'          => 'belum_diambil',
+            'status' => 'belum_diambil',
         ]);
 
         return back()->with('success', 'SKPI berhasil diterbitkan.');

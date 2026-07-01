@@ -17,15 +17,15 @@ class KategoriController extends Controller
         $search = $request->input('search');
 
         $kategori = Kategori::when($search, function ($query, $search) {
-                $query->where('nama_kategori', 'like', "%{$search}%");
-            })
+            $query->where('nama_kategori', 'like', "%{$search}%");
+        })
             ->orderBy('nama_kategori')
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('akademis/kategori/index', [
             'kategori' => $kategori,
-            'filters'  => ['search' => $search],
+            'filters' => ['search' => $search],
         ]);
     }
 

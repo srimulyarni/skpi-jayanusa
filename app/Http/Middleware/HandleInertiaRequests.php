@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,11 +36,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $isProfileLengkap = false;
+        if ($request->user()?->role === 'mahasiswa') {
+            $mhs = Mahasiswa::where('user_id', $request->user()->id)->first();
+            $isProfileLengkap = $mhs
+                && $mhs->tempat_lahir
+                && $mhs->tanggal_lahir
+                && $mhs->jk
+                && $mhs->nohp
+                && $mhs->alamat
+                && $mhs->nomor_ijazah;
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
+                'isProfileLengkap' => $isProfileLengkap,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

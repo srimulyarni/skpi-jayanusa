@@ -40,11 +40,11 @@ class MahasiswaController extends Controller
         $tahunList = Mahasiswa::whereNotNull('tahun_lulus')->distinct()->orderByDesc('tahun_lulus')->pluck('tahun_lulus');
 
         return Inertia::render('akademis/mahasiswa/index', [
-            'mahasiswa'  => $mahasiswa,
-            'jurusan'    => $jurusan,
-            'tahunList'  => $tahunList,
-            'filters'    => [
-                'search'     => $search,
+            'mahasiswa' => $mahasiswa,
+            'jurusan' => $jurusan,
+            'tahunList' => $tahunList,
+            'filters' => [
+                'search' => $search,
                 'jurusan_id' => $jurusanId,
                 'tahun_lulus' => $tahunLulus,
             ],
@@ -54,8 +54,8 @@ class MahasiswaController extends Controller
     public function edit(Mahasiswa $mahasiswa): Response
     {
         return Inertia::render('akademis/mahasiswa/edit', [
-            'mahasiswa' => $mahasiswa->load('jurusan'),
-            'jurusan'   => Jurusan::orderBy('kode')->select('id', 'kode', 'nama', 'singkatan')->get(),
+            'mahasiswa' => $mahasiswa->load('jurusan.identitasPt'),
+            'jurusan' => Jurusan::orderBy('kode')->select('id', 'kode', 'nama', 'singkatan')->get(),
         ]);
     }
 

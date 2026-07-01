@@ -26,14 +26,14 @@ class LaporanController extends Controller
         }
 
         return Inertia::render('akademis/laporan/index', [
-            'skpi'    => $query->orderBy('tgl_terbit')->get(),
-            'filter'  => ['tahun' => $tahun, 'bulan' => $bulan],
+            'skpi' => $query->orderBy('tgl_terbit')->get(),
+            'filter' => ['tahun' => $tahun, 'bulan' => $bulan],
             'ringkasan' => [
-                'total_mahasiswa'    => Mahasiswa::count(),
-                'total_pengajuan'    => Pengajuan::count(),
-                'total_disetujui'    => Pengajuan::where('status', 'disetujui')->count(),
-                'total_diterbitkan'  => Skpi::where('status', 'diterbitkan')->count(),
-                'total_diambil'      => Skpi::whereHas('pengambilan', fn($q) => $q->where('status', 'sudah_diambil'))->count(),
+                'total_mahasiswa' => Mahasiswa::count(),
+                'total_pengajuan' => Pengajuan::count(),
+                'total_disetujui' => Pengajuan::where('status', 'disetujui')->count(),
+                'total_diterbitkan' => Skpi::where('status', 'diterbitkan')->count(),
+                'total_diambil' => Skpi::whereHas('pengambilan', fn ($q) => $q->where('status', 'sudah_diambil'))->count(),
             ],
         ]);
     }

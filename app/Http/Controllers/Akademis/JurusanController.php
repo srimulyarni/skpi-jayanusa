@@ -27,9 +27,9 @@ class JurusanController extends Controller
             ->withQueryString();
 
         return Inertia::render('akademis/jurusan/index', [
-            'jurusan'   => $jurusan,
+            'jurusan' => $jurusan,
             'identitas' => IdentitasPt::orderBy('kode_institusi')->select('id', 'kode_institusi', 'nama_singkat')->get(),
-            'filters'   => ['search' => $search],
+            'filters' => ['search' => $search],
         ]);
     }
 
@@ -50,7 +50,7 @@ class JurusanController extends Controller
     public function edit(Jurusan $jurusan): Response
     {
         return Inertia::render('akademis/jurusan/edit', [
-            'jurusan'   => $jurusan,
+            'jurusan' => $jurusan,
             'identitas' => IdentitasPt::orderBy('kode_institusi')->select('id', 'kode_institusi', 'nama_singkat')->get(),
         ]);
     }

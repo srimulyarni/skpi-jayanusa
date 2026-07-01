@@ -1,5 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -13,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 type IdentitasPt = { akreditasi_institusi: string; gelar: string | null };
 type Jurusan = { id: number; nama: string; singkatan: string; identitas_pt: IdentitasPt | null };
@@ -20,24 +20,23 @@ type Mahasiswa = {
     id: number; nobp: string; nama: string; foto: string | null;
     tempat_lahir: string | null; tanggal_lahir: string | null; jk: string | null;
     alamat: string | null; nohp: string | null; jurusan_id: number | null;
-    nomor_ijazah: string | null;
-    tahun_lulus: string | null;
+    nomor_ijazah: string | null; tahun_lulus: string | null;
     jurusan: Jurusan | null;
 };
 
-export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
+export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa }) {
     const [openKonfirm, setOpenKonfirm] = useState(false);
     const [fotoPreview, setFotoPreview] = useState<string | null>(
         mahasiswa.foto ? `/storage/${mahasiswa.foto}` : null,
     );
     const form = useForm({
         _method: 'PUT' as const,
+        foto: null as File | null,
         tempat_lahir: mahasiswa.tempat_lahir ?? '',
         tanggal_lahir: mahasiswa.tanggal_lahir ?? '',
         jk: mahasiswa.jk ?? '',
-        alamat: mahasiswa.alamat ?? '',
         nohp: mahasiswa.nohp ?? '',
-        foto: null as File | null,
+        alamat: mahasiswa.alamat ?? '',
         nomor_ijazah: mahasiswa.nomor_ijazah ?? '',
         tahun_lulus: mahasiswa.tahun_lulus ?? '',
     });
@@ -56,47 +55,38 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
     }
 
     function simpan() {
-        form.post(`/akademis/mahasiswa/${mahasiswa.id}`, {
-            onSuccess: () => toast.success('Berhasil!'),
+        form.post('/mahasiswa/profil', {
+            onSuccess: () => toast.success('Profil berhasil diperbarui!'),
             onError: () => setOpenKonfirm(false),
         });
     }
 
     return (
         <>
-            <Head title={`Edit — ${mahasiswa.nama}`} />
+            <Head title="Profil Saya" />
 
             <div className="space-y-6 p-4 md:p-6">
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild>
-                        <Link href="/akademis/mahasiswa"><ArrowLeft className="h-4 w-4" /></Link>
-                    </Button>
-                    <div>
-                        <h1 className="text-xl font-semibold">Edit Mahasiswa</h1>
-                        <p className="text-sm text-muted-foreground">{mahasiswa.nobp}</p>
-                    </div>
-                </div>
+                <h1 className="text-xl font-semibold">Profil Saya</h1>
 
                 <Card className="mx-auto max-w-2xl">
                     <CardContent className="pt-6">
                         <div className="grid gap-4 sm:grid-cols-2">
-                            {/* API Fields — Read Only */}
                             <div className="sm:col-span-2 flex items-end gap-3">
                                 <div className="grid flex-1 gap-2">
                                     <Label>NOBP <Badge variant="secondary" className="ml-1 text-[10px]">API</Badge></Label>
                                     <Input value={mahasiswa.nobp} disabled className="bg-muted" />
                                 </div>
                                 <div className="grid flex-1 gap-2">
-                                    <Label>Jurusan <Badge variant="secondary" className="ml-1 text-[10px]">API</Badge></Label>
+                                    <Label>Jurusan <Badge variant="secondary" className="ml-1 text-[10px]">Identitas PT</Badge></Label>
                                     <Input value={mahasiswa.jurusan ? `${mahasiswa.jurusan.singkatan} — ${mahasiswa.jurusan.nama}` : '-'} disabled className="bg-muted" />
                                 </div>
                             </div>
+
                             <div className="sm:col-span-2 grid gap-2">
                                 <Label>Nama Lengkap <Badge variant="secondary" className="ml-1 text-[10px]">API</Badge></Label>
                                 <Input value={mahasiswa.nama} disabled className="bg-muted" />
                             </div>
 
-                            {/* Foto */}
                             <div className="sm:col-span-2 grid gap-2">
                                 <Label htmlFor="foto">Foto</Label>
                                 <div className="flex items-center gap-4">
@@ -109,40 +99,46 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
                                 {form.errors.foto && <p className="text-xs text-destructive">{form.errors.foto}</p>}
                             </div>
 
-                            {/* Admin Fields */}
                             <div className="grid gap-2">
                                 <Label htmlFor="tempat_lahir">Tempat Lahir</Label>
                                 <Input id="tempat_lahir" value={form.data.tempat_lahir} onChange={(e) => form.setData('tempat_lahir', e.target.value)} />
+                                {form.errors.tempat_lahir && <p className="text-xs text-destructive">{form.errors.tempat_lahir}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="tanggal_lahir">Tanggal Lahir</Label>
                                 <Input id="tanggal_lahir" type="date" value={form.data.tanggal_lahir} onChange={(e) => form.setData('tanggal_lahir', e.target.value)} />
+                                {form.errors.tanggal_lahir && <p className="text-xs text-destructive">{form.errors.tanggal_lahir}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label>Jenis Kelamin</Label>
                                 <Select value={form.data.jk} onValueChange={(v) => form.setData('jk', v)}>
-                                    <SelectTrigger className="w-full"><SelectValue placeholder="Silahkan Pilih Jenis Kelamin" /></SelectTrigger>
+                                    <SelectTrigger className="w-full"><SelectValue placeholder="Pilih jenis kelamin" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="L">Laki-laki</SelectItem>
                                         <SelectItem value="P">Perempuan</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                {form.errors.jk && <p className="text-xs text-destructive">{form.errors.jk}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nohp">No. HP</Label>
                                 <Input id="nohp" type="tel" inputMode="numeric" pattern="[0-9]*" value={form.data.nohp} onChange={handleNohpChange} />
+                                {form.errors.nohp && <p className="text-xs text-destructive">{form.errors.nohp}</p>}
                             </div>
                             <div className="sm:col-span-2 grid gap-2">
                                 <Label htmlFor="alamat">Alamat</Label>
-                                <Input id="alamat" value={form.data.alamat} onChange={(e) => form.setData('alamat', e.target.value)} />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>Akreditasi Prodi <Badge variant="secondary" className="ml-1 text-[10px]">Identitas PT</Badge></Label>
-                                <Input value={mahasiswa.jurusan?.identitas_pt?.akreditasi_institusi ?? '-'} disabled className="bg-muted" />
+                                <Textarea id="alamat" value={form.data.alamat} onChange={(e) => form.setData('alamat', e.target.value)} rows={3} />
+                                {form.errors.alamat && <p className="text-xs text-destructive">{form.errors.alamat}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nomor_ijazah">Nomor Ijazah</Label>
                                 <Input id="nomor_ijazah" value={form.data.nomor_ijazah} onChange={(e) => form.setData('nomor_ijazah', e.target.value)} />
+                                {form.errors.nomor_ijazah && <p className="text-xs text-destructive">{form.errors.nomor_ijazah}</p>}
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label>Akreditasi Prodi <Badge variant="secondary" className="ml-1 text-[10px]">Identitas PT</Badge></Label>
+                                <Input value={mahasiswa.jurusan?.identitas_pt?.akreditasi_institusi ?? '-'} disabled className="bg-muted" />
                             </div>
                             <div className="grid gap-2">
                                 <Label>Gelar <Badge variant="secondary" className="ml-1 text-[10px]">Identitas PT</Badge></Label>
@@ -150,15 +146,13 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="tahun_lulus">Tahun Lulus</Label>
-                                <Input id="tahun_lulus" type="number" value={form.data.tahun_lulus} onChange={(e) => form.setData('tahun_lulus', e.target.value)} placeholder="ex: 2024" />
+                                <Input id="tahun_lulus" type="number" value={form.data.tahun_lulus} onChange={(e) => form.setData('tahun_lulus', e.target.value)} placeholder="Contoh: 2024" />
                             </div>
+
                             <div className="sm:col-span-2">
                                 <div className="flex gap-3 pt-2">
                                     <Button onClick={() => setOpenKonfirm(true)} disabled={form.processing} className="w-full sm:w-auto">
-                                        Perbarui
-                                    </Button>
-                                    <Button variant="outline" asChild className="w-full sm:w-auto">
-                                        <Link href="/akademis/mahasiswa">Batal</Link>
+                                        Simpan
                                     </Button>
                                 </div>
                             </div>
@@ -170,12 +164,12 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
             <AlertDialog open={openKonfirm} onOpenChange={setOpenKonfirm}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-                        <AlertDialogDescription>Data mahasiswa akan diperbarui.</AlertDialogDescription>
+                        <AlertDialogTitle>Simpan Perubahan?</AlertDialogTitle>
+                        <AlertDialogDescription>Data profil Anda akan diperbarui.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={simpan} disabled={form.processing}>Perbarui</AlertDialogAction>
+                        <AlertDialogAction onClick={simpan} disabled={form.processing}>Simpan</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -183,10 +177,9 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
     );
 }
 
-MahasiswaEdit.layout = {
+MahasiswaProfil.layout = {
     breadcrumbs: [
-        { title: 'Dashboard', href: '/akademis/dashboard' },
-        { title: 'Data Mahasiswa', href: '/akademis/mahasiswa' },
-        { title: 'Edit', href: '#' },
+        { title: 'Dashboard', href: '/mahasiswa/dashboard' },
+        { title: 'Profil Saya', href: '/mahasiswa/profil' },
     ],
 };

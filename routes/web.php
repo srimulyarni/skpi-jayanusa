@@ -1,14 +1,16 @@
 <?php
 
 use App\Http\Controllers\Akademis\IdentitasPtController;
+use App\Http\Controllers\Akademis\JurusanController;
+use App\Http\Controllers\Akademis\KategoriController;
 use App\Http\Controllers\Akademis\LaporanController;
 use App\Http\Controllers\Akademis\MahasiswaController;
 use App\Http\Controllers\Akademis\PengajuanController;
 use App\Http\Controllers\Akademis\PengambilanController;
-use App\Http\Controllers\Akademis\JurusanController;
-use App\Http\Controllers\Akademis\KategoriController;
 use App\Http\Controllers\Akademis\SkpiController;
 use App\Http\Controllers\Auth\MahasiswaLoginController;
+use App\Http\Controllers\Mahasiswa\MahasiswaPengajuanController;
+use App\Http\Controllers\Mahasiswa\MahasiswaProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -18,6 +20,15 @@ Route::post('/mahasiswa/login', [MahasiswaLoginController::class, 'store']);
 
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::inertia('dashboard', 'mahasiswa/dashboard')->name('dashboard');
+    Route::get('profil', [MahasiswaProfileController::class, 'edit'])->name('profil.edit');
+    Route::put('profil', [MahasiswaProfileController::class, 'update'])->name('profil.update');
+
+    Route::get('pengajuan', [MahasiswaPengajuanController::class, 'index'])->name('pengajuan.index');
+    Route::get('pengajuan/create', [MahasiswaPengajuanController::class, 'create'])->name('pengajuan.create');
+    Route::post('pengajuan', [MahasiswaPengajuanController::class, 'store'])->name('pengajuan.store');
+    Route::get('pengajuan/{pengajuan}', [MahasiswaPengajuanController::class, 'show'])->name('pengajuan.show');
+    Route::get('pengajuan/{pengajuan}/edit', [MahasiswaPengajuanController::class, 'edit'])->name('pengajuan.edit');
+    Route::put('pengajuan/{pengajuan}', [MahasiswaPengajuanController::class, 'update'])->name('pengajuan.update');
 });
 
 Route::middleware(['auth', 'role:akademis'])->prefix('akademis')->name('akademis.')->group(function () {

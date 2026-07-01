@@ -17,10 +17,10 @@ class IdentitasPtSeeder extends Seeder
                 'nama_en' => 'Jayanusa College of Informatics Management and Computer',
                 'alamat' => 'Jl. Olo Ladang No. 1, Padang, Sumatera Barat',
                 'nomor_sk' => '117/D/O/2001',
-                'akreditasi_institusi' => 'B',
+                'akreditasi_institusi' => 'Baik',
                 'nama_pimpinan' => 'Dr. H. Andi Mustari, M.Kom',
                 'nidn' => '1001016801',
-                'logo' => null,
+                'gelar' => 'S.Kom',
             ],
             [
                 'kode_institusi' => 'AMIK',
@@ -29,10 +29,10 @@ class IdentitasPtSeeder extends Seeder
                 'nama_en' => 'Jayanusa College of Informatics Management and Computer',
                 'alamat' => 'Jl. Olo Ladang No. 1, Padang, Sumatera Barat',
                 'nomor_sk' => '118/D/O/2001',
-                'akreditasi_institusi' => 'B',
+                'akreditasi_institusi' => 'Baik',
                 'nama_pimpinan' => 'Dr. H. Andi Mustari, M.Kom',
                 'nidn' => '1001016801',
-                'logo' => null,
+                'gelar' => 'A.Md',
             ],
             [
                 'kode_institusi' => 'AKPER',
@@ -41,10 +41,10 @@ class IdentitasPtSeeder extends Seeder
                 'nama_en' => 'Jayanusa College of Nursing',
                 'alamat' => 'Jl. Olo Ladang No. 1, Padang, Sumatera Barat',
                 'nomor_sk' => '119/D/O/2001',
-                'akreditasi_institusi' => 'B',
+                'akreditasi_institusi' => 'Baik',
                 'nama_pimpinan' => 'Dr. H. Andi Mustari, M.Kom',
                 'nidn' => '1001016801',
-                'logo' => null,
+                'gelar' => 'A.Md.Kep',
             ],
         ];
 

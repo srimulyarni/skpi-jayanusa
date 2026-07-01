@@ -1,7 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useDebouncedCallback } from 'use-debounce';
+import { DataTablePagination } from '@/components/data-table-pagination';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -61,20 +63,36 @@ export default function MahasiswaIndex({
     const [openHapus, setOpenHapus] = useState(false);
     const [selected, setSelected] = useState<Mahasiswa | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const isInitialMount = useRef(true);
 
-    const doFilter = useCallback((params: Record<string, string | undefined>) => {
-        router.get('/akademis/mahasiswa', {
-            search: search || undefined,
+    const applyFilters = (overrides: Record<string, string | undefined>) => {
+        const params: Record<string, string | undefined> = {
+            search: filters.search || undefined,
             jurusan_id: filters.jurusan_id,
             tahun_lulus: filters.tahun_lulus,
-            ...params,
-        }, { preserveState: true, preserveScroll: true });
-    }, [search, filters.jurusan_id, filters.tahun_lulus]);
+            ...overrides,
+        };
+        Object.keys(params).forEach((k) => {
+            if (!params[k] || params[k] === '__all__') {
+delete params[k];
+}
+        });
+        router.get('/akademis/mahasiswa', params, { preserveState: true, preserveScroll: true, replace: true });
+    };
 
-    const doSearch = useCallback((value: string) => {
-        setSearch(value);
-        doFilter({ search: value || undefined });
-    }, [doFilter]);
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        applyFilters({ search: value || undefined });
+    }, 500);
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+
+            return;
+        }
+
+        debouncedSearch(search);
+    }, [search, debouncedSearch]);
 
     function hapus() {
         if (!selected) {
@@ -100,12 +118,12 @@ return;
                 <Input
                     placeholder="Cari mahasiswa..."
                     value={search}
-                    onChange={(e) => doSearch(e.target.value)}
+                    onChange={(e) => setSearch(e.target.value)}
                     className="max-w-sm"
                 />
 
                 <div className="flex flex-wrap gap-3">
-                    <Select value={filters.jurusan_id ?? '__all__'} onValueChange={(v) => doFilter({ jurusan_id: v === '__all__' ? undefined : v })}>
+                    <Select value={filters.jurusan_id ?? '__all__'} onValueChange={(v) => applyFilters({ jurusan_id: v === '__all__' ? undefined : v })}>
                         <SelectTrigger className="w-48"><SelectValue placeholder="Semua Jurusan" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="__all__">Semua Jurusan</SelectItem>
@@ -115,7 +133,7 @@ return;
                         </SelectContent>
                     </Select>
 
-                    <Select value={filters.tahun_lulus ?? '__all__'} onValueChange={(v) => doFilter({ tahun_lulus: v === '__all__' ? undefined : v })}>
+                    <Select value={filters.tahun_lulus ?? '__all__'} onValueChange={(v) => applyFilters({ tahun_lulus: v === '__all__' ? undefined : v })}>
                         <SelectTrigger className="w-40"><SelectValue placeholder="Semua Tahun" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="__all__">Semua Tahun</SelectItem>
@@ -126,9 +144,7 @@ return;
                     </Select>
 
                     {(filters.jurusan_id || filters.tahun_lulus) && (
-                        <Button variant="ghost" size="sm" onClick={() => {
-                            router.get('/akademis/mahasiswa', { search: search || undefined }, { preserveState: true, preserveScroll: true });
-                        }}>
+                        <Button variant="ghost" size="sm" onClick={() => applyFilters({ jurusan_id: undefined, tahun_lulus: undefined })}>
                             Reset Filter
                         </Button>
                     )}
@@ -187,44 +203,7 @@ return;
                     </Table>
                 </div>
 
-                {mahasiswa.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                            Menampilkan {((mahasiswa.current_page - 1) * mahasiswa.per_page) + 1} -{' '}
-                            {Math.min(mahasiswa.current_page * mahasiswa.per_page, mahasiswa.total)} dari {mahasiswa.total} data
-                        </div>
-                        <div className="flex gap-1">
-                            {mahasiswa.links.map((link, index) => {
-                                if (link.label === '&laquo; Previous') {
-                                    return (
-                                        <Button key={index} variant="outline" size="sm" disabled={!link.url}
-                                            onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>
-                                            <ChevronLeft className="h-4 w-4" />
-                                        </Button>
-                                    );
-                                }
-
-                                if (link.label === 'Next &raquo;') {
-                                    return (
-                                        <Button key={index} variant="outline" size="sm" disabled={!link.url}
-                                            onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Button>
-                                    );
-                                }
-
-                                return (
-                                    <Button key={index}
-                                        variant={link.active ? 'default' : 'outline'}
-                                        size="sm" disabled={!link.url}
-                                        onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>
-                                        {link.label}
-                                    </Button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
+                <DataTablePagination data={mahasiswa} />
             </div>
 
             <AlertDialog open={openHapus} onOpenChange={setOpenHapus}>

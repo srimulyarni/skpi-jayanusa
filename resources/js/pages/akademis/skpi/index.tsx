@@ -1,9 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { CheckCircle, ChevronLeft, ChevronRight, XCircle } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useDebouncedCallback } from 'use-debounce';
 import { DataTable } from '@/components/data-table';
+import { DataTablePagination } from '@/components/data-table-pagination';
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -37,11 +39,21 @@ export default function SkpiIndex({ skpi, siap_terbit, filters }: { skpi: Pagina
     const [selectedPengajuan, setSelectedPengajuan] = useState<SiapTerbit | null>(null);
     const [selectedSkpi, setSelectedSkpi] = useState<Skpi | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const isInitialMount = useRef(true);
 
-    const doSearch = useCallback((value: string) => {
-        setSearch(value);
-        router.get('/akademis/skpi', { search: value || undefined }, { preserveState: true, preserveScroll: true });
-    }, []);
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get('/akademis/skpi', { search: value || undefined }, { preserveState: true, preserveScroll: true, replace: true });
+    }, 500);
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+
+            return;
+        }
+
+        debouncedSearch(search);
+    }, [search, debouncedSearch]);
 
     function terbitkan() {
         if (!selectedPengajuan) {
@@ -120,7 +132,7 @@ return;
                 <div>
                     <h2 className="mb-4 text-xl font-semibold">SKPI Diterbitkan</h2>
 
-                    <Input placeholder="Cari no. SKPI / mahasiswa..." value={search} onChange={(e) => doSearch(e.target.value)} className="mb-4 max-w-sm" />
+                    <Input placeholder="Cari no. SKPI / mahasiswa..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4 max-w-sm" />
 
                     <div className="overflow-hidden rounded-md border">
                         <Table>
@@ -170,26 +182,7 @@ return;
                         </Table>
                     </div>
 
-                    {skpi.last_page > 1 && (
-                        <div className="mt-4 flex items-center justify-between">
-                            <div className="text-sm text-muted-foreground">
-                                Menampilkan {((skpi.current_page - 1) * skpi.per_page) + 1} - {Math.min(skpi.current_page * skpi.per_page, skpi.total)} dari {skpi.total} data
-                            </div>
-                            <div className="flex gap-1">
-                                {skpi.links.map((link, index) => {
-                                    if (link.label === '&laquo; Previous') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronLeft className="h-4 w-4" /></Button>;
-}
-
-                                    if (link.label === 'Next &raquo;') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronRight className="h-4 w-4" /></Button>;
-}
-
-                                    return <Button key={index} variant={link.active ? 'default' : 'outline'} size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>{link.label}</Button>;
-                                })}
-                            </div>
-                        </div>
-                    )}
+                    <DataTablePagination data={skpi} />
                 </div>
             </div>
 

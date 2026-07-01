@@ -7,6 +7,7 @@ import {
     LayoutGrid,
     Package,
     Printer,
+    Send,
     Tag,
     User,
     Users,
@@ -27,57 +28,73 @@ import type { Auth, NavItem } from '@/types';
 
 type NavGroup = { label: string; items: NavItem[] };
 
-const navByRole: Record<string, NavGroup[]> = {
-    mahasiswa: [
+const akademisNav: NavGroup[] = [
+    {
+        label: 'Master',
+        items: [
+            { title: 'Dashboard', href: '/akademis/dashboard', icon: LayoutGrid },
+            { title: 'Data Mahasiswa', href: '/akademis/mahasiswa', icon: Users },
+            { title: 'Kategori Kegiatan', href: '/akademis/kategori', icon: Tag },
+            { title: 'Identitas PT', href: '/akademis/identitas-pt', icon: Building2 },
+            { title: 'Jurusan', href: '/akademis/jurusan', icon: BookOpen },
+        ],
+    },
+    {
+        label: 'Transaksi',
+        items: [
+            { title: 'Pengajuan', href: '/akademis/pengajuan', icon: FileText },
+            { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
+            { title: 'Terbitkan SKPI', href: '/akademis/skpi', icon: Award },
+        ],
+    },
+    {
+        label: 'Laporan',
+        items: [
+            { title: 'Laporan', href: '/akademis/laporan', icon: Printer },
+        ],
+    },
+];
+
+const ketuaNav: NavGroup[] = [
+    {
+        label: 'Menu',
+        items: [
+            { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
+            { title: 'Laporan', href: '/ketua/laporan', icon: Printer },
+        ],
+    },
+];
+
+function getMahasiswaNav(isProfileLengkap: boolean): NavGroup[] {
+    return [
         {
             label: 'Menu',
             items: [
                 { title: 'Dashboard', href: '/mahasiswa/dashboard', icon: LayoutGrid },
                 { title: 'Profil Saya', href: '/mahasiswa/profil', icon: User },
+                {
+                    title: 'Pengajuan SKPI',
+                    href: '/mahasiswa/pengajuan',
+                    icon: Send,
+                    disabled: !isProfileLengkap,
+                    disabledMessage: 'Lengkapi profil terlebih dahulu',
+                },
             ],
         },
-    ],
-    akademis: [
-        {
-            label: 'Master',
-            items: [
-                { title: 'Dashboard', href: '/akademis/dashboard', icon: LayoutGrid },
-                { title: 'Data Mahasiswa', href: '/akademis/mahasiswa', icon: Users },
-                { title: 'Kategori Kegiatan', href: '/akademis/kategori', icon: Tag },
-                { title: 'Identitas PT', href: '/akademis/identitas-pt', icon: Building2 },
-                { title: 'Jurusan', href: '/akademis/jurusan', icon: BookOpen },
-            ],
-        },
-        {
-            label: 'Transaksi',
-            items: [
-                { title: 'Pengajuan', href: '/akademis/pengajuan', icon: FileText },
-                { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
-                { title: 'Terbitkan SKPI', href: '/akademis/skpi', icon: Award },
-            ],
-        },
-        {
-            label: 'Laporan',
-            items: [
-                { title: 'Laporan', href: '/akademis/laporan', icon: Printer },
-            ],
-        },
-    ],
-    ketua: [
-        {
-            label: 'Menu',
-            items: [
-                { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
-                { title: 'Laporan', href: '/ketua/laporan', icon: Printer },
-            ],
-        },
-    ],
+    ];
+}
+
+const navByRole: Record<string, (isProfileLengkap: boolean) => NavGroup[]> = {
+    mahasiswa: (isProfileLengkap) => getMahasiswaNav(isProfileLengkap),
+    akademis: () => akademisNav,
+    ketua: () => ketuaNav,
 };
 
 export function AppSidebar() {
     const { auth } = usePage<{ auth: Auth }>().props;
     const role = auth?.user?.role ?? 'mahasiswa';
-    const navGroups = navByRole[role] ?? [];
+    const isProfileLengkap = auth?.isProfileLengkap ?? false;
+    const navGroups = (navByRole[role] ?? (() => []))(isProfileLengkap);
     const dashboardHref = `/${role}/dashboard`;
 
     return (

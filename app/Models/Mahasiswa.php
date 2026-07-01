@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'nobp', 'nama', 'tempat_lahir', 'tanggal_lahir', 'jk',
-    'alamat', 'nohp', 'foto', 'jurusan_id', 'akreditasi_prodi',
-    'nomor_ijazah', 'gelar', 'tahun_lulus', 'user_id',
+    'alamat', 'nohp', 'foto', 'jurusan_id',
+    'nomor_ijazah', 'tahun_lulus', 'user_id',
 ])]
 class Mahasiswa extends Model
 {

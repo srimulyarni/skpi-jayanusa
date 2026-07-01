@@ -10,4 +10,5 @@ export type User = {
 
 export type Auth = {
     user: User;
+    isProfileLengkap: boolean;
 };

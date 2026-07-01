@@ -46,15 +46,9 @@ export default function JurusanEdit({ jurusan, identitas }: { jurusan: Jurusan; 
                 <Card className="mx-auto max-w-lg">
                     <CardContent className="space-y-4 pt-6">
                         <div className="grid gap-2">
-                            <Label>Kode</Label>
-                            <Select value={form.data.kode} onValueChange={(v) => form.setData('kode', v)}>
-                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="000">000 — MI</SelectItem>
-                                    <SelectItem value="100">100 — SI</SelectItem>
-                                    <SelectItem value="200">200 — SK</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="kode">Kode</Label>
+                            <Input id="kode" value={form.data.kode} onChange={(e) => form.setData('kode', e.target.value)} />
+                            {form.errors.kode && <p className="text-sm text-destructive">{form.errors.kode}</p>}
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="nama">Nama Jurusan</Label>

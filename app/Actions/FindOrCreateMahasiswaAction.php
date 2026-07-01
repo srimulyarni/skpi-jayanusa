@@ -15,21 +15,21 @@ class FindOrCreateMahasiswaAction
 
         $user = User::where('username', $nobp)->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = User::create([
                 'username' => $nobp,
                 'password' => Hash::make($plainPassword),
-                'role'     => 'mahasiswa',
+                'role' => 'mahasiswa',
             ]);
 
             $kodeJurusan = substr($nobp, 2, 3);
             $jurusan = Jurusan::where('kode', $kodeJurusan)->first();
 
             Mahasiswa::create([
-                'nobp'       => $nobp,
-                'nama'       => $apiData['nama'] ?? $nobp,
+                'nobp' => $nobp,
+                'nama' => $apiData['nama'] ?? $nobp,
                 'jurusan_id' => $jurusan?->id,
-                'user_id'    => $user->id,
+                'user_id' => $user->id,
             ]);
         } else {
             $user->update(['password' => Hash::make($plainPassword)]);

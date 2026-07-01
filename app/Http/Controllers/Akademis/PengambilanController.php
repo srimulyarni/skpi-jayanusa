@@ -28,14 +28,14 @@ class PengambilanController extends Controller
 
         return Inertia::render('akademis/pengambilan/index', [
             'pengambilan' => $pengambilan,
-            'filters'     => ['search' => $search],
+            'filters' => ['search' => $search],
         ]);
     }
 
     public function ambil(Pengambilan $pengambilan): RedirectResponse
     {
         $pengambilan->update([
-            'status'     => 'sudah_diambil',
+            'status' => 'sudah_diambil',
             'diambil_pada' => now(),
         ]);
 

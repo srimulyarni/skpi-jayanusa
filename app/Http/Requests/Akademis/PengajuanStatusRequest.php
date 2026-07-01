@@ -9,8 +9,12 @@ class PengajuanStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'           => ['required', 'in:menunggu,diproses,disetujui,revisi,ditolak'],
-            'catatan_akademis' => ['nullable', 'string'],
+            'status' => ['required', 'in:menunggu,diproses,disetujui,revisi,ditolak'],
+            'catatan_akademis' => [
+                'nullable',
+                'string',
+                'required_if:status,revisi,ditolak',
+            ],
         ];
     }
 }

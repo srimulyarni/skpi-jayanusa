@@ -18,9 +18,7 @@ return new class extends Migration
             $table->text('alamat')->nullable();
             $table->string('nohp')->nullable();
             $table->foreignId('jurusan_id')->nullable()->constrained('jurusan')->nullOnDelete();
-            $table->string('akreditasi_prodi')->nullable();
             $table->string('nomor_ijazah')->nullable();
-            $table->string('gelar')->nullable();
             $table->string('tahun_lulus')->nullable();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();

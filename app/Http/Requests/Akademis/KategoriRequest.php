@@ -10,7 +10,7 @@ class KategoriRequest extends FormRequest
     {
         return [
             'nama_kategori' => ['required', 'string', 'max:255'],
-            'status'        => ['required', 'in:aktif,nonaktif'],
+            'status' => ['required', 'in:aktif,nonaktif'],
         ];
     }
 }

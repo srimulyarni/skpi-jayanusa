@@ -10,17 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
 type IdentitasPt = {
     id: number; kode_institusi: string; nama_pt: string; nama_singkat: string;
     nama_en: string; alamat: string; nomor_sk: string; akreditasi_institusi: string;
-    nama_pimpinan: string; nidn: string; logo: string | null;
+    nama_pimpinan: string; nidn: string; gelar: string | null;
 };
 
 export default function IdentitasPtEdit({ identitas }: { identitas: IdentitasPt }) {
     const [openKonfirm, setOpenKonfirm] = useState(false);
     const form = useForm({
+        kode_institusi: identitas.kode_institusi,
         nama_pt: identitas.nama_pt,
         nama_singkat: identitas.nama_singkat,
         nama_en: identitas.nama_en,
@@ -29,7 +31,7 @@ export default function IdentitasPtEdit({ identitas }: { identitas: IdentitasPt 
         akreditasi_institusi: identitas.akreditasi_institusi,
         nama_pimpinan: identitas.nama_pimpinan,
         nidn: identitas.nidn,
-        logo: identitas.logo ?? '',
+        gelar: identitas.gelar ?? '',
     });
 
     function simpan() {
@@ -50,7 +52,6 @@ export default function IdentitasPtEdit({ identitas }: { identitas: IdentitasPt 
                     </Button>
                     <div>
                         <h1 className="text-xl font-semibold">Edit Identitas PT</h1>
-                        <p className="text-sm text-muted-foreground">{identitas.kode_institusi}</p>
                     </div>
                 </div>
 
@@ -58,13 +59,22 @@ export default function IdentitasPtEdit({ identitas }: { identitas: IdentitasPt 
                     <CardContent className="pt-6">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="nama_pt">Nama PT</Label>
-                                <Input id="nama_pt" value={form.data.nama_pt} onChange={(e) => form.setData('nama_pt', e.target.value)} />
-                                {form.errors.nama_pt && <p className="text-xs text-destructive">{form.errors.nama_pt}</p>}
+                                <Label htmlFor="kode_institusi">Kode Institusi</Label>
+                                <Input
+                                    id="kode_institusi"
+                                    value={form.data.kode_institusi}
+                                    onChange={(e) => form.setData('kode_institusi', e.target.value.toUpperCase())}
+                                />
+                                {form.errors.kode_institusi && <p className="text-xs text-destructive">{form.errors.kode_institusi}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nama_singkat">Nama Singkat</Label>
                                 <Input id="nama_singkat" value={form.data.nama_singkat} onChange={(e) => form.setData('nama_singkat', e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="nama_pt">Nama PT</Label>
+                                <Input id="nama_pt" value={form.data.nama_pt} onChange={(e) => form.setData('nama_pt', e.target.value)} />
+                                {form.errors.nama_pt && <p className="text-xs text-destructive">{form.errors.nama_pt}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nama_en">Nama (Inggris)</Label>
@@ -75,8 +85,24 @@ export default function IdentitasPtEdit({ identitas }: { identitas: IdentitasPt 
                                 <Input id="nomor_sk" value={form.data.nomor_sk} onChange={(e) => form.setData('nomor_sk', e.target.value)} />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="akreditasi_institusi">Akreditasi</Label>
-                                <Input id="akreditasi_institusi" value={form.data.akreditasi_institusi} onChange={(e) => form.setData('akreditasi_institusi', e.target.value)} />
+                                <Label>Akreditasi</Label>
+                                <Select
+                                    value={form.data.akreditasi_institusi}
+                                    onValueChange={(v) => form.setData('akreditasi_institusi', v)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Pilih akreditasi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Unggul">Unggul</SelectItem>
+                                        <SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
+                                        <SelectItem value="Baik">Baik</SelectItem>
+                                        <SelectItem value="Tidak Terakreditasi">Tidak Terakreditasi</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {form.errors.akreditasi_institusi && (
+                                    <p className="text-xs text-destructive">{form.errors.akreditasi_institusi}</p>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nama_pimpinan">Nama Pimpinan</Label>
@@ -87,8 +113,8 @@ export default function IdentitasPtEdit({ identitas }: { identitas: IdentitasPt 
                                 <Input id="nidn" value={form.data.nidn} onChange={(e) => form.setData('nidn', e.target.value)} />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="logo">Logo (path)</Label>
-                                <Input id="logo" value={form.data.logo} onChange={(e) => form.setData('logo', e.target.value)} />
+                                <Label htmlFor="gelar">Gelar</Label>
+                                <Input id="gelar" value={form.data.gelar} onChange={(e) => form.setData('gelar', e.target.value)} placeholder="Contoh: S.Kom" />
                             </div>
                             <div className="sm:col-span-2 grid gap-2">
                                 <Label htmlFor="alamat">Alamat</Label>

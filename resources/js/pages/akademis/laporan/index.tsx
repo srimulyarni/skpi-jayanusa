@@ -97,7 +97,7 @@ export default function LaporanIndex({
     const [bulan, setBulan] = useState(filter.bulan ?? '');
 
     function terapkan() {
-        router.get(window.location.pathname, { tahun, bulan: bulan || undefined }, { preserveState: true });
+        router.get(window.location.pathname, { tahun, bulan: bulan || undefined }, { preserveState: true, replace: true });
     }
 
     return (

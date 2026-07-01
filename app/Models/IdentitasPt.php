@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'kode_institusi', 'nama_pt', 'nama_singkat', 'nama_en',
     'alamat', 'nomor_sk', 'akreditasi_institusi',
-    'nama_pimpinan', 'nidn', 'logo',
+    'nama_pimpinan', 'nidn', 'gelar',
 ])]
 class IdentitasPt extends Model
 {

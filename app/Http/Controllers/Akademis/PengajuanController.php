@@ -29,7 +29,7 @@ class PengajuanController extends Controller
 
         return Inertia::render('akademis/pengajuan/index', [
             'pengajuan' => $pengajuan,
-            'filters'   => ['search' => $search],
+            'filters' => ['search' => $search],
         ]);
     }
 

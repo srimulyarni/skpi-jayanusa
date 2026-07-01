@@ -84,7 +84,7 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Jurusan</span>
-                                <span>{pengajuan.mahasiswa.jurusan?.singkatan}</span>
+                                <span>{pengajuan.mahasiswa.jurusan?.nama}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Institusi</span>
@@ -104,7 +104,16 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                         <CardContent className="space-y-4">
                             <div className="grid gap-2">
                                 <Label>Status</Label>
-                                <Select value={form.data.status} onValueChange={(v) => form.setData('status', v)}>
+                                <Select
+                                    value={form.data.status}
+                                    onValueChange={(v) => {
+                                        form.setData('status', v);
+
+                                        if (v !== 'revisi' && v !== 'ditolak') {
+                                            form.setData('catatan_akademis', '');
+                                        }
+                                    }}
+                                >
                                     <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         {statusList.map((s) => (
@@ -113,15 +122,17 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="grid gap-2">
-                                <Label>Catatan</Label>
-                                <Textarea
-                                    value={form.data.catatan_akademis}
-                                    onChange={(e) => form.setData('catatan_akademis', e.target.value)}
-                                    placeholder="Catatan untuk mahasiswa (opsional)"
-                                    rows={3}
-                                />
-                            </div>
+                            {(form.data.status === 'revisi' || form.data.status === 'ditolak') && (
+                                <div className="grid gap-2">
+                                    <Label>Catatan</Label>
+                                    <Textarea
+                                        value={form.data.catatan_akademis}
+                                        onChange={(e) => form.setData('catatan_akademis', e.target.value)}
+                                        placeholder="Catatan untuk mahasiswa (wajib diisi)"
+                                        rows={3}
+                                    />
+                                </div>
+                            )}
                             <Button onClick={() => setOpenKonfirm(true)} className="w-full">
                                 Perbarui Status
                             </Button>

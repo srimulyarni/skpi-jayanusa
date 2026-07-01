@@ -1,7 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useDebouncedCallback } from 'use-debounce';
+import { DataTablePagination } from '@/components/data-table-pagination';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -33,11 +35,21 @@ export default function KategoriIndex({ kategori, filters }: { kategori: Paginat
     const [openHapus, setOpenHapus] = useState(false);
     const [selected, setSelected] = useState<Kategori | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const isInitialMount = useRef(true);
 
-    const doSearch = useCallback((value: string) => {
-        setSearch(value);
-        router.get('/akademis/kategori', { search: value || undefined }, { preserveState: true, preserveScroll: true });
-    }, []);
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get('/akademis/kategori', { search: value || undefined }, { preserveState: true, preserveScroll: true, replace: true });
+    }, 500);
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+
+            return;
+        }
+
+        debouncedSearch(search);
+    }, [search, debouncedSearch]);
 
     function hapus() {
         if (!selected) {
@@ -63,7 +75,7 @@ return;
                     </Button>
                 </div>
 
-                <Input placeholder="Cari kategori..." value={search} onChange={(e) => doSearch(e.target.value)} className="max-w-sm" />
+                <Input placeholder="Cari kategori..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
 
                 <div className="overflow-hidden rounded-md border">
                     <Table>
@@ -103,26 +115,7 @@ return;
                     </Table>
                 </div>
 
-                {kategori.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                            Menampilkan {((kategori.current_page - 1) * kategori.per_page) + 1} - {Math.min(kategori.current_page * kategori.per_page, kategori.total)} dari {kategori.total} data
-                        </div>
-                        <div className="flex gap-1">
-                            {kategori.links.map((link, index) => {
-                                if (link.label === '&laquo; Previous') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronLeft className="h-4 w-4" /></Button>;
-}
-
-                                if (link.label === 'Next &raquo;') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronRight className="h-4 w-4" /></Button>;
-}
-
-                                return <Button key={index} variant={link.active ? 'default' : 'outline'} size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>{link.label}</Button>;
-                            })}
-                        </div>
-                    </div>
-                )}
+                <DataTablePagination data={kategori} />
             </div>
 
             <AlertDialog open={openHapus} onOpenChange={setOpenHapus}>

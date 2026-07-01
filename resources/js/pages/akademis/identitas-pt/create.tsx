@@ -31,7 +31,7 @@ export default function IdentitasPtCreate() {
         akreditasi_institusi: '',
         nama_pimpinan: '',
         nidn: '',
-        logo: '',
+        gelar: '',
     });
 
     function simpan() {
@@ -58,24 +58,25 @@ export default function IdentitasPtCreate() {
                 <Card className="mx-auto max-w-2xl">
                     <CardContent className="pt-6">
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="sm:col-span-2 grid gap-2">
-                                <Label>Kode Institusi</Label>
-                                <Select
+                            <div className="grid gap-2">
+                                <Label htmlFor="kode_institusi">Kode Institusi</Label>
+                                <Input
+                                    id="kode_institusi"
                                     value={form.data.kode_institusi}
-                                    onValueChange={(v) => form.setData('kode_institusi', v)}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Pilih kode institusi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="STMIK">STMIK</SelectItem>
-                                        <SelectItem value="AMIK">AMIK</SelectItem>
-                                        <SelectItem value="AKPER">AKPER</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    onChange={(e) => form.setData('kode_institusi', e.target.value.toUpperCase())}
+                                    placeholder="Masukkan kode institusi"
+                                />
                                 {form.errors.kode_institusi && (
                                     <p className="text-xs text-destructive">{form.errors.kode_institusi}</p>
                                 )}
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="nama_singkat">Nama Singkat</Label>
+                                <Input
+                                    id="nama_singkat"
+                                    value={form.data.nama_singkat}
+                                    onChange={(e) => form.setData('nama_singkat', e.target.value)}
+                                />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nama_pt">Nama PT</Label>
@@ -87,14 +88,6 @@ export default function IdentitasPtCreate() {
                                 {form.errors.nama_pt && (
                                     <p className="text-xs text-destructive">{form.errors.nama_pt}</p>
                                 )}
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="nama_singkat">Nama Singkat</Label>
-                                <Input
-                                    id="nama_singkat"
-                                    value={form.data.nama_singkat}
-                                    onChange={(e) => form.setData('nama_singkat', e.target.value)}
-                                />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nama_en">Nama (Inggris)</Label>
@@ -113,12 +106,24 @@ export default function IdentitasPtCreate() {
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="akreditasi_institusi">Akreditasi</Label>
-                                <Input
-                                    id="akreditasi_institusi"
+                                <Label>Akreditasi</Label>
+                                <Select
                                     value={form.data.akreditasi_institusi}
-                                    onChange={(e) => form.setData('akreditasi_institusi', e.target.value)}
-                                />
+                                    onValueChange={(v) => form.setData('akreditasi_institusi', v)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Pilih akreditasi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Unggul">Unggul</SelectItem>
+                                        <SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
+                                        <SelectItem value="Baik">Baik</SelectItem>
+                                        <SelectItem value="Tidak Terakreditasi">Tidak Terakreditasi</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {form.errors.akreditasi_institusi && (
+                                    <p className="text-xs text-destructive">{form.errors.akreditasi_institusi}</p>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="nama_pimpinan">Nama Pimpinan</Label>
@@ -137,11 +142,12 @@ export default function IdentitasPtCreate() {
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="logo">Logo (path)</Label>
+                                <Label htmlFor="gelar">Gelar</Label>
                                 <Input
-                                    id="logo"
-                                    value={form.data.logo}
-                                    onChange={(e) => form.setData('logo', e.target.value)}
+                                    id="gelar"
+                                    value={form.data.gelar}
+                                    onChange={(e) => form.setData('gelar', e.target.value)}
+                                    placeholder="Contoh: S.Kom"
                                 />
                             </div>
                             <div className="sm:col-span-2 grid gap-2">

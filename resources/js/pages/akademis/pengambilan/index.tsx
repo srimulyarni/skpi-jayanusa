@@ -1,7 +1,9 @@
 import { Head, router } from '@inertiajs/react';
-import { CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { CheckCheck } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useDebouncedCallback } from 'use-debounce';
+import { DataTablePagination } from '@/components/data-table-pagination';
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -28,11 +30,21 @@ export default function PengambilanIndex({ pengambilan, filters }: { pengambilan
     const [openKonfirm, setOpenKonfirm] = useState(false);
     const [selected, setSelected] = useState<Pengambilan | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const isInitialMount = useRef(true);
 
-    const doSearch = useCallback((value: string) => {
-        setSearch(value);
-        router.get('/akademis/pengambilan', { search: value || undefined }, { preserveState: true, preserveScroll: true });
-    }, []);
+    const debouncedSearch = useDebouncedCallback((value: string) => {
+        router.get('/akademis/pengambilan', { search: value || undefined }, { preserveState: true, preserveScroll: true, replace: true });
+    }, 500);
+
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+
+            return;
+        }
+
+        debouncedSearch(search);
+    }, [search, debouncedSearch]);
 
     function ambil() {
         if (!selected) {
@@ -53,7 +65,7 @@ return;
             <div className="space-y-4 p-4 md:p-6">
                 <h1 className="text-xl font-semibold">Data Pengambilan SKPI</h1>
 
-                <Input placeholder="Cari mahasiswa..." value={search} onChange={(e) => doSearch(e.target.value)} className="max-w-sm" />
+                <Input placeholder="Cari mahasiswa..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
 
                 <div className="overflow-hidden rounded-md border">
                     <Table>
@@ -101,26 +113,7 @@ return;
                     </Table>
                 </div>
 
-                {pengambilan.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                            Menampilkan {((pengambilan.current_page - 1) * pengambilan.per_page) + 1} - {Math.min(pengambilan.current_page * pengambilan.per_page, pengambilan.total)} dari {pengambilan.total} data
-                        </div>
-                        <div className="flex gap-1">
-                            {pengambilan.links.map((link, index) => {
-                                if (link.label === '&laquo; Previous') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronLeft className="h-4 w-4" /></Button>;
-}
-
-                                if (link.label === 'Next &raquo;') {
-return <Button key={index} variant="outline" size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}><ChevronRight className="h-4 w-4" /></Button>;
-}
-
-                                return <Button key={index} variant={link.active ? 'default' : 'outline'} size="sm" disabled={!link.url} onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}>{link.label}</Button>;
-                            })}
-                        </div>
-                    </div>
-                )}
+                <DataTablePagination data={pengambilan} />
             </div>
 
             <AlertDialog open={openKonfirm} onOpenChange={setOpenKonfirm}>

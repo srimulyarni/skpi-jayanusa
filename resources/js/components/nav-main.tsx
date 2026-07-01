@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { toast } from 'sonner';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -19,14 +20,23 @@ export function NavMain({ label = 'Menu', items = [] }: { label?: string; items:
                 {items.map((item) => (
                     <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
-                            asChild
+                            asChild={!item.disabled}
                             isActive={isCurrentUrl(item.href)}
-                            tooltip={{ children: item.title }}
+                            tooltip={{ children: item.disabled ? (item.disabledMessage ?? 'Lengkapi profil terlebih dahulu') : item.title }}
+                            onClick={item.disabled ? () => toast.warning(item.disabledMessage ?? 'Lengkapi profil terlebih dahulu') : undefined}
+                            className={item.disabled ? 'cursor-not-allowed opacity-50' : ''}
                         >
-                            <Link href={item.href} prefetch>
-                                {item.icon && <item.icon />}
-                                <span>{item.title}</span>
-                            </Link>
+                            {item.disabled ? (
+                                <>
+                                    {item.icon && <item.icon />}
+                                    <span>{item.title}</span>
+                                </>
+                            ) : (
+                                <Link href={item.href} prefetch>
+                                    {item.icon && <item.icon />}
+                                    <span>{item.title}</span>
+                                </Link>
+                            )}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 ))}

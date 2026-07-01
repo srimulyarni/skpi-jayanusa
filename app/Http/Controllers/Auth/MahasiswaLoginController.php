@@ -32,7 +32,7 @@ class MahasiswaLoginController extends Controller
     ): RedirectResponse {
         $apiData = $jayanusa->authenticate($request->nobp, $request->password);
 
-        if (!$apiData) {
+        if (! $apiData) {
             return back()->withErrors(['nobp' => 'NOBP atau password salah.']);
         }
 

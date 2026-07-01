@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('jurusan', function (Blueprint $table) {
             $table->id();
-            $table->enum('kode', ['000', '100', '200']);
+            $table->string('kode', 10);
             $table->string('nama');
             $table->string('singkatan');
             $table->foreignId('identitas_pt_id')->constrained('identitas_pt')->cascadeOnDelete();

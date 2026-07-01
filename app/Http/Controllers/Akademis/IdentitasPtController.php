@@ -18,9 +18,9 @@ class IdentitasPtController extends Controller
         $kodeInstitusi = $request->input('kode_institusi');
 
         $identitas = IdentitasPt::when($search, function ($query, $search) {
-                $query->where('nama_pt', 'like', "%{$search}%")
-                    ->orWhere('kode_institusi', 'like', "%{$search}%");
-            })
+            $query->where('nama_pt', 'like', "%{$search}%")
+                ->orWhere('kode_institusi', 'like', "%{$search}%");
+        })
             ->when($kodeInstitusi, function ($query, $kodeInstitusi) {
                 $query->where('kode_institusi', $kodeInstitusi);
             })
@@ -31,10 +31,10 @@ class IdentitasPtController extends Controller
         $instansiList = IdentitasPt::distinct()->pluck('kode_institusi');
 
         return Inertia::render('akademis/identitas-pt/index', [
-            'identitas'    => $identitas,
+            'identitas' => $identitas,
             'instansiList' => $instansiList,
-            'filters'      => [
-                'search'         => $search,
+            'filters' => [
+                'search' => $search,
                 'kode_institusi' => $kodeInstitusi,
             ],
         ]);

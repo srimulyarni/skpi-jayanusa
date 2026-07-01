@@ -9,7 +9,7 @@ class MahasiswaLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nobp'     => ['required', 'string'],
+            'nobp' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
