@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Search, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -27,7 +27,7 @@ type Mahasiswa = {
     nama: string;
     foto: string | null;
     jk: string | null;
-    tahun_lulus: string | null;
+    tahun_masuk: string | null;
     jurusan: Jurusan | null;
     pengajuan_count: number;
     pengambilan_count: number;
@@ -53,35 +53,48 @@ const jkLabel: Record<string, string> = { L: 'Laki-laki', P: 'Perempuan' };
 type JurusanOption = { id: number; kode: string; nama: string; singkatan: string };
 
 export default function MahasiswaIndex({
-    mahasiswa, jurusan, tahunList, filters,
+    mahasiswa, jurusan, filters,
 }: {
     mahasiswa: PaginatedData;
     jurusan: JurusanOption[];
-    tahunList: string[];
-    filters: { search?: string; jurusan_id?: string; tahun_lulus?: string };
+    filters: { search?: string; jurusan_id?: string; tahun_masuk?: string };
 }) {
     const [openHapus, setOpenHapus] = useState(false);
     const [selected, setSelected] = useState<Mahasiswa | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const [localJurusan, setLocalJurusan] = useState(filters.jurusan_id ?? '__all__');
+    const [localTahun, setLocalTahun] = useState(filters.tahun_masuk ?? '__all__');
     const isInitialMount = useRef(true);
 
-    const applyFilters = (overrides: Record<string, string | undefined>) => {
+    const apply = () => {
         const params: Record<string, string | undefined> = {
-            search: filters.search || undefined,
-            jurusan_id: filters.jurusan_id,
-            tahun_lulus: filters.tahun_lulus,
-            ...overrides,
+            search: search || undefined,
+            jurusan_id: localJurusan === '__all__' ? undefined : localJurusan,
+            tahun_masuk: localTahun === '__all__' ? undefined : localTahun,
         };
         Object.keys(params).forEach((k) => {
-            if (!params[k] || params[k] === '__all__') {
-delete params[k];
-}
+            if (!params[k]) delete params[k];
         });
         router.get('/akademis/mahasiswa', params, { preserveState: true, preserveScroll: true, replace: true });
     };
 
+    const reset = () => {
+        setSearch('');
+        setLocalJurusan('__all__');
+        setLocalTahun('__all__');
+        router.get('/akademis/mahasiswa', {}, { preserveState: true, preserveScroll: true, replace: true });
+    };
+
     const debouncedSearch = useDebouncedCallback((value: string) => {
-        applyFilters({ search: value || undefined });
+        const params: Record<string, string | undefined> = {
+            search: value || undefined,
+            jurusan_id: localJurusan === '__all__' ? undefined : localJurusan,
+            tahun_masuk: localTahun === '__all__' ? undefined : localTahun,
+        };
+        Object.keys(params).forEach((k) => {
+            if (!params[k]) delete params[k];
+        });
+        router.get('/akademis/mahasiswa', params, { preserveState: true, preserveScroll: true, replace: true });
     }, 500);
 
     useEffect(() => {
@@ -90,7 +103,6 @@ delete params[k];
 
             return;
         }
-
         debouncedSearch(search);
     }, [search, debouncedSearch]);
 
@@ -115,37 +127,53 @@ return;
                     <h1 className="text-xl font-semibold">Data Mahasiswa</h1>
                 </div>
 
-                <Input
-                    placeholder="Cari mahasiswa..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="max-w-sm"
-                />
+                <div className="flex flex-wrap items-end gap-3">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs text-muted-foreground">Cari</label>
+                        <Input
+                            placeholder="Nama / NOBP..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-48"
+                        />
+                    </div>
 
-                <div className="flex flex-wrap gap-3">
-                    <Select value={filters.jurusan_id ?? '__all__'} onValueChange={(v) => applyFilters({ jurusan_id: v === '__all__' ? undefined : v })}>
-                        <SelectTrigger className="w-48"><SelectValue placeholder="Semua Jurusan" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__all__">Semua Jurusan</SelectItem>
-                            {jurusan.map((j) => (
-                                <SelectItem key={j.id} value={String(j.id)}>{j.singkatan} — {j.nama}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs text-muted-foreground">Jurusan</label>
+                        <Select value={localJurusan} onValueChange={setLocalJurusan}>
+                            <SelectTrigger className="w-48">
+                                <SelectValue placeholder="Semua" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__all__">Semua Jurusan</SelectItem>
+                                {jurusan.map((j) => (
+                                    <SelectItem key={j.id} value={String(j.id)}>{j.singkatan} — {j.nama}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                    <Select value={filters.tahun_lulus ?? '__all__'} onValueChange={(v) => applyFilters({ tahun_lulus: v === '__all__' ? undefined : v })}>
-                        <SelectTrigger className="w-40"><SelectValue placeholder="Semua Tahun" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__all__">Semua Tahun</SelectItem>
-                            {tahunList.map((t) => (
-                                <SelectItem key={t} value={t}>{t}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs text-muted-foreground">Tahun Masuk</label>
+                        <Input
+                            type="number"
+                            placeholder="ex: 2026"
+                            value={localTahun === '__all__' ? '' : localTahun}
+                            onChange={(e) => setLocalTahun(e.target.value ? e.target.value.slice(0, 4) : '__all__')}
+                            className="w-28"
+                            min="2000"
+                            max="2099"
+                        />
+                    </div>
 
-                    {(filters.jurusan_id || filters.tahun_lulus) && (
-                        <Button variant="ghost" size="sm" onClick={() => applyFilters({ jurusan_id: undefined, tahun_lulus: undefined })}>
-                            Reset Filter
+                    <Button onClick={apply} size="sm">
+                        <Search className="mr-1 h-4 w-4" />
+                        Terapkan
+                    </Button>
+
+                    {(filters.jurusan_id || filters.tahun_masuk) && (
+                        <Button variant="ghost" size="sm" onClick={reset}>
+                            Reset
                         </Button>
                     )}
                 </div>
@@ -160,7 +188,7 @@ return;
                                 <TableHead>Nama</TableHead>
                                 <TableHead>Jurusan</TableHead>
                                 <TableHead>Jenis Kelamin</TableHead>
-                                <TableHead>Lulus</TableHead>
+                                <TableHead>Masuk</TableHead>
                                 <TableHead className="w-24">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -176,9 +204,9 @@ return;
                                     </TableCell>
                                     <TableCell className="font-mono">{m.nobp}</TableCell>
                                     <TableCell>{m.nama}</TableCell>
-                                    <TableCell>{m.jurusan ? `${m.jurusan.singkatan} — ${m.jurusan.nama}` : '-'}</TableCell>
+                                    <TableCell>{m.jurusan?.nama ?? '-'}</TableCell>
                                     <TableCell>{m.jk ? jkLabel[m.jk] : '-'}</TableCell>
-                                    <TableCell>{m.tahun_lulus ?? '-'}</TableCell>
+                                    <TableCell>{m.tahun_masuk ?? '-'}</TableCell>
                                     <TableCell>
                                         <div className="flex gap-2">
                                             <Button size="icon" variant="ghost" asChild>

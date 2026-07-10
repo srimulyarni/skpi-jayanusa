@@ -1,9 +1,14 @@
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, ExternalLink, Send } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 type BuktiKegiatan = { id: number; nama_file: string; path_file: string };
@@ -18,14 +23,19 @@ type DetailPengajuan = {
 };
 type Pengajuan = {
     id: number;
-    no_registrasi: string;
-    tgl_pengajuan: string;
+    no_registrasi: string | null;
+    tgl_pengajuan: string | null;
     status: string;
     catatan_akademis: string | null;
     detail_pengajuan: DetailPengajuan[];
 };
 
+type MahasiswaData = {
+    nomor_ijazah: string | null;
+};
+
 const statusColors: Record<string, string> = {
+    draft: 'bg-gray-100 text-gray-800 border-gray-300',
     menunggu: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     diproses: 'bg-blue-100 text-blue-800 border-blue-300',
     disetujui: 'bg-green-100 text-green-800 border-green-300',
@@ -33,17 +43,57 @@ const statusColors: Record<string, string> = {
     ditolak: 'bg-red-100 text-red-800 border-red-300',
 };
 
-export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
+export default function PengajuanShow({ pengajuan, mahasiswa }: { pengajuan: Pengajuan; mahasiswa: MahasiswaData }) {
+    const [openAjukan, setOpenAjukan] = useState(false);
+    const [nomorIjazah, setNomorIjazah] = useState(mahasiswa.nomor_ijazah ?? '');
+    const [ijazahError, setIjazahError] = useState('');
+
+    function handleAjukanClick() {
+        if (pengajuan.detail_pengajuan.length === 0) {
+            toast.error('Tambahkan minimal 1 kegiatan sebelum mengajukan.');
+            return;
+        }
+
+        setNomorIjazah(mahasiswa.nomor_ijazah ?? '');
+        setIjazahError('');
+        setOpenAjukan(true);
+    }
+
+    function ajukan() {
+        if (!nomorIjazah.trim()) {
+            setIjazahError('Nomor ijazah wajib diisi');
+            return;
+        }
+
+        router.post(`/mahasiswa/pengajuan/${pengajuan.id}/ajukan`, { nomor_ijazah: nomorIjazah }, {
+            onSuccess: () => {
+                setOpenAjukan(false);
+                toast.success('Pengajuan berhasil diajukan!');
+            },
+            onError: (errors) => {
+                if (errors.nomor_ijazah) {
+                    setIjazahError(errors.nomor_ijazah);
+                }
+                if (errors.error) {
+                    toast.error(errors.error);
+                    setOpenAjukan(false);
+                }
+            },
+        });
+    }
+
     return (
         <>
-            <Head title={`Pengajuan ${pengajuan.no_registrasi}`} />
+            <Head title={`Pengajuan ${pengajuan.no_registrasi ?? 'Draft'}`} />
 
             <div className="space-y-6 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-xl font-semibold">{pengajuan.no_registrasi}</h1>
+                        <h1 className="text-xl font-semibold">{pengajuan.no_registrasi ?? 'Draft Pengajuan'}</h1>
                         <p className="text-sm text-muted-foreground">
-                            {new Date(pengajuan.tgl_pengajuan).toLocaleDateString('id-ID', { dateStyle: 'long' })}
+                            {pengajuan.tgl_pengajuan
+                                ? new Date(pengajuan.tgl_pengajuan).toLocaleDateString('id-ID', { dateStyle: 'long' })
+                                : 'Belum diajukan'}
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -59,6 +109,15 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                     </div>
                 </div>
 
+                {pengajuan.status === 'draft' && (
+                    <Alert className="border-amber-200 bg-amber-50 text-amber-900 [&>svg]:text-amber-600">
+                        <AlertTitle>Draft Pengajuan</AlertTitle>
+                        <AlertDescription className="text-amber-800">
+                            Klik tombol "Ajukan" di bawah dan masukkan nomor ijazah untuk mengirimkan pengajuan ini ke akademis.
+                        </AlertDescription>
+                    </Alert>
+                )}
+
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">Informasi Pengajuan</CardTitle>
@@ -66,11 +125,13 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                     <CardContent className="space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">No. Registrasi</span>
-                            <span className="font-mono">{pengajuan.no_registrasi}</span>
+                            <span className="font-mono">{pengajuan.no_registrasi ?? '-'}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Tanggal Pengajuan</span>
-                            <span>{new Date(pengajuan.tgl_pengajuan).toLocaleDateString('id-ID', { dateStyle: 'long' })}</span>
+                            <span>{pengajuan.tgl_pengajuan
+                                ? new Date(pengajuan.tgl_pengajuan).toLocaleDateString('id-ID', { dateStyle: 'long' })
+                                : '-'}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Status</span>
@@ -146,7 +207,44 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                         )}
                     </CardContent>
                 </Card>
+
+                {pengajuan.status === 'draft' && (
+                    <div className="flex gap-3">
+                        <Button onClick={handleAjukanClick}>
+                            <Send className="mr-2 h-4 w-4" />
+                            Ajukan ke Akademis
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <Link href={`/mahasiswa/pengajuan/${pengajuan.id}/edit`}>Edit Draft</Link>
+                        </Button>
+                    </div>
+                )}
             </div>
+
+            <Dialog open={openAjukan} onOpenChange={setOpenAjukan}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Ajukan Pengajuan</DialogTitle>
+                        <DialogDescription>
+                            Masukkan nomor ijazah untuk mengajukan draft dengan {pengajuan.detail_pengajuan.length} kegiatan ke akademis.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-2 py-2">
+                        <Label htmlFor="nomor_ijazah">Nomor Ijazah</Label>
+                        <Input
+                            id="nomor_ijazah"
+                            value={nomorIjazah}
+                            onChange={(e) => { setNomorIjazah(e.target.value); setIjazahError(''); }}
+                            placeholder="Masukkan nomor ijazah"
+                        />
+                        {ijazahError && <p className="text-xs text-destructive">{ijazahError}</p>}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setOpenAjukan(false)}>Batal</Button>
+                        <Button onClick={ajukan}>Ajukan</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

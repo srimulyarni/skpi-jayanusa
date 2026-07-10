@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('nohp')->nullable();
             $table->foreignId('jurusan_id')->nullable()->constrained('jurusan')->nullOnDelete();
             $table->string('nomor_ijazah')->nullable();
-            $table->string('tahun_lulus')->nullable();
+            $table->string('tahun_masuk')->nullable();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });

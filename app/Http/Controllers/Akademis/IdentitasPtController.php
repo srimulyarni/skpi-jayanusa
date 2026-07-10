@@ -68,6 +68,10 @@ class IdentitasPtController extends Controller
 
     public function destroy(IdentitasPt $identitasPt): RedirectResponse
     {
+        if ($identitasPt->jurusan()->exists()) {
+            return back()->with('error', 'Identitas PT tidak bisa dihapus karena masih memiliki data jurusan.');
+        }
+
         $identitasPt->delete();
 
         return back()->with('success', 'Identitas PT berhasil dihapus.');

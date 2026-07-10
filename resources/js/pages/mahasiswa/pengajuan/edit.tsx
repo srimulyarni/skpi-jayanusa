@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -32,7 +32,7 @@ type DetailPengajuan = {
 
 type PengajuanData = {
     id: number;
-    no_registrasi: string;
+    no_registrasi: string | null;
     status: string;
     detail_pengajuan: DetailPengajuan[];
 };
@@ -45,6 +45,7 @@ type KegiatanItem = {
     bukti: File | null;
     buktiName: string;
     buktiUrl: string;
+    buktiPath: string;
 };
 
 const emptyForm: KegiatanItem = {
@@ -55,6 +56,7 @@ const emptyForm: KegiatanItem = {
     bukti: null,
     buktiName: '',
     buktiUrl: '',
+    buktiPath: '',
 };
 
 export default function PengajuanEdit({ pengajuan, kategori }: { pengajuan: PengajuanData; kategori: Kategori[] }) {
@@ -68,15 +70,14 @@ export default function PengajuanEdit({ pengajuan, kategori }: { pengajuan: Peng
             bukti: null,
             buktiName: d.bukti_kegiatan[0]?.nama_file ?? '',
             buktiUrl: '',
+            buktiPath: d.bukti_kegiatan[0]?.path_file ?? '',
         })),
     );
     const [inputForm, setInputForm] = useState<KegiatanItem>({ ...emptyForm });
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [showDetail, setShowDetail] = useState<KegiatanItem | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-     
-    const inertiaForm = useForm<{ _method: string; kegiatan: any[] }>({ _method: 'PUT', kegiatan: [] });
+    const [processing, setProcessing] = useState(false);
 
     function getKategoriName(id: string) {
         return kategori.find((k) => String(k.id) === id)?.nama_kategori ?? '-';
@@ -86,24 +87,24 @@ export default function PengajuanEdit({ pengajuan, kategori }: { pengajuan: Peng
         const errs: Record<string, string> = {};
 
         if (!inputForm.kategori_id) {
-errs.kategori_id = 'Pilih kategori';
-}
+            errs.kategori_id = 'Pilih kategori';
+        }
 
         if (!inputForm.nama_kegiatan) {
-errs.nama_kegiatan = 'Nama kegiatan wajib diisi';
-}
+            errs.nama_kegiatan = 'Nama kegiatan wajib diisi';
+        }
 
         if (!inputForm.tahun_kegiatan) {
-errs.tahun_ketahun_kegiatan = 'Tahun wajib diisi';
-}
+            errs.tahun_kegiatan = 'Tahun wajib diisi';
+        }
 
         if (!inputForm.peran) {
-errs.peran = 'Peran wajib diisi';
-}
+            errs.peran = 'Peran wajib diisi';
+        }
 
         if (inputForm.bukti && inputForm.bukti.size > 5 * 1024 * 1024) {
-errs.bukti = 'Ukuran file maks 5MB';
-}
+            errs.bukti = 'Ukuran file maks 5MB';
+        }
 
         setErrors(errs);
 
@@ -112,8 +113,8 @@ errs.bukti = 'Ukuran file maks 5MB';
 
     function handleAdd() {
         if (!validateInput()) {
-return;
-}
+            return;
+        }
 
         if (editIndex !== null) {
             setKegiatanList((prev) => {
@@ -164,6 +165,7 @@ return;
             bukti: file,
             buktiName: file?.name ?? prev.buktiName,
             buktiUrl: file && isImage ? URL.createObjectURL(file) : '',
+            buktiPath: file ? '' : prev.buktiPath,
         }));
     }
 
@@ -174,19 +176,37 @@ return;
             return;
         }
 
-        inertiaForm.setData('kegiatan', kegiatanList);
-        inertiaForm.post(`/mahasiswa/pengajuan/${pengajuan.id}`, {
+        const formData = new FormData();
+        formData.append('_method', 'PUT');
+        kegiatanList.forEach((item, i) => {
+            formData.append(`kegiatan[${i}][kategori_id]`, item.kategori_id);
+            formData.append(`kegiatan[${i}][nama_kegiatan]`, item.nama_kegiatan);
+            formData.append(`kegiatan[${i}][tahun_kegiatan]`, item.tahun_kegiatan);
+            formData.append(`kegiatan[${i}][peran]`, item.peran);
+            if (item.bukti) {
+                formData.append(`kegiatan[${i}][bukti]`, item.bukti);
+            } else if (item.buktiPath) {
+                formData.append(`kegiatan[${i}][bukti_path]`, item.buktiPath);
+                formData.append(`kegiatan[${i}][bukti_nama]`, item.buktiName);
+            }
+        });
+
+        setProcessing(true);
+        router.post(`/mahasiswa/pengajuan/${pengajuan.id}`, formData, {
             onSuccess: () => {
                 setOpenKonfirm(false);
                 toast.success('Pengajuan berhasil diperbarui!');
             },
             onError: () => setOpenKonfirm(false),
+            onFinish: () => setProcessing(false),
         });
     }
 
+    const isDraft = pengajuan.status === 'draft';
+
     return (
         <>
-            <Head title="Edit Pengajuan" />
+            <Head title={isDraft ? 'Edit Draft' : 'Edit Pengajuan'} />
 
             <div className="space-y-6 p-4 md:p-6">
                 <div className="flex items-center gap-3">
@@ -194,8 +214,8 @@ return;
                         <Link href="/mahasiswa/pengajuan"><ArrowLeft className="h-4 w-4" /></Link>
                     </Button>
                     <div>
-                        <h1 className="text-xl font-semibold">Edit Pengajuan</h1>
-                        <p className="text-sm text-muted-foreground">{pengajuan.no_registrasi}</p>
+                        <h1 className="text-xl font-semibold">{isDraft ? 'Edit Draft' : 'Edit Pengajuan'}</h1>
+                        <p className="text-sm text-muted-foreground">{pengajuan.no_registrasi ?? 'Draft'}</p>
                     </div>
                 </div>
 
@@ -334,10 +354,10 @@ return;
                 <div className="flex gap-3">
                     <Button
                         onClick={() => setOpenKonfirm(true)}
-                        disabled={kegiatanList.length === 0 || inertiaForm.processing}
+                        disabled={kegiatanList.length === 0 || processing}
                         className="w-full sm:w-auto"
                     >
-                        Perbarui Pengajuan
+                        {isDraft ? 'Simpan Draft' : 'Perbarui Pengajuan'}
                     </Button>
                     <Button variant="outline" asChild className="w-full sm:w-auto">
                         <Link href="/mahasiswa/pengajuan">Batal</Link>
@@ -368,9 +388,13 @@ return;
                                     />
                                 </div>
                             )}
-                            {showDetail.bukti && !showDetail.buktiUrl && (
-                                <div className="mt-2 rounded border bg-muted p-3 text-xs text-muted-foreground">
-                                    {showDetail.buktiName}
+                            {!showDetail.buktiUrl && showDetail.buktiPath && (
+                                <div>
+                                    <img
+                                        src={`/storage/${showDetail.buktiPath}`}
+                                        alt="Bukti"
+                                        className="mt-2 max-h-64 rounded border object-contain"
+                                    />
                                 </div>
                             )}
                         </div>
@@ -381,14 +405,18 @@ return;
             <AlertDialog open={openKonfirm} onOpenChange={setOpenKonfirm}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Perbarui Pengajuan?</AlertDialogTitle>
+                        <AlertDialogTitle>{isDraft ? 'Simpan Draft?' : 'Perbarui Pengajuan?'}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Data pengajuan akan diperbarui dengan {kegiatanList.length} kegiatan.
+                            {isDraft
+                                ? `Draft akan diperbarui dengan ${kegiatanList.length} kegiatan.`
+                                : `Data pengajuan akan diperbarui dengan ${kegiatanList.length} kegiatan.`}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleSubmit} disabled={inertiaForm.processing}>Perbarui</AlertDialogAction>
+                        <AlertDialogAction onClick={handleSubmit} disabled={processing}>
+                            {isDraft ? 'Simpan' : 'Perbarui'}
+                        </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

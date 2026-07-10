@@ -43,14 +43,14 @@ const akademisNav: NavGroup[] = [
         label: 'Transaksi',
         items: [
             { title: 'Pengajuan', href: '/akademis/pengajuan', icon: FileText },
-            { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
             { title: 'Terbitkan SKPI', href: '/akademis/skpi', icon: Award },
+            { title: 'Pengambilan', href: '/akademis/pengambilan', icon: Package },
         ],
     },
     {
         label: 'Laporan',
         items: [
-            { title: 'Laporan', href: '/akademis/laporan', icon: Printer },
+            { title: 'Laporan', href: '', icon: Printer },
         ],
     },
 ];

@@ -20,8 +20,7 @@ class MahasiswaProfileRequest extends FormRequest
             'jk' => ['required', 'in:L,P'],
             'nohp' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'alamat' => ['required', 'string'],
-            'nomor_ijazah' => ['required', 'string', 'max:100'],
-            'tahun_lulus' => ['nullable', 'digits:4'],
+            'tahun_masuk' => ['nullable', 'digits:4'],
         ];
     }
 }

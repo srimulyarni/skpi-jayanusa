@@ -20,7 +20,7 @@ type Mahasiswa = {
     id: number; nobp: string; nama: string; foto: string | null;
     tempat_lahir: string | null; tanggal_lahir: string | null; jk: string | null;
     alamat: string | null; nohp: string | null; jurusan_id: number | null;
-    nomor_ijazah: string | null; tahun_lulus: string | null;
+    nomor_ijazah: string | null; tahun_masuk: string | null;
     jurusan: Jurusan | null;
 };
 
@@ -37,8 +37,7 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
         jk: mahasiswa.jk ?? '',
         nohp: mahasiswa.nohp ?? '',
         alamat: mahasiswa.alamat ?? '',
-        nomor_ijazah: mahasiswa.nomor_ijazah ?? '',
-        tahun_lulus: mahasiswa.tahun_lulus ?? '',
+        tahun_masuk: mahasiswa.tahun_masuk ?? '',
     });
 
     function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -131,12 +130,6 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
                                 {form.errors.alamat && <p className="text-xs text-destructive">{form.errors.alamat}</p>}
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="nomor_ijazah">Nomor Ijazah</Label>
-                                <Input id="nomor_ijazah" value={form.data.nomor_ijazah} onChange={(e) => form.setData('nomor_ijazah', e.target.value)} />
-                                {form.errors.nomor_ijazah && <p className="text-xs text-destructive">{form.errors.nomor_ijazah}</p>}
-                            </div>
-
-                            <div className="grid gap-2">
                                 <Label>Akreditasi Prodi <Badge variant="secondary" className="ml-1 text-[10px]">Identitas PT</Badge></Label>
                                 <Input value={mahasiswa.jurusan?.identitas_pt?.akreditasi_institusi ?? '-'} disabled className="bg-muted" />
                             </div>
@@ -145,8 +138,8 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
                                 <Input value={mahasiswa.jurusan?.identitas_pt?.gelar ?? '-'} disabled className="bg-muted" />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="tahun_lulus">Tahun Lulus</Label>
-                                <Input id="tahun_lulus" type="number" value={form.data.tahun_lulus} onChange={(e) => form.setData('tahun_lulus', e.target.value)} placeholder="Contoh: 2024" />
+                                <Label htmlFor="tahun_masuk">Tahun Masuk</Label>
+                                <Input id="tahun_masuk" type="number" value={form.data.tahun_masuk} onChange={(e) => form.setData('tahun_masuk', e.target.value)} placeholder="Contoh: 2024" />
                             </div>
 
                             <div className="sm:col-span-2">

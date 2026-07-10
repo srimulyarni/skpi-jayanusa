@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, Download, Eye, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-type Mahasiswa = { nobp: string; nama: string; jurusan: { singkatan: string } };
+type Mahasiswa = { nobp: string; nama: string; jurusan: { nama: string } };
 type SiapTerbit = { id: number; no_registrasi: string; tgl_pengajuan: string; mahasiswa: Mahasiswa };
 type Skpi = {
     id: number; no_skpi: string; tgl_terbit: string; status: string;
@@ -99,7 +99,7 @@ return;
         {
             id: 'jurusan',
             header: 'Jurusan',
-            accessorFn: (row) => row.mahasiswa.jurusan?.singkatan ?? '-',
+            accessorFn: (row) => row.mahasiswa.jurusan?.nama ?? '-',
         },
         {
             accessorKey: 'tgl_pengajuan',
@@ -144,7 +144,7 @@ return;
                                     <TableHead>Tgl Terbit</TableHead>
                                     <TableHead>Status SKPI</TableHead>
                                     <TableHead>Pengambilan</TableHead>
-                                    <TableHead className="w-16">Aksi</TableHead>
+                                    <TableHead className="w-28">Aksi</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -166,13 +166,25 @@ return;
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {s.status === 'diterbitkan' && (
-                                                <Button size="icon" variant="ghost" onClick={() => {
+                                            <div className="flex gap-1">
+                                                <Button size="icon" variant="ghost" asChild>
+                                                    <a href={`/akademis/skpi/${s.id}/pdf`} target="_blank" rel="noopener noreferrer">
+                                                        <Eye className="h-4 w-4" />
+                                                    </a>
+                                                </Button>
+                                                <Button size="icon" variant="ghost" asChild>
+                                                    <a href={`/akademis/skpi/${s.id}/pdf/download`}>
+                                                        <Download className="h-4 w-4" />
+                                                    </a>
+                                                </Button>
+                                                {s.status === 'diterbitkan' && (
+                                                    <Button size="icon" variant="ghost" onClick={() => {
  setSelectedSkpi(s); setOpenBatalkan(true); 
 }}>
-                                                    <XCircle className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            )}
+                                                        <XCircle className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 )) : (

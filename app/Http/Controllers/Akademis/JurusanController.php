@@ -64,6 +64,10 @@ class JurusanController extends Controller
 
     public function destroy(Jurusan $jurusan): RedirectResponse
     {
+        if ($jurusan->mahasiswa()->exists()) {
+            return back()->with('error', 'Jurusan tidak bisa dihapus karena masih memiliki data mahasiswa.');
+        }
+
         $jurusan->delete();
 
         return back()->with('success', 'Jurusan berhasil dihapus.');

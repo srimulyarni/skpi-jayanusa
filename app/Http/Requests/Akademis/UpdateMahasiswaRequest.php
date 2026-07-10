@@ -21,7 +21,7 @@ class UpdateMahasiswaRequest extends FormRequest
             'nohp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'nomor_ijazah' => ['nullable', 'string', 'max:100'],
-            'tahun_lulus' => ['nullable', 'digits:4'],
+            'tahun_masuk' => ['nullable', 'digits:4'],
         ];
     }
 }

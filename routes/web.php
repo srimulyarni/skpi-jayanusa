@@ -8,6 +8,7 @@ use App\Http\Controllers\Akademis\MahasiswaController;
 use App\Http\Controllers\Akademis\PengajuanController;
 use App\Http\Controllers\Akademis\PengambilanController;
 use App\Http\Controllers\Akademis\SkpiController;
+use App\Http\Controllers\Akademis\SkpiPdfController;
 use App\Http\Controllers\Auth\MahasiswaLoginController;
 use App\Http\Controllers\Mahasiswa\MahasiswaPengajuanController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProfileController;
@@ -29,6 +30,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('pengajuan/{pengajuan}', [MahasiswaPengajuanController::class, 'show'])->name('pengajuan.show');
     Route::get('pengajuan/{pengajuan}/edit', [MahasiswaPengajuanController::class, 'edit'])->name('pengajuan.edit');
     Route::put('pengajuan/{pengajuan}', [MahasiswaPengajuanController::class, 'update'])->name('pengajuan.update');
+    Route::post('pengajuan/{pengajuan}/ajukan', [MahasiswaPengajuanController::class, 'ajukan'])->name('pengajuan.ajukan');
+
+    Route::get('skpi/{skpi}/pdf', [SkpiPdfController::class, 'preview'])->name('skpi.pdf.preview');
+    Route::get('skpi/{skpi}/pdf/download', [SkpiPdfController::class, 'download'])->name('skpi.pdf.download');
 });
 
 Route::middleware(['auth', 'role:akademis'])->prefix('akademis')->name('akademis.')->group(function () {
@@ -67,6 +72,8 @@ Route::middleware(['auth', 'role:akademis'])->prefix('akademis')->name('akademis
     Route::get('skpi', [SkpiController::class, 'index'])->name('skpi.index');
     Route::post('skpi', [SkpiController::class, 'store'])->name('skpi.store');
     Route::patch('skpi/{skpi}/batalkan', [SkpiController::class, 'batalkan'])->name('skpi.batalkan');
+    Route::get('skpi/{skpi}/pdf', [SkpiPdfController::class, 'preview'])->name('skpi.pdf.preview');
+    Route::get('skpi/{skpi}/pdf/download', [SkpiPdfController::class, 'download'])->name('skpi.pdf.download');
 
     Route::get('pengambilan', [PengambilanController::class, 'index'])->name('pengambilan.index');
     Route::patch('pengambilan/{pengambilan}/ambil', [PengambilanController::class, 'ambil'])->name('pengambilan.ambil');

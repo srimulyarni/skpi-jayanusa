@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('pengajuan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->cascadeOnDelete();
-            $table->string('no_registrasi')->unique();
-            $table->date('tgl_pengajuan');
-            $table->enum('status', ['menunggu', 'diproses', 'disetujui', 'revisi', 'ditolak'])->default('menunggu');
+            $table->string('no_registrasi')->unique()->nullable();
+            $table->date('tgl_pengajuan')->nullable();
+            $table->enum('status', ['draft', 'menunggu', 'diproses', 'disetujui', 'revisi', 'ditolak'])->default('draft');
             $table->text('catatan_akademis')->nullable();
             $table->timestamps();
         });

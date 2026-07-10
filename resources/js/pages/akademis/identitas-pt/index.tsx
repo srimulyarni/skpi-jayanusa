@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -34,24 +34,35 @@ export default function IdentitasPtIndex({
     const [openHapus, setOpenHapus] = useState(false);
     const [selected, setSelected] = useState<IdentitasPt | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const [localInstansi, setLocalInstansi] = useState(filters.kode_institusi ?? '__all__');
     const isInitialMount = useRef(true);
 
-    const applyFilters = (overrides: Record<string, string | undefined>) => {
+    const apply = () => {
         const params: Record<string, string | undefined> = {
-            search: filters.search || undefined,
-            kode_institusi: filters.kode_institusi,
-            ...overrides,
+            search: search || undefined,
+            kode_institusi: localInstansi === '__all__' ? undefined : localInstansi,
         };
         Object.keys(params).forEach((k) => {
-            if (!params[k] || params[k] === '__all__') {
-delete params[k];
-}
+            if (!params[k]) delete params[k];
         });
         router.get('/akademis/identitas-pt', params, { preserveState: true, preserveScroll: true, replace: true });
     };
 
+    const reset = () => {
+        setSearch('');
+        setLocalInstansi('__all__');
+        router.get('/akademis/identitas-pt', {}, { preserveState: true, preserveScroll: true, replace: true });
+    };
+
     const debouncedSearch = useDebouncedCallback((value: string) => {
-        applyFilters({ search: value || undefined });
+        const params: Record<string, string | undefined> = {
+            search: value || undefined,
+            kode_institusi: localInstansi === '__all__' ? undefined : localInstansi,
+        };
+        Object.keys(params).forEach((k) => {
+            if (!params[k]) delete params[k];
+        });
+        router.get('/akademis/identitas-pt', params, { preserveState: true, preserveScroll: true, replace: true });
     }, 500);
 
     useEffect(() => {
@@ -60,7 +71,6 @@ delete params[k];
 
             return;
         }
-
         debouncedSearch(search);
     }, [search, debouncedSearch]);
 
@@ -87,22 +97,33 @@ return;
                     </Button>
                 </div>
 
-                <Input placeholder="Cari identitas PT..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+                <div className="flex flex-wrap items-end gap-3">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs text-muted-foreground">Cari</label>
+                        <Input placeholder="Nama / Kode..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-48" />
+                    </div>
 
-                <div className="flex flex-wrap gap-3">
-                    <Select value={filters.kode_institusi ?? '__all__'} onValueChange={(v) => applyFilters({ kode_institusi: v === '__all__' ? undefined : v })}>
-                        <SelectTrigger className="w-44"><SelectValue placeholder="Semua Instansi" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__all__">Semua Instansi</SelectItem>
-                            {instansiList.map((kode) => (
-                                <SelectItem key={kode} value={kode}>{kode}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs text-muted-foreground">Instansi</label>
+                        <Select value={localInstansi} onValueChange={setLocalInstansi}>
+                            <SelectTrigger className="w-44"><SelectValue placeholder="Semua" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__all__">Semua Instansi</SelectItem>
+                                {instansiList.map((kode) => (
+                                    <SelectItem key={kode} value={kode}>{kode}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <Button onClick={apply} size="sm">
+                        <Search className="mr-1 h-4 w-4" />
+                        Terapkan
+                    </Button>
 
                     {filters.kode_institusi && (
-                        <Button variant="ghost" size="sm" onClick={() => applyFilters({ kode_institusi: undefined })}>
-                            Reset Filter
+                        <Button variant="ghost" size="sm" onClick={reset}>
+                            Reset
                         </Button>
                     )}
                 </div>

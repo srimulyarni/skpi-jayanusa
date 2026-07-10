@@ -18,7 +18,7 @@ class MahasiswaController extends Controller
     {
         $search = $request->input('search');
         $jurusanId = $request->input('jurusan_id');
-        $tahunLulus = $request->input('tahun_lulus');
+        $tahunMasuk = $request->input('tahun_masuk');
 
         $mahasiswa = Mahasiswa::with('jurusan')
             ->withCount(['pengajuan', 'pengambilan'])
@@ -29,15 +29,15 @@ class MahasiswaController extends Controller
             ->when($jurusanId, function ($query, $jurusanId) {
                 $query->where('jurusan_id', $jurusanId);
             })
-            ->when($tahunLulus, function ($query, $tahunLulus) {
-                $query->where('tahun_lulus', $tahunLulus);
+            ->when($tahunMasuk, function ($query, $tahunMasuk) {
+                $query->where('tahun_masuk', $tahunMasuk);
             })
             ->orderBy('nobp')
             ->paginate(10)
             ->withQueryString();
 
         $jurusan = Jurusan::orderBy('kode')->select('id', 'kode', 'nama', 'singkatan')->get();
-        $tahunList = Mahasiswa::whereNotNull('tahun_lulus')->distinct()->orderByDesc('tahun_lulus')->pluck('tahun_lulus');
+        $tahunList = Mahasiswa::whereNotNull('tahun_masuk')->distinct()->orderByDesc('tahun_masuk')->pluck('tahun_masuk');
 
         return Inertia::render('akademis/mahasiswa/index', [
             'mahasiswa' => $mahasiswa,
@@ -46,7 +46,7 @@ class MahasiswaController extends Controller
             'filters' => [
                 'search' => $search,
                 'jurusan_id' => $jurusanId,
-                'tahun_lulus' => $tahunLulus,
+                'tahun_masuk' => $tahunMasuk,
             ],
         ]);
     }

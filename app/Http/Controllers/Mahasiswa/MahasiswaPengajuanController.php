@@ -27,20 +27,23 @@ class MahasiswaPengajuanController extends Controller
 
         return Inertia::render('mahasiswa/pengajuan/index', [
             'pengajuan' => $pengajuan,
+            'mahasiswa' => [
+                'nomor_ijazah' => $mahasiswa->nomor_ijazah,
+            ],
         ]);
     }
 
-    public function create(): Response
+    public function create(): Response|RedirectResponse
     {
         $mahasiswa = Mahasiswa::where('user_id', auth()->id())->firstOrFail();
 
         $activePengajuan = Pengajuan::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('status', ['menunggu', 'diproses'])
+            ->whereIn('status', ['draft', 'menunggu', 'diproses'])
             ->exists();
 
         if ($activePengajuan) {
             return redirect()->route('mahasiswa.pengajuan.index')
-                ->with('error', 'Anda masih memiliki pengajuan yang sedang diproses.');
+                ->with('error', 'Anda masih memiliki pengajuan yang sedang aktif.');
         }
 
         return Inertia::render('mahasiswa/pengajuan/create', [
@@ -53,11 +56,11 @@ class MahasiswaPengajuanController extends Controller
         $mahasiswa = Mahasiswa::where('user_id', auth()->id())->firstOrFail();
 
         $activePengajuan = Pengajuan::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('status', ['menunggu', 'diproses'])
+            ->whereIn('status', ['draft', 'menunggu', 'diproses'])
             ->exists();
 
         if ($activePengajuan) {
-            return back()->with('error', 'Anda masih memiliki pengajuan yang sedang diproses.');
+            return back()->with('error', 'Anda masih memiliki pengajuan yang sedang aktif.');
         }
 
         $validated = $request->validate([
@@ -69,17 +72,12 @@ class MahasiswaPengajuanController extends Controller
             'kegiatan.*.bukti' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
-        $tahun = now()->format('Y');
-        $bulan = now()->format('m');
-        $urutan = Pengajuan::whereYear('created_at', $tahun)->whereMonth('created_at', $bulan)->count() + 1;
-        $noRegistrasi = sprintf('REG/%s/%s/%04d', $tahun, $bulan, $urutan);
-
-        DB::transaction(function () use ($validated, $mahasiswa, $noRegistrasi) {
+        DB::transaction(function () use ($validated, $mahasiswa) {
             $pengajuan = Pengajuan::create([
                 'mahasiswa_id' => $mahasiswa->id,
-                'no_registrasi' => $noRegistrasi,
-                'tgl_pengajuan' => now()->toDateString(),
-                'status' => 'menunggu',
+                'no_registrasi' => null,
+                'tgl_pengajuan' => null,
+                'status' => 'draft',
             ]);
 
             foreach ($validated['kegiatan'] as $item) {
@@ -93,10 +91,12 @@ class MahasiswaPengajuanController extends Controller
 
                 if (isset($item['bukti']) && $item['bukti']) {
                     $file = $item['bukti'];
-                    $path = $file->store('bukti-kegiatan', 'public');
+                    $ext = $file->getClientOriginalExtension();
+                    $safeName = \Illuminate\Support\Str::slug($item['nama_kegiatan'], '-') . '-' . time() . '.' . $ext;
+                    $path = $file->storeAs('bukti-kegiatan', $safeName, 'public');
 
                     $detail->buktiKegiatan()->create([
-                        'nama_file' => $file->getClientOriginalName(),
+                        'nama_file' => $safeName,
                         'path_file' => $path,
                     ]);
                 }
@@ -104,7 +104,7 @@ class MahasiswaPengajuanController extends Controller
         });
 
         return redirect()->route('mahasiswa.pengajuan.index')
-            ->with('success', 'Pengajuan SKPI berhasil dikirim.');
+            ->with('success', 'Draft pengajuan berhasil disimpan.');
     }
 
     public function show(Pengajuan $pengajuan): Response
@@ -119,6 +119,9 @@ class MahasiswaPengajuanController extends Controller
 
         return Inertia::render('mahasiswa/pengajuan/show', [
             'pengajuan' => $pengajuan,
+            'mahasiswa' => [
+                'nomor_ijazah' => $mahasiswa->nomor_ijazah,
+            ],
         ]);
     }
 
@@ -130,16 +133,12 @@ class MahasiswaPengajuanController extends Controller
             abort(403);
         }
 
-        if (! in_array($pengajuan->status, ['menunggu', 'revisi', 'ditolak'])) {
+        if (! in_array($pengajuan->status, ['draft', 'menunggu', 'revisi', 'ditolak'])) {
             return redirect()->route('mahasiswa.pengajuan.index')
                 ->with('error', 'Pengajuan tidak dapat diedit pada status ini.');
         }
 
         $pengajuan->load('detailPengajuan.kategori', 'detailPengajuan.buktiKegiatan');
-
-        if ($pengajuan->status === 'revisi' || $pengajuan->status === 'ditolak') {
-            $pengajuan->update(['status' => 'menunggu', 'catatan_akademis' => null]);
-        }
 
         return Inertia::render('mahasiswa/pengajuan/edit', [
             'pengajuan' => $pengajuan,
@@ -155,7 +154,7 @@ class MahasiswaPengajuanController extends Controller
             abort(403);
         }
 
-        if (! in_array($pengajuan->status, ['menunggu'])) {
+        if (! in_array($pengajuan->status, ['draft', 'menunggu', 'revisi', 'ditolak'])) {
             return back()->with('error', 'Pengajuan tidak dapat diedit pada status ini.');
         }
 
@@ -166,12 +165,27 @@ class MahasiswaPengajuanController extends Controller
             'kegiatan.*.tahun_kegiatan' => ['required', 'digits:4'],
             'kegiatan.*.peran' => ['required', 'string', 'max:100'],
             'kegiatan.*.bukti' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'kegiatan.*.bukti_path' => ['nullable', 'string'],
+            'kegiatan.*.bukti_nama' => ['nullable', 'string', 'max:255'],
         ]);
 
         DB::transaction(function () use ($validated, $pengajuan) {
+            if (in_array($pengajuan->status, ['revisi', 'ditolak'])) {
+                $pengajuan->update(['status' => 'menunggu', 'catatan_akademis' => null]);
+            }
+
+            $pengajuan->load('detailPengajuan.buktiKegiatan');
+
+            $preservePaths = collect($validated['kegiatan'])
+                ->pluck('bukti_path')
+                ->filter()
+                ->toArray();
+
             foreach ($pengajuan->detailPengajuan as $detail) {
                 foreach ($detail->buktiKegiatan as $bukti) {
-                    Storage::disk('public')->delete($bukti->path_file);
+                    if (! in_array($bukti->path_file, $preservePaths)) {
+                        Storage::disk('public')->delete($bukti->path_file);
+                    }
                     $bukti->delete();
                 }
                 $detail->delete();
@@ -188,11 +202,18 @@ class MahasiswaPengajuanController extends Controller
 
                 if (isset($item['bukti']) && $item['bukti']) {
                     $file = $item['bukti'];
-                    $path = $file->store('bukti-kegiatan', 'public');
+                    $ext = $file->getClientOriginalExtension();
+                    $safeName = \Illuminate\Support\Str::slug($item['nama_kegiatan'], '-') . '-' . time() . '.' . $ext;
+                    $path = $file->storeAs('bukti-kegiatan', $safeName, 'public');
 
                     $detail->buktiKegiatan()->create([
-                        'nama_file' => $file->getClientOriginalName(),
+                        'nama_file' => $safeName,
                         'path_file' => $path,
+                    ]);
+                } elseif (isset($item['bukti_path']) && $item['bukti_path']) {
+                    $detail->buktiKegiatan()->create([
+                        'nama_file' => $item['bukti_nama'] ?? basename($item['bukti_path']),
+                        'path_file' => $item['bukti_path'],
                     ]);
                 }
             }
@@ -200,5 +221,44 @@ class MahasiswaPengajuanController extends Controller
 
         return redirect()->route('mahasiswa.pengajuan.index')
             ->with('success', 'Pengajuan SKPI berhasil diperbarui.');
+    }
+
+    public function ajukan(Request $request, Pengajuan $pengajuan): RedirectResponse
+    {
+        $mahasiswa = Mahasiswa::where('user_id', auth()->id())->firstOrFail();
+
+        if ($pengajuan->mahasiswa_id !== $mahasiswa->id) {
+            abort(403);
+        }
+
+        if ($pengajuan->status !== 'draft') {
+            return back()->with('error', 'Hanya draft pengajuan yang bisa diajukan.');
+        }
+
+        if ($pengajuan->detailPengajuan()->count() === 0) {
+            return back()->with('error', 'Tambahkan minimal 1 kegiatan sebelum mengajukan.');
+        }
+
+        $validated = $request->validate([
+            'nomor_ijazah' => ['required', 'string', 'max:100'],
+        ]);
+
+        $tahun = now()->format('Y');
+        $bulan = now()->format('m');
+        $urutan = Pengajuan::whereYear('created_at', $tahun)->whereMonth('created_at', $bulan)->count() + 1;
+        $noRegistrasi = sprintf('REG/%s/%s/%04d', $tahun, $bulan, $urutan);
+
+        DB::transaction(function () use ($validated, $mahasiswa, $pengajuan, $noRegistrasi) {
+            $mahasiswa->update(['nomor_ijazah' => $validated['nomor_ijazah']]);
+
+            $pengajuan->update([
+                'no_registrasi' => $noRegistrasi,
+                'tgl_pengajuan' => now()->toDateString(),
+                'status' => 'menunggu',
+            ]);
+        });
+
+        return redirect()->route('mahasiswa.pengajuan.index')
+            ->with('success', 'Pengajuan SKPI berhasil diajukan dengan nomor registrasi ' . $noRegistrasi);
     }
 }

@@ -1,9 +1,10 @@
+import LogoUnjay from '@/assets/images/jayanusa.webp';
 export default function AppLogo() {
     return (
         <>
             <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-white">
                 <img
-                    src="https://assets.nsd.co.id/images/kampus/logo/STMIK-Jayanusa-Padang.png"
+                    src={LogoUnjay}
                     alt="Jayanusa Logo"
                     className="size-6"
                 />

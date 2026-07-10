@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -45,9 +45,7 @@ export default function PengajuanCreate({ kategori }: { kategori: Kategori[] }) 
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [showDetail, setShowDetail] = useState<KegiatanItem | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-     
-    const inertiaForm = useForm<{ kegiatan: any[] }>({ kegiatan: [] });
+    const [processing, setProcessing] = useState(false);
 
     function getKategoriName(id: string) {
         return kategori.find((k) => String(k.id) === id)?.nama_kategori ?? '-';
@@ -57,24 +55,24 @@ export default function PengajuanCreate({ kategori }: { kategori: Kategori[] }) 
         const errs: Record<string, string> = {};
 
         if (!inputForm.kategori_id) {
-errs.kategori_id = 'Pilih kategori';
-}
+            errs.kategori_id = 'Pilih kategori';
+        }
 
         if (!inputForm.nama_kegiatan) {
-errs.nama_kegiatan = 'Nama kegiatan wajib diisi';
-}
+            errs.nama_kegiatan = 'Nama kegiatan wajib diisi';
+        }
 
         if (!inputForm.tahun_kegiatan) {
-errs.tahun_kegiatan = 'Tahun wajib diisi';
-}
+            errs.tahun_kegiatan = 'Tahun wajib diisi';
+        }
 
         if (!inputForm.peran) {
-errs.peran = 'Peran wajib diisi';
-}
+            errs.peran = 'Peran wajib diisi';
+        }
 
         if (inputForm.bukti && inputForm.bukti.size > 5 * 1024 * 1024) {
-errs.bukti = 'Ukuran file maks 5MB';
-}
+            errs.bukti = 'Ukuran file maks 5MB';
+        }
 
         setErrors(errs);
 
@@ -83,8 +81,8 @@ errs.bukti = 'Ukuran file maks 5MB';
 
     function handleAdd() {
         if (!validateInput()) {
-return;
-}
+            return;
+        }
 
         if (editIndex !== null) {
             setKegiatanList((prev) => {
@@ -146,26 +144,38 @@ return;
             return;
         }
 
-        inertiaForm.setData('kegiatan', kegiatanList);
-        inertiaForm.post('/mahasiswa/pengajuan', {
+        const formData = new FormData();
+        kegiatanList.forEach((item, i) => {
+            formData.append(`kegiatan[${i}][kategori_id]`, item.kategori_id);
+            formData.append(`kegiatan[${i}][nama_kegiatan]`, item.nama_kegiatan);
+            formData.append(`kegiatan[${i}][tahun_kegiatan]`, item.tahun_kegiatan);
+            formData.append(`kegiatan[${i}][peran]`, item.peran);
+            if (item.bukti) {
+                formData.append(`kegiatan[${i}][bukti]`, item.bukti);
+            }
+        });
+
+        setProcessing(true);
+        router.post('/mahasiswa/pengajuan', formData, {
             onSuccess: () => {
                 setOpenKonfirm(false);
-                toast.success('Pengajuan berhasil dikirim!');
+                toast.success('Draft pengajuan berhasil disimpan!');
             },
             onError: () => setOpenKonfirm(false),
+            onFinish: () => setProcessing(false),
         });
     }
 
     return (
         <>
-            <Head title="Ajukan SKPI" />
+            <Head title="Buat Draft SKPI" />
 
             <div className="space-y-6 p-4 md:p-6">
                 <div className="flex items-center gap-3">
                     <Button variant="outline" size="icon" asChild>
                         <Link href="/mahasiswa/pengajuan"><ArrowLeft className="h-4 w-4" /></Link>
                     </Button>
-                    <h1 className="text-xl font-semibold">Ajukan SKPI</h1>
+                    <h1 className="text-xl font-semibold">Buat Draft SKPI</h1>
                 </div>
 
                 <Card>
@@ -303,10 +313,10 @@ return;
                 <div className="flex gap-3">
                     <Button
                         onClick={() => setOpenKonfirm(true)}
-                        disabled={kegiatanList.length === 0 || inertiaForm.processing}
+                        disabled={kegiatanList.length === 0 || processing}
                         className="w-full sm:w-auto"
                     >
-                        Kirim Pengajuan
+                        Simpan Draft
                     </Button>
                     <Button variant="outline" asChild className="w-full sm:w-auto">
                         <Link href="/mahasiswa/pengajuan">Batal</Link>
@@ -337,7 +347,7 @@ return;
                                     />
                                 </div>
                             )}
-                            {showDetail.bukti && !showDetail.buktiUrl && (
+                            {showDetail.bukti && !showDetail.buktiUrl && showDetail.bukti.type === 'application/pdf' && (
                                 <div className="mt-2 rounded border bg-muted p-3 text-xs text-muted-foreground">
                                     {showDetail.buktiName}
                                 </div>
@@ -350,14 +360,14 @@ return;
             <AlertDialog open={openKonfirm} onOpenChange={setOpenKonfirm}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Kirim Pengajuan?</AlertDialogTitle>
+                        <AlertDialogTitle>Simpan Draft?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            {kegiatanList.length} kegiatan akan dikirim. Pastikan semua data sudah benar.
+                            {kegiatanList.length} kegiatan akan disimpan sebagai draft. Anda dapat menambah atau mengedit kegiatan kapan saja sebelum diajukan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleSubmit} disabled={inertiaForm.processing}>Kirim</AlertDialogAction>
+                        <AlertDialogAction onClick={handleSubmit} disabled={processing}>Simpan</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -369,6 +379,6 @@ PengajuanCreate.layout = {
     breadcrumbs: [
         { title: 'Dashboard', href: '/mahasiswa/dashboard' },
         { title: 'Pengajuan SKPI', href: '/mahasiswa/pengajuan' },
-        { title: 'Ajukan', href: '/mahasiswa/pengajuan/create' },
+        { title: 'Buat Draft', href: '/mahasiswa/pengajuan/create' },
     ],
 };

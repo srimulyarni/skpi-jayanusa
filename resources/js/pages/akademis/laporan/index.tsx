@@ -13,7 +13,7 @@ type Skpi = {
     pengajuan: {
         mahasiswa: {
             nobp: string; nama: string;
-            jurusan: { singkatan: string; identitas_pt: { kode_institusi: string } };
+            jurusan: { nama: string; identitas_pt: { kode_institusi: string } };
         };
     };
     pengambilan: { status: string; diambil_pada: string | null } | null;
@@ -63,7 +63,7 @@ const columns: ColumnDef<Skpi>[] = [
     {
         id: 'jurusan',
         header: 'Jurusan',
-        accessorFn: (row) => row.pengajuan?.mahasiswa?.jurusan?.singkatan ?? '-',
+        accessorFn: (row) => row.pengajuan?.mahasiswa?.jurusan?.nama ?? '-',
     },
     {
         id: 'institusi',

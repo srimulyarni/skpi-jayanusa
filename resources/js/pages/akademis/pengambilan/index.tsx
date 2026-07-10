@@ -17,7 +17,7 @@ type Pengambilan = {
     id: number; tgl_pengambilan: string; diambil_pada: string | null;
     status: 'belum_diambil' | 'sudah_diambil';
     skpi: { no_skpi: string };
-    mahasiswa: { nobp: string; nama: string; jurusan: { singkatan: string } | null };
+    mahasiswa: { nobp: string; nama: string; jurusan: { nama: string } | null };
 };
 
 interface PaginationLink { url: string | null; label: string; active: boolean }

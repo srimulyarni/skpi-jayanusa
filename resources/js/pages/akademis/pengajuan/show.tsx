@@ -22,7 +22,7 @@ type Pengajuan = {
     id: number; no_registrasi: string; tgl_pengajuan: string;
     status: string; catatan_akademis: string | null;
     mahasiswa: {
-        nobp: string; nama: string; jk: string | null; tahun_lulus: string | null;
+        nobp: string; nama: string; jk: string | null; tahun_masuk: string | null;
         jurusan: { singkatan: string; nama: string; identitas_pt: { kode_institusi: string } };
     };
     detail_pengajuan: DetailPengajuan[];
@@ -91,8 +91,8 @@ export default function PengajuanShow({ pengajuan }: { pengajuan: Pengajuan }) {
                                 <span>{pengajuan.mahasiswa.jurusan?.identitas_pt?.kode_institusi}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Tahun Lulus</span>
-                                <span>{pengajuan.mahasiswa.tahun_lulus ?? '-'}</span>
+                                <span className="text-muted-foreground">Tahun Masuk</span>
+                                <span>{pengajuan.mahasiswa.tahun_masuk ?? '-'}</span>
                             </div>
                         </CardContent>
                     </Card>

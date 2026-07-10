@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -38,14 +37,13 @@ class HandleInertiaRequests extends Middleware
     {
         $isProfileLengkap = false;
         if ($request->user()?->role === 'mahasiswa') {
-            $mhs = Mahasiswa::where('user_id', $request->user()->id)->first();
+            $mhs = $request->user()->mahasiswa;
             $isProfileLengkap = $mhs
                 && $mhs->tempat_lahir
                 && $mhs->tanggal_lahir
                 && $mhs->jk
                 && $mhs->nohp
-                && $mhs->alamat
-                && $mhs->nomor_ijazah;
+                && $mhs->alamat;
         }
 
         return [

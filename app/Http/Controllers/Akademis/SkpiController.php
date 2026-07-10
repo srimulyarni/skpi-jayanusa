@@ -46,6 +46,15 @@ class SkpiController extends Controller
         $request->validate(['pengajuan_id' => 'required|exists:pengajuan,id']);
 
         $pengajuan = Pengajuan::with('mahasiswa.jurusan.identitasPt')->findOrFail($request->pengajuan_id);
+
+        if ($pengajuan->skpi()->exists()) {
+            return back()->with('error', 'Pengajuan ini sudah memiliki SKPI.');
+        }
+
+        if ($pengajuan->status !== 'disetujui') {
+            return back()->with('error', 'Hanya pengajuan yang disetujui yang bisa diterbitkan SKPI.');
+        }
+
         $identitasPt = $pengajuan->mahasiswa->jurusan->identitasPt;
 
         $tahun = now()->format('Y');
@@ -73,6 +82,14 @@ class SkpiController extends Controller
 
     public function batalkan(Skpi $skpi): RedirectResponse
     {
+        if ($skpi->status === 'dibatalkan') {
+            return back()->with('error', 'SKPI sudah dibatalkan.');
+        }
+
+        if ($skpi->pengambilan && $skpi->pengambilan->status === 'sudah_diambil') {
+            return back()->with('error', 'SKPI yang sudah diambil tidak dapat dibatalkan.');
+        }
+
         $skpi->update(['status' => 'dibatalkan']);
 
         return back()->with('success', 'SKPI berhasil dibatalkan.');

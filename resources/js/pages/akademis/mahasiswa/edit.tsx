@@ -21,7 +21,7 @@ type Mahasiswa = {
     tempat_lahir: string | null; tanggal_lahir: string | null; jk: string | null;
     alamat: string | null; nohp: string | null; jurusan_id: number | null;
     nomor_ijazah: string | null;
-    tahun_lulus: string | null;
+    tahun_masuk: string | null;
     jurusan: Jurusan | null;
 };
 
@@ -39,7 +39,7 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
         nohp: mahasiswa.nohp ?? '',
         foto: null as File | null,
         nomor_ijazah: mahasiswa.nomor_ijazah ?? '',
-        tahun_lulus: mahasiswa.tahun_lulus ?? '',
+        tahun_masuk: mahasiswa.tahun_masuk ?? '',
     });
 
     function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -149,8 +149,8 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
                                 <Input value={mahasiswa.jurusan?.identitas_pt?.gelar ?? '-'} disabled className="bg-muted" />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="tahun_lulus">Tahun Lulus</Label>
-                                <Input id="tahun_lulus" type="number" value={form.data.tahun_lulus} onChange={(e) => form.setData('tahun_lulus', e.target.value)} placeholder="ex: 2024" />
+                                <Label htmlFor="tahun_masuk">Tahun Masuk</Label>
+                                <Input id="tahun_masuk" type="number" value={form.data.tahun_masuk} onChange={(e) => form.setData('tahun_masuk', e.target.value)} placeholder="ex: 2024" />
                             </div>
                             <div className="sm:col-span-2">
                                 <div className="flex gap-3 pt-2">
