@@ -32,11 +32,11 @@ class UserFactory extends Factory
         ];
     }
 
-    public function akademis(): static
+    public function validator(): static
     {
         return $this->state(fn (array $attributes) => [
-            'username' => 'akademis_'.fake()->unique()->numerify('###'),
-            'role' => 'akademis',
+            'username' => 'validator_'.fake()->unique()->numerify('###'),
+            'role' => 'validator',
         ]);
     }
 

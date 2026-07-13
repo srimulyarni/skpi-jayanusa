@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['nama_kategori', 'status'])]
+#[Fillable(['nama_kategori', 'tipe', 'status'])]
 class Kategori extends Model
 {
     use HasFactory;
 
     protected $table = 'kategori';
 
-    public function detailPengajuan(): HasMany
+    public function aktivitas(): HasMany
     {
-        return $this->hasMany(DetailPengajuan::class);
+        return $this->hasMany(Aktivitas::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\PeriodeSkpi;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,6 +37,8 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $isProfileLengkap = false;
+        $kompreStatus = false;
+        $periodeAktif = false;
         if ($request->user()?->role === 'mahasiswa') {
             $mhs = $request->user()->mahasiswa;
             $isProfileLengkap = $mhs
@@ -44,6 +47,11 @@ class HandleInertiaRequests extends Middleware
                 && $mhs->jk
                 && $mhs->nohp
                 && $mhs->alamat;
+            $kompreStatus = $mhs && $mhs->kompre_status === true;
+            $periodeAktif = PeriodeSkpi::where('status', 'aktif')
+                ->where('tgl_mulai', '<=', now())
+                ->where('tgl_selesai', '>=', now())
+                ->exists();
         }
 
         return [
@@ -52,6 +60,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'isProfileLengkap' => $isProfileLengkap,
+                'kompreStatus' => $kompreStatus,
+                'periodeAktif' => $periodeAktif,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

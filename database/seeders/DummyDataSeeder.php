@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\BuktiKegiatan;
-use App\Models\DetailPengajuan;
+use App\Models\Aktivitas;
 use App\Models\Jurusan;
 use App\Models\Kategori;
 use App\Models\Mahasiswa;
-use App\Models\Pengajuan;
+use App\Models\PengajuanSkpi;
 use App\Models\Pengambilan;
+use App\Models\PeriodeSkpi;
 use App\Models\Skpi;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -24,10 +24,10 @@ class DummyDataSeeder extends Seeder
         $kategoriIds = Kategori::pluck('id')->toArray();
 
         $mahasiswaData = [
-            ['nobp' => '230001001', 'nama' => 'Ahmad Rizki Pratama', 'jk' => 'L', 'jurusan' => $jurusanMI, 'tahun_masuk' => '2023', 'lengkap' => true],
-            ['nobp' => '231001002', 'nama' => 'Siti Nurhaliza', 'jk' => 'P', 'jurusan' => $jurusanSI, 'tahun_masuk' => '2023', 'lengkap' => true],
-            ['nobp' => '232001003', 'nama' => 'Muhammad Fadil', 'jk' => 'L', 'jurusan' => $jurusanSK, 'tahun_masuk' => null, 'lengkap' => false],
-            ['nobp' => '230001004', 'nama' => 'Putri Amelia', 'jk' => 'P', 'jurusan' => $jurusanMI, 'tahun_masuk' => null, 'lengkap' => false],
+            ['nobp' => '230001001', 'nama' => 'Ahmad Rizki Pratama', 'jk' => 'L', 'jurusan' => $jurusanMI, 'tahun_masuk' => '2023', 'lengkap' => true, 'kompre' => true],
+            ['nobp' => '231001002', 'nama' => 'Siti Nurhaliza', 'jk' => 'P', 'jurusan' => $jurusanSI, 'tahun_masuk' => '2023', 'lengkap' => true, 'kompre' => true],
+            ['nobp' => '232001003', 'nama' => 'Muhammad Fadil', 'jk' => 'L', 'jurusan' => $jurusanSK, 'tahun_masuk' => null, 'lengkap' => false, 'kompre' => false],
+            ['nobp' => '230001004', 'nama' => 'Putri Amelia', 'jk' => 'P', 'jurusan' => $jurusanMI, 'tahun_masuk' => null, 'lengkap' => false, 'kompre' => false],
         ];
 
         $mahasiswas = [];
@@ -41,56 +41,75 @@ class DummyDataSeeder extends Seeder
                 'alamat' => $d['lengkap'] ? 'Jl. Olo Ladang No. 10, Padang' : null,
                 'nohp' => $d['lengkap'] ? '081234567890' : null,
                 'nomor_ijazah' => $d['lengkap'] ? 'IJZ-TEST1234' : null,
+                'kompre_status' => $d['kompre'],
+                'kompre_tanggal' => $d['kompre'] ? '2026-06-15' : null,
             ]);
             $mahasiswas[] = $mhs;
         }
 
         $kegiatan = [
-            ['idx' => 0, 'nama' => 'Juara 1 Olimpiade Matematika', 'peran' => 'Peserta'],
-            ['idx' => 2, 'nama' => 'Ketua BEM STMIK Jayanusa', 'peran' => 'Ketua'],
-            ['idx' => 5, 'nama' => 'Sertifikasi Junior Web Developer', 'peran' => 'Peserta'],
+            ['idx' => 0, 'nama' => 'Juara 1 Olimpiade Matematika', 'peran' => 'Peserta', 'juara' => 'Juara 1', 'tingkat' => 'nasional'],
+            ['idx' => 2, 'nama' => 'Ketua BEM STMIK Jayanusa', 'peran' => 'Ketua', 'juara' => null, 'tingkat' => null],
+            ['idx' => 5, 'nama' => 'Sertifikasi Junior Web Developer', 'peran' => 'Peserta', 'juara' => null, 'tingkat' => null],
         ];
 
-        $pengajuanConfigs = [
-            ['mhs' => 0, 'status' => 'disetujui', 'tgl' => '2026-01-15', 'keg' => [0, 2], 'catatan' => null, 'terbit' => true, 'ambil' => true],
-            ['mhs' => 1, 'status' => 'disetujui', 'tgl' => '2026-02-10', 'keg' => [1], 'catatan' => null, 'terbit' => true, 'ambil' => false],
-            ['mhs' => 0, 'status' => 'diproses', 'tgl' => '2026-04-20', 'keg' => [0], 'catatan' => null, 'terbit' => false, 'ambil' => false],
-            ['mhs' => 2, 'status' => 'revisi', 'tgl' => '2026-05-18', 'keg' => [1, 2], 'catatan' => 'Bukti kurang jelas.', 'terbit' => false, 'ambil' => false],
-            ['mhs' => 3, 'status' => 'ditolak', 'tgl' => '2026-06-01', 'keg' => [0], 'catatan' => 'Kategori tidak sesuai.', 'terbit' => false, 'ambil' => false],
-            ['mhs' => 3, 'status' => 'draft', 'tgl' => null, 'keg' => [1], 'catatan' => null, 'terbit' => false, 'ambil' => false],
+        $aktivitasConfigs = [
+            ['mhs' => 0, 'keg' => 0, 'status' => 'disetujui'],
+            ['mhs' => 0, 'keg' => 1, 'status' => 'disetujui'],
+            ['mhs' => 1, 'keg' => 2, 'status' => 'disetujui'],
+            ['mhs' => 1, 'keg' => 0, 'status' => 'menunggu'],
+            ['mhs' => 2, 'keg' => 1, 'status' => 'ditolak'],
+            ['mhs' => 3, 'keg' => 0, 'status' => 'menunggu'],
         ];
 
-        $noUrut = 1;
-        foreach ($pengajuanConfigs as $c) {
+        $aktivitasIds = [];
+        foreach ($aktivitasConfigs as $c) {
             $mhs = $mahasiswas[$c['mhs']];
-            $isDraft = $c['status'] === 'draft';
-            $p = Pengajuan::create([
+            $k = $kegiatan[$c['keg']];
+            $a = Aktivitas::create([
                 'mahasiswa_id' => $mhs->id,
-                'no_registrasi' => $isDraft ? null : 'REG/'.date('Y', strtotime($c['tgl'])).'/'.sprintf('%04d', $noUrut++),
-                'tgl_pengajuan' => $c['tgl'], 'status' => $c['status'], 'catatan_akademis' => $c['catatan'],
+                'kategori_id' => $kategoriIds[$k['idx']],
+                'nama_kegiatan' => $k['nama'],
+                'tahun_kegiatan' => '2025',
+                'peran' => $k['peran'],
+                'bukti_link' => 'https://drive.google.com/file/d/example/view',
+                'juara' => $k['juara'],
+                'tingkat' => $k['tingkat'],
+                'status' => $c['status'],
+                'catatan_validator' => $c['status'] === 'ditolak' ? 'Bukti kurang jelas.' : null,
             ]);
-
-            foreach ($c['keg'] as $ki) {
-                $k = $kegiatan[$ki];
-                $d = DetailPengajuan::create([
-                    'pengajuan_id' => $p->id, 'kategori_id' => $kategoriIds[$k['idx']],
-                    'nama_kegiatan' => $k['nama'], 'tahun_kegiatan' => '2025', 'peran' => $k['peran'],
-                ]);
-                BuktiKegiatan::create(['detail_pengajuan_id' => $d->id, 'nama_file' => 'bukti.jpg', 'path_file' => 'bukti/dummy.jpg']);
-            }
-
-            if ($c['terbit']) {
-                $pt = $mhs->jurusan->identitasPt;
-                $skpi = Skpi::create([
-                    'no_skpi' => 'SKPI/2026/01/'.sprintf('%04d', $p->id).'/'.$pt->kode_institusi,
-                    'pengajuan_id' => $p->id, 'identitas_pt_id' => $pt->id, 'tgl_terbit' => '2026-01-22', 'status' => 'diterbitkan',
-                ]);
-                Pengambilan::create([
-                    'skpi_id' => $skpi->id, 'mahasiswa_id' => $mhs->id, 'tgl_pengambilan' => '2026-01-29',
-                    'diambil_pada' => $c['ambil'] ? '2026-02-05 10:00:00' : null,
-                    'status' => $c['ambil'] ? 'sudah_diambil' : 'belum_diambil',
-                ]);
-            }
+            $aktivitasIds[$c['mhs']][] = $a->id;
         }
+
+        $periode = PeriodeSkpi::create([
+            'nama' => 'Periode Juli 2026',
+            'tgl_mulai' => '2026-07-01',
+            'tgl_selesai' => '2026-12-31',
+            'status' => 'aktif',
+        ]);
+
+        $ps1 = PengajuanSkpi::create([
+            'mahasiswa_id' => $mahasiswas[0]->id,
+            'periode_skpi_id' => $periode->id,
+            'no_registrasi' => 'REG/2026/07/0001',
+            'tgl_pengajuan' => '2026-07-10',
+            'status' => 'disetujui',
+        ]);
+        $ps1->aktivitas()->attach($aktivitasIds[0]);
+
+        $pt = $mahasiswas[0]->jurusan->identitasPt;
+        $skpi = Skpi::create([
+            'no_skpi' => 'SKPI/2026/07/0001/' . $pt->kode_institusi,
+            'pengajuan_skpi_id' => $ps1->id,
+            'identitas_pt_id' => $pt->id,
+            'tgl_terbit' => '2026-07-15',
+            'status' => 'diterbitkan',
+        ]);
+        Pengambilan::create([
+            'skpi_id' => $skpi->id,
+            'mahasiswa_id' => $mahasiswas[0]->id,
+            'tgl_pengambilan' => '2026-07-20',
+            'status' => 'belum_diambil',
+        ]);
     }
 }

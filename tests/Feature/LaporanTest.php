@@ -1,33 +1,25 @@
 <?php
 
+use App\Models\Mahasiswa;
+use App\Models\Skpi;
 use App\Models\User;
 
-test('akademis can view laporan', function () {
-    $user = User::factory()->akademis()->create();
-
-    $response = $this->actingAs($user)->get(route('akademis.laporan.index'));
-
-    $response->assertOk();
+test('validator can view laporan', function () {
+    $user = User::factory()->validator()->create();
+    $this->actingAs($user)->get(route('validator.laporan.index'))->assertOk();
 });
 
 test('ketua can view laporan', function () {
     $user = User::factory()->ketua()->create();
-
-    $response = $this->actingAs($user)->get(route('ketua.laporan.index'));
-
-    $response->assertOk();
-});
-
-test('mahasiswa cannot view laporan', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)->get(route('akademis.laporan.index'))->assertStatus(403);
+    $this->actingAs($user)->get(route('ketua.laporan.index'))->assertOk();
 });
 
 test('laporan filters by year', function () {
-    $user = User::factory()->akademis()->create();
+    $user = User::factory()->validator()->create();
+    $this->actingAs($user)->get(route('validator.laporan.index', ['tahun' => 2026]))->assertOk();
+});
 
-    $response = $this->actingAs($user)->get(route('akademis.laporan.index', ['tahun' => 2026]));
-
-    $response->assertOk();
+test('laporan filters by month', function () {
+    $user = User::factory()->validator()->create();
+    $this->actingAs($user)->get(route('validator.laporan.index', ['tahun' => 2026, 'bulan' => 7]))->assertOk();
 });

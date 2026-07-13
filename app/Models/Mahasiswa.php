@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'nobp', 'nama', 'tempat_lahir', 'tanggal_lahir', 'jk',
     'alamat', 'nohp', 'foto', 'jurusan_id',
-    'nomor_ijazah', 'tahun_masuk', 'user_id',
+    'nomor_ijazah', 'tahun_masuk', 'kompre_status', 'kompre_tanggal', 'user_id',
 ])]
 class Mahasiswa extends Model
 {
@@ -23,6 +23,8 @@ class Mahasiswa extends Model
     {
         return [
             'tanggal_lahir' => 'date',
+            'kompre_status' => 'boolean',
+            'kompre_tanggal' => 'date',
         ];
     }
 
@@ -36,9 +38,14 @@ class Mahasiswa extends Model
         return $this->belongsTo(Jurusan::class);
     }
 
-    public function pengajuan(): HasMany
+    public function aktivitas(): HasMany
     {
-        return $this->hasMany(Pengajuan::class);
+        return $this->hasMany(Aktivitas::class);
+    }
+
+    public function pengajuanSkpi(): HasMany
+    {
+        return $this->hasMany(PengajuanSkpi::class);
     }
 
     public function pengambilan(): HasMany

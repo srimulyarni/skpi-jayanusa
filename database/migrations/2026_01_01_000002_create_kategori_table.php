@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('kategori', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kategori');
+            $table->enum('tipe', ['lomba', 'lainnya'])->default('lainnya');
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
         });

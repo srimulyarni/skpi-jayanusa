@@ -28,6 +28,8 @@ class MahasiswaFactory extends Factory
             'jurusan_id' => Jurusan::factory(),
             'nomor_ijazah' => fake()->unique()->numerify('IJZ-########'),
             'tahun_masuk' => (string) fake()->year(),
+            'kompre_status' => null,
+            'kompre_tanggal' => null,
             'user_id' => User::factory(),
         ];
     }

@@ -89,6 +89,10 @@
 
     <div class="section-title">Daftar Aktivitas, Prestasi dan Kegiatan <span class="en">List of Activities, Achievements and Events</span></div>
 
+    @php
+        $hasLomba = $aktivitas->contains(fn ($item) => $item->kategori && $item->kategori->tipe === 'lomba');
+    @endphp
+
     @if($aktivitas->count() > 0)
         <table class="aktivitas-table">
             <thead>
@@ -98,6 +102,10 @@
                     <th>Nama Kegiatan / Prestasi <br><span class="en">Activity / Achievement</span></th>
                     <th>Peran <br><span class="en">Role</span></th>
                     <th>Tahun <br><span class="en">Year</span></th>
+                    @if($hasLomba)
+                        <th>Juara <br><span class="en">Award</span></th>
+                        <th>Tingkat <br><span class="en">Level</span></th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -108,6 +116,10 @@
                         <td>{{ $item->nama_kegiatan }}</td>
                         <td>{{ $item->peran }}</td>
                         <td class="tahun">{{ $item->tahun_kegiatan }}</td>
+                        @if($hasLomba)
+                            <td>{{ $item->juara ?? '-' }}</td>
+                            <td>{{ $item->tingkat ? ucfirst($item->tingkat) : '-' }}</td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

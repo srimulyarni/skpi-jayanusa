@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
-    'no_skpi', 'pengajuan_id', 'identitas_pt_id',
+    'no_skpi', 'pengajuan_skpi_id', 'identitas_pt_id',
     'tgl_terbit', 'status',
 ])]
 class Skpi extends Model
@@ -25,9 +25,9 @@ class Skpi extends Model
         ];
     }
 
-    public function pengajuan(): BelongsTo
+    public function pengajuanSkpi(): BelongsTo
     {
-        return $this->belongsTo(Pengajuan::class);
+        return $this->belongsTo(PengajuanSkpi::class, 'pengajuan_skpi_id');
     }
 
     public function identitasPt(): BelongsTo

@@ -25,8 +25,8 @@ test('mahasiswa login requires nobp and password', function () {
     $response->assertSessionHasErrors(['nobp', 'password']);
 });
 
-test('akademis can login via fortify', function () {
-    $user = User::factory()->akademis()->create();
+test('validator can login via fortify', function () {
+    $user = User::factory()->validator()->create();
 
     $response = $this->post(route('login.store'), [
         'username' => $user->username,
@@ -36,8 +36,8 @@ test('akademis can login via fortify', function () {
     $this->assertAuthenticated();
 });
 
-test('akademis can not authenticate with invalid password', function () {
-    $user = User::factory()->akademis()->create();
+test('validator can not authenticate with invalid password', function () {
+    $user = User::factory()->validator()->create();
 
     $this->post(route('login.store'), [
         'username' => $user->username,

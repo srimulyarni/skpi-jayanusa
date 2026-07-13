@@ -10,8 +10,10 @@
             <img src="{{ $logoBase64 }}" alt="Logo Jayanusa">
         @endif
     </div>
-    <p class="kop-nama">Yayasan Bina Manajemen Informatika (YBMI) Jayanusa</p>
-    <p class="kop-nama-en">(Jayanusa Management Development Foundation (YBMI)</p>
+    <p class="kop-nama">Universitas Jayanusa</p>
+    <p class="kop-nama-en">Jayanusa University</p>
+    <p class="kop-nama-yas">Yayasan Bina Manajemen Informatika (YBMI) Jayanusa</p>
+    <p class="kop-nama-en-yas">(Jayanusa Management Development Foundation (YBMI)</p>
     <p class="kop-alamat">Jl. Olo Ladang No. 10, Padang — Sumatera Barat</p>
 </div>
 <hr class="garis-ganda">

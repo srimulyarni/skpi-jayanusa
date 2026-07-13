@@ -62,6 +62,8 @@ class StressTestSeeder extends Seeder
                     'jurusan_id' => $jurusanIds[$seq % count($jurusanIds)],
                     'nomor_ijazah' => 'IJZ-STRESS-'.$seq,
                     'tahun_masuk' => (string) (2024 + ($seq % 3)),
+                    'kompre_status' => $seq % 3 === 0,
+                    'kompre_tanggal' => $seq % 3 === 0 ? '2026-06-15' : null,
                     'user_id' => $userId,
                     'created_at' => $now,
                     'updated_at' => $now,
@@ -75,12 +77,11 @@ class StressTestSeeder extends Seeder
             DB::table('mahasiswa')->insert($mahasiswas);
         }
 
-        $this->command->info("Seeding {$total} pengajuan...");
+        $this->command->info("Seeding {$total} aktivitas...");
 
         $mhsIds = DB::table('mahasiswa')->where('nobp', 'like', '99%')->pluck('id')->toArray();
-        $statuses = ['draft', 'menunggu', 'diproses', 'disetujui', 'revisi', 'ditolak'];
-        $pengajuanId = (int) DB::table('pengajuan')->max('id') + 1;
-        $startPengajuanId = $pengajuanId;
+        $statuses = ['menunggu', 'disetujui', 'ditolak'];
+        $aktivitasId = (int) DB::table('aktivitas')->max('id') + 1;
 
         for ($i = 0; $i < $total; $i += $chunkSize) {
             $rows = [];
@@ -89,114 +90,114 @@ class StressTestSeeder extends Seeder
             for ($j = 0; $j < $batch; $j++) {
                 $seq = $i + $j;
                 $status = $statuses[$seq % count($statuses)];
-                $isDraft = $status === 'draft';
+                $kategoriId = $kategoriIds[$seq % count($kategoriIds)];
+                $isLomba = DB::table('kategori')->where('id', $kategoriId)->value('tipe') === 'lomba';
+
                 $rows[] = [
-                    'id' => $pengajuanId,
+                    'id' => $aktivitasId,
                     'mahasiswa_id' => $mhsIds[$seq % count($mhsIds)],
-                    'no_registrasi' => $isDraft ? null : 'REG/STRESS/'.$pengajuanId,
-                    'tgl_pengajuan' => $isDraft ? null : now()->subDays(rand(0, 365))->toDateString(),
+                    'kategori_id' => $kategoriId,
+                    'nama_kegiatan' => 'Kegiatan Stress Test '.$aktivitasId,
+                    'tahun_kegiatan' => (string) (2024 + ($seq % 3)),
+                    'peran' => $seq % 2 === 0 ? 'Peserta' : 'Ketua',
+                    'bukti_link' => 'https://drive.google.com/file/d/stress_'.$aktivitasId.'/view',
+                    'juara' => $isLomba ? 'Juara '.(($seq % 3) + 1) : null,
+                    'tingkat' => $isLomba ? ['universitas', 'wilayah', 'nasional'][$seq % 3] : null,
                     'status' => $status,
-                    'catatan_akademis' => $status === 'revisi' ? 'Revisi otomatis.' : null,
+                    'catatan_validator' => $status === 'ditolak' ? 'Ditolak otomatis.' : null,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
-                $pengajuanId++;
+                $aktivitasId++;
             }
 
-            DB::table('pengajuan')->insert($rows);
+            DB::table('aktivitas')->insert($rows);
         }
 
-        $this->command->info('Seeding '.($total * 2).' detail_pengajuan + bukti_kegiatan...');
+        $this->command->info('Seeding periode SKPI + pengajuan SKPI...');
 
-        $detailId = (int) DB::table('detail_pengajuan')->max('id') + 1;
-        $buktiId = (int) DB::table('bukti_kegiatan')->max('id') + 1;
-        $pengajuanIds = range($startPengajuanId, $startPengajuanId + $total - 1);
+        DB::table('periode_skpi')->insert([
+            'nama' => 'Periode Stress Test',
+            'tgl_mulai' => now()->subMonth()->toDateString(),
+            'tgl_selesai' => now()->addMonth()->toDateString(),
+            'status' => 'aktif',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
 
-        for ($i = 0; $i < $total; $i += $chunkSize) {
-            $details = [];
-            $buktis = [];
-            $batch = min($chunkSize, $total - $i);
+        $periodeId = DB::table('periode_skpi')->where('nama', 'Periode Stress Test')->value('id');
 
-            for ($j = 0; $j < $batch; $j++) {
-                $pid = $pengajuanIds[$i + $j];
-
-                for ($k = 0; $k < 2; $k++) {
-                    $details[] = [
-                        'id' => $detailId,
-                        'pengajuan_id' => $pid,
-                        'kategori_id' => $kategoriIds[($i + $j + $k) % count($kategoriIds)],
-                        'nama_kegiatan' => 'Kegiatan Stress Test '.$detailId,
-                        'tahun_kegiatan' => (string) (2024 + (($i + $j) % 3)),
-                        'peran' => ($i + $j) % 2 === 0 ? 'Peserta' : 'Ketua',
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-
-                    $buktis[] = [
-                        'detail_pengajuan_id' => $detailId,
-                        'nama_file' => 'bukti_stress_'.$detailId.'.jpg',
-                        'path_file' => 'bukti-kegiatan/stress_'.$detailId.'.jpg',
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-
-                    $detailId++;
-                }
-            }
-
-            DB::table('detail_pengajuan')->insert($details);
-            DB::table('bukti_kegiatan')->insert($buktis);
-        }
-
-        $this->command->info('Seeding ~'.round($total * 0.2).' skpi + pengambilan...');
-
-        $disetujuiIds = DB::table('pengajuan')
-            ->whereBetween('id', [$startPengajuanId, $startPengajuanId + $total - 1])
+        $disetujuiAktivitas = DB::table('aktivitas')
             ->where('status', 'disetujui')
-            ->pluck('id')
+            ->where('mahasiswa_id', '>', 0)
+            ->groupBy('mahasiswa_id')
+            ->pluck('mahasiswa_id')
             ->toArray();
 
+        $pengajuanId = (int) DB::table('pengajuan_skpi')->max('id') + 1;
         $skpiId = (int) DB::table('skpi')->max('id') + 1;
         $skpiCount = 0;
+        $batch = 0;
 
-        for ($i = 0; $i < count($disetujuiIds); $i += $chunkSize) {
-            $skpis = [];
-            $pengambilans = [];
-            $batch = min($chunkSize, count($disetujuiIds) - $i);
+        foreach ($disetujuiAktivitas as $mhsId) {
+            $rows = [];
+            $rows[] = [
+                'id' => $pengajuanId,
+                'mahasiswa_id' => $mhsId,
+                'periode_skpi_id' => $periodeId,
+                'no_registrasi' => 'REG/STRESS/'.$pengajuanId,
+                'tgl_pengajuan' => now()->subDays(rand(0, 30))->toDateString(),
+                'status' => 'disetujui',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
 
-            for ($j = 0; $j < $batch; $j++) {
-                $pid = $disetujuiIds[$i + $j];
-                $mhsId = DB::table('pengajuan')->where('id', $pid)->value('mahasiswa_id');
-                $ptId = $identitasPtIds[($i + $j) % count($identitasPtIds)];
+            DB::table('pengajuan_skpi')->insert($rows);
 
-                $skpis[] = [
-                    'id' => $skpiId,
-                    'no_skpi' => 'SKPI/STRESS/'.$skpiId.'/TEST',
-                    'pengajuan_id' => $pid,
-                    'identitas_pt_id' => $ptId,
-                    'tgl_terbit' => now()->subDays(rand(0, 180))->toDateString(),
-                    'status' => 'diterbitkan',
+            $aktivitasIds = DB::table('aktivitas')
+                ->where('mahasiswa_id', $mhsId)
+                ->where('status', 'disetujui')
+                ->pluck('id')
+                ->toArray();
+
+            $pivotRows = [];
+            foreach ($aktivitasIds as $aId) {
+                $pivotRows[] = [
+                    'pengajuan_skpi_id' => $pengajuanId,
+                    'aktivitas_id' => $aId,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
-
-                $pengambilans[] = [
-                    'skpi_id' => $skpiId,
-                    'mahasiswa_id' => $mhsId,
-                    'tgl_pengambilan' => now()->subDays(rand(0, 90))->toDateString(),
-                    'status' => 'belum_diambil',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-
-                $skpiId++;
-                $skpiCount++;
             }
+            DB::table('pengajuan_skpi_aktivitas')->insert($pivotRows);
 
-            DB::table('skpi')->insert($skpis);
-            DB::table('pengambilan')->insert($pengambilans);
+            $ptId = $identitasPtIds[$batch % count($identitasPtIds)];
+            DB::table('skpi')->insert([
+                'id' => $skpiId,
+                'no_skpi' => 'SKPI/STRESS/'.$skpiId.'/TEST',
+                'pengajuan_skpi_id' => $pengajuanId,
+                'identitas_pt_id' => $ptId,
+                'tgl_terbit' => now()->subDays(rand(0, 30))->toDateString(),
+                'status' => 'diterbitkan',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            DB::table('pengambilan')->insert([
+                'skpi_id' => $skpiId,
+                'mahasiswa_id' => $mhsId,
+                'tgl_pengambilan' => now()->subDays(rand(0, 15))->toDateString(),
+                'status' => 'belum_diambil',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            $pengajuanId++;
+            $skpiId++;
+            $skpiCount++;
+            $batch++;
         }
 
-        $this->command->info("Done! Users: {$total}, Mahasiswa: {$total}, Pengajuan: {$total}, Detail: ".($total * 2).', Bukti: '.($total * 2).", SKPI: {$skpiCount}, Pengambilan: {$skpiCount}");
+        $this->command->info("Done! Users: {$total}, Mahasiswa: {$total}, Aktivitas: {$total}, SKPI: {$skpiCount}");
     }
 }

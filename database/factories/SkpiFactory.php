@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\IdentitasPt;
-use App\Models\Pengajuan;
+use App\Models\PengajuanSkpi;
 use App\Models\Skpi;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +18,7 @@ class SkpiFactory extends Factory
     {
         return [
             'no_skpi' => fake()->unique()->numerify('SKPI/####/##/####/XXXX'),
-            'pengajuan_id' => Pengajuan::factory(),
+            'pengajuan_skpi_id' => PengajuanSkpi::factory(),
             'identitas_pt_id' => IdentitasPt::factory(),
             'tgl_terbit' => fake()->dateTimeBetween('-3 months', 'now'),
             'status' => 'diterbitkan',

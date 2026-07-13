@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\Akademis\IdentitasPtController;
-use App\Http\Controllers\Akademis\JurusanController;
-use App\Http\Controllers\Akademis\KategoriController;
-use App\Http\Controllers\Akademis\LaporanController;
-use App\Http\Controllers\Akademis\MahasiswaController;
-use App\Http\Controllers\Akademis\PengajuanController;
-use App\Http\Controllers\Akademis\PengambilanController;
-use App\Http\Controllers\Akademis\SkpiController;
-use App\Http\Controllers\Akademis\SkpiPdfController;
+use App\Http\Controllers\Validator\IdentitasPtController;
+use App\Http\Controllers\Validator\JurusanController;
+use App\Http\Controllers\Validator\KategoriController;
+use App\Http\Controllers\Validator\LaporanController;
+use App\Http\Controllers\Validator\MahasiswaController;
+use App\Http\Controllers\Validator\PengambilanController;
+use App\Http\Controllers\Validator\PeriodeSkpiController;
+use App\Http\Controllers\Validator\SkpiController;
+use App\Http\Controllers\Validator\SkpiPdfController;
+use App\Http\Controllers\Validator\ValidasiAktivitasController;
 use App\Http\Controllers\Auth\MahasiswaLoginController;
-use App\Http\Controllers\Mahasiswa\MahasiswaPengajuanController;
+use App\Http\Controllers\Mahasiswa\MahasiswaAktivitasController;
+use App\Http\Controllers\Mahasiswa\MahasiswaPengajuanSkpiController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,20 +26,26 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('profil', [MahasiswaProfileController::class, 'edit'])->name('profil.edit');
     Route::put('profil', [MahasiswaProfileController::class, 'update'])->name('profil.update');
 
-    Route::get('pengajuan', [MahasiswaPengajuanController::class, 'index'])->name('pengajuan.index');
-    Route::get('pengajuan/create', [MahasiswaPengajuanController::class, 'create'])->name('pengajuan.create');
-    Route::post('pengajuan', [MahasiswaPengajuanController::class, 'store'])->name('pengajuan.store');
-    Route::get('pengajuan/{pengajuan}', [MahasiswaPengajuanController::class, 'show'])->name('pengajuan.show');
-    Route::get('pengajuan/{pengajuan}/edit', [MahasiswaPengajuanController::class, 'edit'])->name('pengajuan.edit');
-    Route::put('pengajuan/{pengajuan}', [MahasiswaPengajuanController::class, 'update'])->name('pengajuan.update');
-    Route::post('pengajuan/{pengajuan}/ajukan', [MahasiswaPengajuanController::class, 'ajukan'])->name('pengajuan.ajukan');
+    Route::get('aktivitas', [MahasiswaAktivitasController::class, 'index'])->name('aktivitas.index');
+    Route::get('aktivitas/create', [MahasiswaAktivitasController::class, 'create'])->name('aktivitas.create');
+    Route::post('aktivitas', [MahasiswaAktivitasController::class, 'store'])->name('aktivitas.store');
+    Route::get('aktivitas/{aktivitas}', [MahasiswaAktivitasController::class, 'show'])->name('aktivitas.show');
+    Route::get('aktivitas/{aktivitas}/edit', [MahasiswaAktivitasController::class, 'edit'])->name('aktivitas.edit');
+    Route::put('aktivitas/{aktivitas}', [MahasiswaAktivitasController::class, 'update'])->name('aktivitas.update');
+    Route::delete('aktivitas/{aktivitas}', [MahasiswaAktivitasController::class, 'destroy'])->name('aktivitas.destroy');
+
+    Route::get('skpi', [MahasiswaPengajuanSkpiController::class, 'index'])->name('skpi.index');
+    Route::get('skpi/create', [MahasiswaPengajuanSkpiController::class, 'create'])->name('skpi.create');
+    Route::post('skpi', [MahasiswaPengajuanSkpiController::class, 'store'])->name('skpi.store');
+    Route::get('skpi/{pengajuanSkpi}', [MahasiswaPengajuanSkpiController::class, 'show'])->name('skpi.show');
+    Route::patch('skpi/{pengajuanSkpi}/batalkan', [MahasiswaPengajuanSkpiController::class, 'batalkan'])->name('skpi.batalkan');
 
     Route::get('skpi/{skpi}/pdf', [SkpiPdfController::class, 'preview'])->name('skpi.pdf.preview');
     Route::get('skpi/{skpi}/pdf/download', [SkpiPdfController::class, 'download'])->name('skpi.pdf.download');
 });
 
-Route::middleware(['auth', 'role:akademis'])->prefix('akademis')->name('akademis.')->group(function () {
-    Route::inertia('dashboard', 'akademis/dashboard')->name('dashboard');
+Route::middleware(['auth', 'role:validator'])->prefix('validator')->name('validator.')->group(function () {
+    Route::inertia('dashboard', 'validator/dashboard')->name('dashboard');
 
     Route::get('kategori', [KategoriController::class, 'index'])->name('kategori.index');
     Route::get('kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
@@ -53,10 +61,6 @@ Route::middleware(['auth', 'role:akademis'])->prefix('akademis')->name('akademis
     Route::put('identitas-pt/{identitasPt}', [IdentitasPtController::class, 'update'])->name('identitas-pt.update');
     Route::delete('identitas-pt/{identitasPt}', [IdentitasPtController::class, 'destroy'])->name('identitas-pt.destroy');
 
-    Route::get('pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
-    Route::get('pengajuan/{pengajuan}', [PengajuanController::class, 'show'])->name('pengajuan.show');
-    Route::patch('pengajuan/{pengajuan}/status', [PengajuanController::class, 'updateStatus'])->name('pengajuan.status');
-
     Route::get('mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
     Route::get('mahasiswa/{mahasiswa}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
     Route::put('mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
@@ -70,15 +74,30 @@ Route::middleware(['auth', 'role:akademis'])->prefix('akademis')->name('akademis
     Route::delete('jurusan/{jurusan}', [JurusanController::class, 'destroy'])->name('jurusan.destroy');
 
     Route::get('skpi', [SkpiController::class, 'index'])->name('skpi.index');
+    Route::get('skpi/{pengajuanSkpi}', [SkpiController::class, 'show'])->name('skpi.show');
     Route::post('skpi', [SkpiController::class, 'store'])->name('skpi.store');
-    Route::patch('skpi/{skpi}/batalkan', [SkpiController::class, 'batalkan'])->name('skpi.batalkan');
+    Route::patch('skpi/{pengajuanSkpi}/approve', [SkpiController::class, 'approve'])->name('skpi.approve');
+    Route::patch('skpi/{pengajuanSkpi}/reject', [SkpiController::class, 'reject'])->name('skpi.reject');
     Route::get('skpi/{skpi}/pdf', [SkpiPdfController::class, 'preview'])->name('skpi.pdf.preview');
     Route::get('skpi/{skpi}/pdf/download', [SkpiPdfController::class, 'download'])->name('skpi.pdf.download');
 
     Route::get('pengambilan', [PengambilanController::class, 'index'])->name('pengambilan.index');
     Route::patch('pengambilan/{pengambilan}/ambil', [PengambilanController::class, 'ambil'])->name('pengambilan.ambil');
+    Route::patch('pengambilan/{skpi}/batalkan', [PengambilanController::class, 'batalkan'])->name('pengambilan.batalkan');
 
     Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+    Route::get('validasi-aktivitas', [ValidasiAktivitasController::class, 'index'])->name('validasi-aktivitas.index');
+    Route::get('validasi-aktivitas/{aktivitas}', [ValidasiAktivitasController::class, 'show'])->name('validasi-aktivitas.show');
+    Route::patch('validasi-aktivitas/{aktivitas}/approve', [ValidasiAktivitasController::class, 'approve'])->name('validasi-aktivitas.approve');
+    Route::patch('validasi-aktivitas/{aktivitas}/reject', [ValidasiAktivitasController::class, 'reject'])->name('validasi-aktivitas.reject');
+
+    Route::get('periode-skpi', [PeriodeSkpiController::class, 'index'])->name('periode-skpi.index');
+    Route::get('periode-skpi/create', [PeriodeSkpiController::class, 'create'])->name('periode-skpi.create');
+    Route::post('periode-skpi', [PeriodeSkpiController::class, 'store'])->name('periode-skpi.store');
+    Route::get('periode-skpi/{periodeSkpi}/edit', [PeriodeSkpiController::class, 'edit'])->name('periode-skpi.edit');
+    Route::put('periode-skpi/{periodeSkpi}', [PeriodeSkpiController::class, 'update'])->name('periode-skpi.update');
+    Route::delete('periode-skpi/{periodeSkpi}', [PeriodeSkpiController::class, 'destroy'])->name('periode-skpi.destroy');
 });
 
 Route::middleware(['auth', 'role:ketua'])->prefix('ketua')->name('ketua.')->group(function () {

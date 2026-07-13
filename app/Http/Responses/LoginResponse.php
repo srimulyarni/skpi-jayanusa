@@ -11,7 +11,7 @@ class LoginResponse implements LoginResponseContract
     {
         return match (auth()->user()->role) {
             'mahasiswa' => redirect('/mahasiswa/dashboard'),
-            'akademis' => redirect('/akademis/dashboard'),
+            'validator' => redirect('/validator/dashboard'),
             'ketua' => redirect('/ketua/dashboard'),
             default => redirect('/'),
         };

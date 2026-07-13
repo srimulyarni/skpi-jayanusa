@@ -16,8 +16,16 @@ class KategoriFactory extends Factory
     {
         return [
             'nama_kategori' => fake()->unique()->words(2, true),
+            'tipe' => 'lainnya',
             'status' => 'aktif',
         ];
+    }
+
+    public function lomba(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tipe' => 'lomba',
+        ]);
     }
 
     public function nonaktif(): static

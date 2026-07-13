@@ -1,7 +1,7 @@
 export type User = {
     id: number;
     username: string;
-    role: 'mahasiswa' | 'akademis' | 'ketua';
+    role: 'mahasiswa' | 'validator' | 'ketua';
     avatar?: string;
     created_at: string;
     updated_at: string;
@@ -11,4 +11,6 @@ export type User = {
 export type Auth = {
     user: User;
     isProfileLengkap: boolean;
+    kompreStatus: boolean;
+    periodeAktif: boolean;
 };
