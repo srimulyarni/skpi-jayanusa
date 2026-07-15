@@ -85,7 +85,17 @@ Route::middleware(['auth', 'role:validator'])->prefix('validator')->name('valida
     Route::patch('pengambilan/{pengambilan}/ambil', [PengambilanController::class, 'ambil'])->name('pengambilan.ambil');
     Route::patch('pengambilan/{skpi}/batalkan', [PengambilanController::class, 'batalkan'])->name('pengambilan.batalkan');
 
-    Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('laporan', fn () => redirect()->route('validator.laporan.kategori'));
+    Route::get('laporan/kategori', [LaporanController::class, 'kategori'])->name('laporan.kategori');
+    Route::get('laporan/kategori/pdf', [LaporanController::class, 'kategoriPdf'])->name('laporan.kategori.pdf');
+    Route::get('laporan/pengajuan', [LaporanController::class, 'pengajuan'])->name('laporan.pengajuan');
+    Route::get('laporan/pengajuan/pdf', [LaporanController::class, 'pengajuanPdf'])->name('laporan.pengajuan.pdf');
+    Route::get('laporan/penerbitan', [LaporanController::class, 'penerbitan'])->name('laporan.penerbitan');
+    Route::get('laporan/penerbitan/pdf', [LaporanController::class, 'penerbitanPdf'])->name('laporan.penerbitan.pdf');
+    Route::get('laporan/pengambilan', [LaporanController::class, 'pengambilan'])->name('laporan.pengambilan');
+    Route::get('laporan/pengambilan/pdf', [LaporanController::class, 'pengambilanPdf'])->name('laporan.pengambilan.pdf');
+    Route::get('laporan/aktivitas', [LaporanController::class, 'aktivitas'])->name('laporan.aktivitas');
+    Route::get('laporan/aktivitas/pdf', [LaporanController::class, 'aktivitasPdf'])->name('laporan.aktivitas.pdf');
 
     Route::get('validasi-aktivitas', [ValidasiAktivitasController::class, 'index'])->name('validasi-aktivitas.index');
     Route::get('validasi-aktivitas/{aktivitas}', [ValidasiAktivitasController::class, 'show'])->name('validasi-aktivitas.show');
@@ -102,7 +112,9 @@ Route::middleware(['auth', 'role:validator'])->prefix('validator')->name('valida
 
 Route::middleware(['auth', 'role:ketua'])->prefix('ketua')->name('ketua.')->group(function () {
     Route::inertia('dashboard', 'ketua/dashboard')->name('dashboard');
-    Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('laporan', fn () => redirect()->route('ketua.laporan.penerbitan'));
+    Route::get('laporan/penerbitan', [LaporanController::class, 'penerbitan'])->name('laporan.penerbitan');
+    Route::get('laporan/penerbitan/pdf', [LaporanController::class, 'penerbitanPdf'])->name('laporan.penerbitan.pdf');
 });
 
 require __DIR__.'/settings.php';

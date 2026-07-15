@@ -12,6 +12,10 @@ import {
     Tag,
     User,
     Users,
+    BarChart3,
+    FileCheck,
+    FileOutput,
+    Hand,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -57,7 +61,11 @@ const validatorNav: NavGroup[] = [
     {
         label: 'Laporan',
         items: [
-            { title: 'Laporan', href: '', icon: Printer },
+            { title: 'Laporan Kategori', href: '/validator/laporan/kategori', icon: BarChart3 },
+            { title: 'Laporan Pengajuan', href: '/validator/laporan/pengajuan', icon: FileText },
+            { title: 'Laporan Penerbitan SKPI', href: '/validator/laporan/penerbitan', icon: FileCheck },
+            { title: 'Laporan Pengambilan', href: '/validator/laporan/pengambilan', icon: Hand },
+            { title: 'Laporan Aktivitas Siswa', href: '/validator/laporan/aktivitas', icon: ClipboardList },
         ],
     },
 ];
@@ -67,7 +75,7 @@ const ketuaNav: NavGroup[] = [
         label: 'Menu',
         items: [
             { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
-            { title: 'Laporan', href: '/ketua/laporan', icon: Printer },
+            { title: 'Laporan Penerbitan', href: '/ketua/laporan/penerbitan', icon: Printer },
         ],
     },
 ];
