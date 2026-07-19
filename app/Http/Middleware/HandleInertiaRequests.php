@@ -74,6 +74,8 @@ class HandleInertiaRequests extends Middleware
                 'periodeAktif' => $periodeAktif,
                 'periodeInfo' => $periodeInfo,
             ],
+            'recaptchaSiteKey' => config('services.recaptcha.site_key'),
+            'recaptchaEnabled' => (bool) config('services.recaptcha.enabled'),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
