@@ -116,7 +116,9 @@ return;
                         <Input type="number" value={kode} onChange={(e) => setKode(e.target.value)} placeholder="20261" className="w-32" />
                     </div>
                     <Button onClick={() => applyFilter('kode', kode || undefined)} size="sm">Terapkan</Button>
-                    <Button onClick={() => { setKode(''); applyFilter('kode', undefined); }} variant="outline" size="sm">Reset</Button>
+                    <Button onClick={() => {
+ setKode(''); applyFilter('kode', undefined); 
+}} variant="outline" size="sm">Reset</Button>
                 </div>
 
                 <div className="overflow-hidden rounded-md border" data-tour="pengambilan-table">

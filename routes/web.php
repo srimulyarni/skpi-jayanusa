@@ -21,6 +21,7 @@ use App\Http\Controllers\Mahasiswa\MahasiswaProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+Route::inertia('/tutorial', 'tutorial')->name('tutorial');
 
 Route::get('/mahasiswa/login', [MahasiswaLoginController::class, 'show'])->name('mahasiswa.login');
 Route::post('/mahasiswa/login', [MahasiswaLoginController::class, 'store']);

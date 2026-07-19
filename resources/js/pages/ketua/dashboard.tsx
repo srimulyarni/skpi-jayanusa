@@ -1,11 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, Award, Calendar, FileText, Package, TrendingUp, Users } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
-import { useTour } from '@/hooks/use-tour';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, Bar, BarChart } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer, ChartTooltip, ChartTooltipContent  } from '@/components/ui/chart';
+import type {ChartConfig} from '@/components/ui/chart';
+import { useTour } from '@/hooks/use-tour';
 
 type Summary = {
     total_mahasiswa: number;

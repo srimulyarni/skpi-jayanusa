@@ -1,9 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, Calendar, ClipboardCheck, Clock, FileText, Plus } from 'lucide-react';
+import { SkpiJourneyMap } from '@/components/skpi-journey-map';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SkpiJourneyMap } from '@/components/skpi-journey-map';
 import { useTour } from '@/hooks/use-tour';
 
 type Step = {

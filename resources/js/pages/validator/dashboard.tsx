@@ -10,12 +10,12 @@ import {
     Package,
     TrendingUp,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
-import { useTour } from '@/hooks/use-tour';
 import { Bar, BarChart, XAxis, YAxis, Pie, PieChart, Cell, Area, AreaChart, CartesianGrid } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer, ChartTooltip, ChartTooltipContent  } from '@/components/ui/chart';
+import type {ChartConfig} from '@/components/ui/chart';
+import { useTour } from '@/hooks/use-tour';
 
 type Kpi = {
     aktivitas_menunggu: number;

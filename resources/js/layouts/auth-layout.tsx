@@ -1,5 +1,5 @@
-import AuthLayoutTemplate from '@/layouts/auth/auth-card-layout';
 import type { ReactNode } from 'react';
+import AuthLayoutTemplate from '@/layouts/auth/auth-card-layout';
 
 export default function AuthLayout({
     title = '',
