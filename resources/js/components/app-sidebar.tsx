@@ -66,7 +66,7 @@ const validatorNav: NavGroup[] = [
             { title: 'Laporan Pengajuan', href: '/validator/laporan/pengajuan', icon: FileText },
             { title: 'Laporan Penerbitan SKPI', href: '/validator/laporan/penerbitan', icon: FileCheck },
             { title: 'Laporan Pengambilan', href: '/validator/laporan/pengambilan', icon: Hand },
-            { title: 'Laporan Aktivitas Siswa', href: '/validator/laporan/aktivitas', icon: ClipboardList },
+            { title: 'Laporan Aktivitas Mahasiswa', href: '/validator/laporan/aktivitas', icon: ClipboardList },
         ],
     },
 ];
@@ -84,7 +84,7 @@ const ketuaNav: NavGroup[] = [
             { title: 'Laporan Pengajuan', href: '/ketua/laporan/pengajuan', icon: FileText },
             { title: 'Laporan Penerbitan SKPI', href: '/ketua/laporan/penerbitan', icon: FileCheck },
             { title: 'Laporan Pengambilan', href: '/ketua/laporan/pengambilan', icon: Hand },
-            { title: 'Laporan Aktivitas Siswa', href: '/ketua/laporan/aktivitas', icon: ClipboardList },
+            { title: 'Laporan Aktivitas Mahasiswa', href: '/ketua/laporan/aktivitas', icon: ClipboardList },
         ],
     },
 ];

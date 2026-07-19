@@ -52,9 +52,9 @@ setStatus(value === 'all' ? '' : value);
 
     return (
         <>
-            <Head title="Laporan Aktivitas Siswa" />
+            <Head title="Laporan Aktivitas Mahasiswa" />
             <div className="space-y-4 p-4 md:p-6">
-                <h1 className="text-xl font-semibold">Laporan Aktivitas Siswa</h1>
+                <h1 className="text-xl font-semibold">Laporan Aktivitas Mahasiswa</h1>
 
                 <LaporanFilterPanel baseUrl="/validator/laporan/aktivitas" filters={filters} pdfUrl="/validator/laporan/aktivitas/pdf">
                     <div className="grid gap-1">

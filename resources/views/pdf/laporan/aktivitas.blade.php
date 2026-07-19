@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Laporan Aktivitas Siswa</title>
+    <title>Laporan Aktivitas Mahasiswa</title>
     <style>
         @include('pdf.partials.laporan-style')
         body { page: landscape; }
@@ -12,7 +12,7 @@
     @include('pdf.partials.kop-surat')
 
     @include('pdf.partials.laporan-header', [
-        'judul' => 'Laporan Aktivitas Siswa',
+        'judul' => 'Laporan Aktivitas Mahasiswa',
         'filterInfo' => $filterInfo,
         'periode' => $dari && $sampai ? $dari . ' s/d ' . $sampai : null,
     ])
