@@ -1,10 +1,10 @@
 import { Head } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LaporanFilterPanel } from './partials/filter-panel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LaporanFilterPanel } from './partials/filter-panel';
 
 type Skpi = {
     id: number; no_skpi: string; tgl_terbit: string;

@@ -25,7 +25,7 @@ class IdentitasPtController extends Controller
                 $query->where('kode_institusi', $kodeInstitusi);
             })
             ->orderBy('kode_institusi')
-            ->paginate(10)
+            ->paginate(min((int) $request->input('per_page', 10), 100))
             ->withQueryString();
 
         $instansiList = IdentitasPt::distinct()->pluck('kode_institusi');

@@ -16,8 +16,10 @@ class PeriodeSkpiFactory extends Factory
     {
         return [
             'nama' => 'Periode ' . fake()->monthName() . ' ' . fake()->year(),
+            'kode' => now()->format('Y') . (now()->month <= 6 ? '1' : '2'),
             'tgl_mulai' => now()->subMonth(),
             'tgl_selesai' => now()->addMonth(),
+            'max_aktivitas' => 10,
             'status' => 'aktif',
         ];
     }

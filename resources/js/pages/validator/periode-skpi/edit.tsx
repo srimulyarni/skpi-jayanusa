@@ -73,6 +73,7 @@ export default function PeriodeSkpiEdit({ periode }: { periode: Periode }) {
                                         <SelectItem value="nonaktif">Nonaktif</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                <p className="text-xs text-muted-foreground">Mengaktifkan periode ini akan menonaktifkan periode lain secara otomatis.</p>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="max_aktivitas">Maksimal Aktivitas</Label>

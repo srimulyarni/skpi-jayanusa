@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
         $isProfileLengkap = false;
         $kompreStatus = false;
         $periodeAktif = false;
+        $periodeInfo = null;
         if ($request->user()?->role === 'mahasiswa') {
             $mhs = $request->user()->mahasiswa;
             $isProfileLengkap = $mhs
@@ -48,10 +49,19 @@ class HandleInertiaRequests extends Middleware
                 && $mhs->nohp
                 && $mhs->alamat;
             $kompreStatus = $mhs && $mhs->kompre_status === true;
-            $periodeAktif = PeriodeSkpi::where('status', 'aktif')
-                ->where('tgl_mulai', '<=', now())
-                ->where('tgl_selesai', '>=', now())
-                ->exists();
+        }
+
+        $periode = PeriodeSkpi::where('status', 'aktif')
+            ->where('tgl_mulai', '<=', now())
+            ->where('tgl_selesai', '>=', now())
+            ->first();
+
+        $periodeAktif = (bool) $periode;
+        if ($periode) {
+            $periodeInfo = [
+                'nama' => $periode->nama,
+                'kode' => $periode->kode,
+            ];
         }
 
         return [
@@ -62,6 +72,7 @@ class HandleInertiaRequests extends Middleware
                 'isProfileLengkap' => $isProfileLengkap,
                 'kompreStatus' => $kompreStatus,
                 'periodeAktif' => $periodeAktif,
+                'periodeInfo' => $periodeInfo,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

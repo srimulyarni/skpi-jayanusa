@@ -28,6 +28,14 @@ class LaporanController extends Controller
         return IdentitasPt::first();
     }
 
+    private function getKodeDefault(): ?string
+    {
+        return PeriodeSkpi::where('status', 'aktif')
+            ->where('tgl_mulai', '<=', now())
+            ->where('tgl_selesai', '>=', now())
+            ->value('kode');
+    }
+
     public function kategori(): Response
     {
         $data = Kategori::orderBy('nama_kategori')->get();
@@ -51,7 +59,7 @@ class LaporanController extends Controller
     public function pengajuan(Request $request): Response
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $status = $request->input('status');
 
         $query = PengajuanSkpi::with(['mahasiswa.jurusan', 'periodeSkpi'])
@@ -70,7 +78,7 @@ class LaporanController extends Controller
     public function pengajuanPdf(Request $request)
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $status = $request->input('status');
 
         $query = PengajuanSkpi::with(['mahasiswa.jurusan', 'periodeSkpi'])
@@ -94,7 +102,7 @@ class LaporanController extends Controller
     public function penerbitan(Request $request): Response
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $statusAmbil = $request->input('status_ambil');
 
         $query = Skpi::with(['pengajuanSkpi.mahasiswa.jurusan', 'pengajuanSkpi.periodeSkpi', 'pengambilan'])
@@ -115,7 +123,7 @@ class LaporanController extends Controller
     public function penerbitanPdf(Request $request)
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $statusAmbil = $request->input('status_ambil');
 
         $query = Skpi::with(['pengajuanSkpi.mahasiswa.jurusan', 'pengajuanSkpi.periodeSkpi', 'pengambilan'])
@@ -141,7 +149,7 @@ class LaporanController extends Controller
     public function pengambilan(Request $request): Response
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $statusAmbil = $request->input('status_ambil');
 
         $query = Pengambilan::with(['skpi.pengajuanSkpi.mahasiswa.jurusan', 'skpi.pengajuanSkpi.periodeSkpi'])
@@ -161,7 +169,7 @@ class LaporanController extends Controller
     public function pengambilanPdf(Request $request)
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $statusAmbil = $request->input('status_ambil');
 
         $query = Pengambilan::with(['skpi.pengajuanSkpi.mahasiswa.jurusan', 'skpi.pengajuanSkpi.periodeSkpi'])
@@ -186,7 +194,7 @@ class LaporanController extends Controller
     public function aktivitas(Request $request): Response
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $kategoriId = $request->input('kategori_id');
         $jurusanId = $request->input('jurusan_id');
         $status = $request->input('status');
@@ -211,7 +219,7 @@ class LaporanController extends Controller
     public function aktivitasPdf(Request $request)
     {
         [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode');
+        $kode = $request->input('kode') ?: $this->getKodeDefault();
         $kategoriId = $request->input('kategori_id');
         $jurusanId = $request->input('jurusan_id');
         $status = $request->input('status');

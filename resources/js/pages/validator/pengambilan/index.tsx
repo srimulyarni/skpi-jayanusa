@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { CheckCheck, Download, Eye, FileText, Search, XCircle } from 'lucide-react';
+import { CheckCheck, Download, Eye, Search, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { DataTablePagination } from '@/components/data-table-pagination';
@@ -10,8 +10,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Mahasiswa = { nobp: string; nama: string; jurusan: { nama: string } | null };
 type SkpiData = { id: number; no_skpi: string; status: string; pengajuanSkpi?: { no_registrasi: string } };
@@ -30,12 +32,21 @@ interface PaginatedData {
 
 export default function PengambilanIndex({ pengambilan, filters }: {
     pengambilan: PaginatedData;
-    filters: { search?: string; status?: string };
+    filters: { search?: string; status?: string; kode?: string };
 }) {
     const [openKonfirm, setOpenKonfirm] = useState(false);
     const [openBatalkan, setOpenBatalkan] = useState(false);
     const [selected, setSelected] = useState<Pengambilan | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
+    const [kode, setKode] = useState(filters.kode ?? '');
+
+    useTour({
+        tourKey: 'has_seen_validator_pengambilan_tour',
+        steps: [
+            { element: '[data-tour="pengambilan-filter"]', popover: { title: 'Pencarian & Filter', description: 'Cari berdasarkan nomor SKPI atau nama mahasiswa. Filter berdasarkan status pengambilan.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="pengambilan-table"]', popover: { title: 'Daftar Pengambilan', description: 'Tabel pengambilan SKPI. Anda dapat menandai SKPI sudah diambil atau membatalkannya.', side: 'top', align: 'start' } },
+        ],
+    });
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
@@ -47,16 +58,26 @@ export default function PengambilanIndex({ pengambilan, filters }: {
     }
 
     function ambil() {
-        if (!selected) return;
+        if (!selected) {
+return;
+}
+
         router.patch(`/validator/pengambilan/${selected.id}/ambil`, {}, {
-            onSuccess: () => { setOpenKonfirm(false); toast.success('Berhasil ditandai diambil!'); },
+            onSuccess: () => {
+ setOpenKonfirm(false); toast.success('Berhasil ditandai diambil!'); 
+},
         });
     }
 
     function batalkan() {
-        if (!selected) return;
+        if (!selected) {
+return;
+}
+
         router.patch(`/validator/pengambilan/${selected.skpi.id}/batalkan`, {}, {
-            onSuccess: () => { setOpenBatalkan(false); toast.success('SKPI berhasil dibatalkan.'); },
+            onSuccess: () => {
+ setOpenBatalkan(false); toast.success('SKPI berhasil dibatalkan.'); 
+},
         });
     }
 
@@ -67,7 +88,7 @@ export default function PengambilanIndex({ pengambilan, filters }: {
             <div className="space-y-4 p-4 md:p-6">
                 <h1 className="text-xl font-semibold">Pengambilan SKPI</h1>
 
-                <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-wrap items-end gap-3" data-tour="pengambilan-filter">
                     <form onSubmit={handleSearch} className="flex gap-2">
                         <div className="relative">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -89,9 +110,16 @@ export default function PengambilanIndex({ pengambilan, filters }: {
                             <SelectItem value="sudah_diambil">Sudah Diambil</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    <div className="grid gap-1">
+                        <Label className="text-xs">Kode Periode</Label>
+                        <Input type="number" value={kode} onChange={(e) => setKode(e.target.value)} placeholder="20261" className="w-32" />
+                    </div>
+                    <Button onClick={() => applyFilter('kode', kode || undefined)} size="sm">Terapkan</Button>
+                    <Button onClick={() => { setKode(''); applyFilter('kode', undefined); }} variant="outline" size="sm">Reset</Button>
                 </div>
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="pengambilan-table">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -134,11 +162,15 @@ export default function PengambilanIndex({ pengambilan, filters }: {
                                             </Button>
                                             {p.status !== 'sudah_diambil' && (
                                                 <>
-                                                    <Button size="sm" variant="outline" onClick={() => { setSelected(p); setOpenKonfirm(true); }}>
+                                                    <Button size="sm" variant="outline" onClick={() => {
+ setSelected(p); setOpenKonfirm(true); 
+}}>
                                                         <CheckCheck className="mr-1 h-4 w-4" /> Diambil
                                                     </Button>
                                                     {p.skpi.status === 'diterbitkan' && (
-                                                        <Button size="sm" variant="destructive" onClick={() => { setSelected(p); setOpenBatalkan(true); }}>
+                                                        <Button size="sm" variant="destructive" onClick={() => {
+ setSelected(p); setOpenBatalkan(true); 
+}}>
                                                             <XCircle className="mr-1 h-4 w-4" /> Batalkan
                                                         </Button>
                                                     )}

@@ -33,7 +33,7 @@ class MahasiswaController extends Controller
                 $query->where('tahun_masuk', $tahunMasuk);
             })
             ->orderBy('nobp')
-            ->paginate(10)
+            ->paginate(min((int) $request->input('per_page', 10), 100))
             ->withQueryString();
 
         $jurusan = Jurusan::orderBy('kode')->select('id', 'kode', 'nama', 'singkatan')->get();

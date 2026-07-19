@@ -9,6 +9,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Periode = {
     id: number; nama: string; kode: string | null; tgl_mulai: string; tgl_selesai: string; max_aktivitas: number | null; status: string;
@@ -23,10 +24,19 @@ export default function PeriodeSkpiIndex({ periode }: { periode: Periode[] }) {
     const [openDelete, setOpenDelete] = useState(false);
     const [selected, setSelected] = useState<Periode | null>(null);
 
+    useTour({
+        tourKey: 'has_seen_validator_periode_skpi_tour',
+        steps: [
+            { element: '[data-tour="periode-tambah"]', popover: { title: 'Tambah Periode', description: 'Klik tombol ini untuk menambahkan periode SKPI baru.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="periode-table"]', popover: { title: 'Daftar Periode', description: 'Tabel periode SKPI beserta tanggal mulai/selesai, maks aktivitas, dan status.', side: 'top', align: 'start' } },
+        ],
+    });
+
     function handleDelete() {
         if (!selected) {
 return;
 }
+
         router.delete(`/validator/periode-skpi/${selected.id}`, {
             onSuccess: () => {
                 setOpenDelete(false);
@@ -42,12 +52,12 @@ return;
             <div className="space-y-4 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Periode SKPI</h1>
-                    <Button asChild>
+                    <Button asChild data-tour="periode-tambah">
                         <Link href="/validator/periode-skpi/create"><Plus className="mr-2 h-4 w-4" /> Tambah</Link>
                     </Button>
                 </div>
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="periode-table">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -78,7 +88,9 @@ return;
                                             <Button size="icon" variant="ghost" asChild>
                                                 <Link href={`/validator/periode-skpi/${p.id}/edit`}><Pencil className="h-4 w-4" /></Link>
                                             </Button>
-                                            <Button size="icon" variant="ghost" onClick={() => { setSelected(p); setOpenDelete(true); }}>
+                                            <Button size="icon" variant="ghost" onClick={() => {
+ setSelected(p); setOpenDelete(true); 
+}}>
                                                 <Trash2 className="h-4 w-4 text-destructive" />
                                             </Button>
                                         </div>

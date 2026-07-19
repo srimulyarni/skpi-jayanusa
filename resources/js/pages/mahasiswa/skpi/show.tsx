@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Kategori = { nama_kategori: string; tipe: string };
 type Aktivitas = { id: number; nama_kegiatan: string; tahun_kegiatan: string; peran: string; juara: string | null; tingkat: string | null; kategori: Kategori };
@@ -30,6 +31,14 @@ const statusColors: Record<string, string> = {
 
 export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
     const [openBatalkan, setOpenBatalkan] = useState(false);
+
+    useTour({
+        tourKey: 'has_seen_mahasiswa_skpi_show_tour',
+        steps: [
+            { element: '[data-tour="skpi-detail-info"]', popover: { title: 'Informasi Pengajuan', description: 'Detail pengajuan SKPI Anda termasuk nomor registrasi dan tanggal proses.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="skpi-detail-aktivitas"]', popover: { title: 'Aktivitas', description: 'Daftar aktivitas yang diajukan dalam pengajuan SKPI ini.', side: 'top', align: 'start' } },
+        ],
+    });
 
     function handleBatalkan() {
         router.patch(`/mahasiswa/skpi/${pengajuan.id}/batalkan`, {}, {
@@ -56,10 +65,17 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                             <p className="text-sm text-muted-foreground">{pengajuan.no_registrasi ?? '-'}</p>
                         </div>
                     </div>
-                    <Badge variant="outline" className={statusColors[pengajuan.status] ?? ''}>{pengajuan.status}</Badge>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                            <a href={`/mahasiswa/skpi/${pengajuan.id}/bukti-pdf/download`}>
+                                <Download className="mr-1 h-4 w-4" /> Bukti Pengajuan
+                            </a>
+                        </Button>
+                        <Badge variant="outline" className={statusColors[pengajuan.status] ?? ''}>{pengajuan.status}</Badge>
+                    </div>
                 </div>
 
-                <Card>
+                <Card data-tour="skpi-detail-info">
                     <CardHeader><CardTitle className="text-base">Informasi Pengajuan</CardTitle></CardHeader>
                     <CardContent className="space-y-2 text-sm">
                         <div className="flex justify-between"><span className="text-muted-foreground">No. Registrasi</span><span className="font-mono">{pengajuan.no_registrasi ?? '-'}</span></div>
@@ -78,7 +94,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                     </Card>
                 )}
 
-                <Card>
+                <Card data-tour="skpi-detail-aktivitas">
                     <CardHeader><CardTitle className="text-base">Aktivitas yang Dipilih ({pengajuan.aktivitas.length})</CardTitle></CardHeader>
                     <CardContent>
                         <div className="overflow-hidden rounded-md border">
@@ -99,7 +115,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                                         <TableRow key={a.id}>
                                             <TableCell>{i + 1}</TableCell>
                                             <TableCell>{a.kategori.nama_kategori} {a.kategori.tipe === 'lomba' && <Badge variant="outline" className="ml-1 text-[10px]">Lomba</Badge>}</TableCell>
-                                            <TableCell className="font-medium">{a.nama_kegiatan}</TableCell>
+                                            <TableCell className="max-w-[200px] truncate font-medium">{a.nama_kegiatan}</TableCell>
                                             <TableCell>{a.tahun_kegiatan}</TableCell>
                                             <TableCell>{a.peran}</TableCell>
                                             <TableCell>{a.juara ?? '-'}</TableCell>

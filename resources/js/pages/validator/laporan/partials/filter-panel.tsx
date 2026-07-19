@@ -48,8 +48,12 @@ export function LaporanFilterPanel({
     const [dari, setDari] = useState(filters.dari ?? '');
     const [sampai, setSampai] = useState(filters.sampai ?? '');
     const [kode, setKode] = useState(filters.kode ?? '');
-    const [extras, setExtras] = useState<Record<string, string>>(() => {
-        const { dari: _d, sampai: _s, kode: _k, ...rest } = filters;
+    const [, setExtras] = useState<Record<string, string>>(() => {
+        const rest = { ...filters };
+        delete rest.dari;
+        delete rest.sampai;
+        delete rest.kode;
+
         return rest as Record<string, string>;
     });
 
@@ -79,20 +83,45 @@ export function LaporanFilterPanel({
     }
 
     function handlePdf() {
-        if (!pdfUrl) return;
+        if (!pdfUrl) {
+return;
+}
+
         const params = new URLSearchParams();
-        if (dari) params.set('dari', dari);
-        if (sampai) params.set('sampai', sampai);
-        if (kode) params.set('kode', kode);
-        Object.entries(extras).forEach(([k, v]) => { if (v) params.set(k, v); });
+
+        if (dari) {
+params.set('dari', dari);
+}
+
+        if (sampai) {
+params.set('sampai', sampai);
+}
+
+        if (kode) {
+params.set('kode', kode);
+}
+
+        Object.entries(extras).forEach(([k, v]) => {
+ if (v) {
+params.set(k, v);
+} 
+});
         window.open(`${pdfUrl}?${params.toString()}`, '_blank');
     }
 
     const activeFilters: string[] = [];
-    if (dari && sampai) activeFilters.push(`${dari} s/d ${sampai}`);
-    else if (dari) activeFilters.push(`Dari ${dari}`);
-    else if (sampai) activeFilters.push(`Sampai ${sampai}`);
-    if (kode) activeFilters.push(`Kode: ${kode}`);
+
+    if (dari && sampai) {
+activeFilters.push(`${dari} s/d ${sampai}`);
+} else if (dari) {
+activeFilters.push(`Dari ${dari}`);
+} else if (sampai) {
+activeFilters.push(`Sampai ${sampai}`);
+}
+
+    if (kode) {
+activeFilters.push(`Kode: ${kode}`);
+}
 
     return (
         <div className="space-y-3 rounded-md border bg-muted/30 p-4">

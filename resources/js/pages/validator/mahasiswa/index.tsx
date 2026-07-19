@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Jurusan = { id: number; nama: string; singkatan: string };
 type Mahasiswa = {
@@ -67,6 +68,14 @@ export default function MahasiswaIndex({
     const [localTahun, setLocalTahun] = useState(filters.tahun_masuk ?? '__all__');
     const isInitialMount = useRef(true);
 
+    useTour({
+        tourKey: 'has_seen_validator_mahasiswa_tour',
+        steps: [
+            { element: '[data-tour="mahasiswa-search"]', popover: { title: 'Pencarian & Filter', description: 'Cari mahasiswa berdasarkan nama/NOBP, filter berdasarkan jurusan dan tahun masuk.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="mahasiswa-table"]', popover: { title: 'Data Mahasiswa', description: 'Tabel data mahasiswa beserta informasi jurusan dan aksi yang dapat dilakukan.', side: 'top', align: 'start' } },
+        ],
+    });
+
     const apply = () => {
         const params: Record<string, string | undefined> = {
             search: search || undefined,
@@ -74,7 +83,9 @@ export default function MahasiswaIndex({
             tahun_masuk: localTahun === '__all__' ? undefined : localTahun,
         };
         Object.keys(params).forEach((k) => {
-            if (!params[k]) delete params[k];
+            if (!params[k]) {
+delete params[k];
+}
         });
         router.get('/validator/mahasiswa', params, { preserveState: true, preserveScroll: true, replace: true });
     };
@@ -93,7 +104,9 @@ export default function MahasiswaIndex({
             tahun_masuk: localTahun === '__all__' ? undefined : localTahun,
         };
         Object.keys(params).forEach((k) => {
-            if (!params[k]) delete params[k];
+            if (!params[k]) {
+delete params[k];
+}
         });
         router.get('/validator/mahasiswa', params, { preserveState: true, preserveScroll: true, replace: true });
     }, 500);
@@ -104,6 +117,7 @@ export default function MahasiswaIndex({
 
             return;
         }
+
         debouncedSearch(search);
     }, [search, debouncedSearch]);
 
@@ -128,7 +142,7 @@ return;
                     <h1 className="text-xl font-semibold">Data Mahasiswa</h1>
                 </div>
 
-                <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-wrap items-end gap-3" data-tour="mahasiswa-search">
                     <div className="flex flex-col gap-1">
                         <label className="text-xs text-muted-foreground">Cari</label>
                         <Input
@@ -179,7 +193,7 @@ return;
                     )}
                 </div>
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="mahasiswa-table">
                     <Table>
                         <TableHeader>
                             <TableRow>

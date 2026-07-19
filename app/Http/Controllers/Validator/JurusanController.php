@@ -23,7 +23,7 @@ class JurusanController extends Controller
                     ->orWhere('kode', 'like', "%{$search}%");
             })
             ->orderBy('kode')
-            ->paginate(10)
+            ->paginate(min((int) $request->input('per_page', 10), 100))
             ->withQueryString();
 
         return Inertia::render('validator/jurusan/index', [

@@ -139,6 +139,7 @@ width: 100%;
 border-collapse: collapse;
 margin-bottom: 12px;
 font-size: 10pt;
+table-layout: fixed;
 }
 .aktivitas-table thead {
 display: table-header-group;
@@ -148,6 +149,8 @@ display: table-header-group;
 border: 1px solid #000;
 padding: 4px 5px;
 vertical-align: top;
+word-wrap: break-word;
+overflow-wrap: break-word;
 }
 .aktivitas-table th {
 background-color: #f0f0f0;

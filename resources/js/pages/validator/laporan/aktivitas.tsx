@@ -1,9 +1,9 @@
 import { Head, router } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LaporanFilterPanel } from './partials/filter-panel';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LaporanFilterPanel } from './partials/filter-panel';
 
 type Kategori = { id: number; nama_kategori: string; tipe: string | null };
 type Jurusan = { id: number; nama: string };
@@ -34,9 +34,19 @@ export default function LaporanAktivitas({
 
     function updateFilter(key: string, value: string) {
         const newFilters = { ...filters, [key]: value === 'all' ? undefined : value };
-        if (key === 'kategori_id') setKategoriId(value === 'all' ? '' : value);
-        if (key === 'jurusan_id') setJurusanId(value === 'all' ? '' : value);
-        if (key === 'status') setStatus(value === 'all' ? '' : value);
+
+        if (key === 'kategori_id') {
+setKategoriId(value === 'all' ? '' : value);
+}
+
+        if (key === 'jurusan_id') {
+setJurusanId(value === 'all' ? '' : value);
+}
+
+        if (key === 'status') {
+setStatus(value === 'all' ? '' : value);
+}
+
         router.get('/validator/laporan/aktivitas', newFilters, { preserveState: true, replace: true });
     }
 
@@ -108,7 +118,7 @@ export default function LaporanAktivitas({
                                     <TableCell>{a.mahasiswa.nobp}</TableCell>
                                     <TableCell>{a.mahasiswa.jurusan?.nama ?? '-'}</TableCell>
                                     <TableCell>{a.kategori.nama_kategori}</TableCell>
-                                    <TableCell>{a.nama_kegiatan}</TableCell>
+                                    <TableCell className="max-w-[250px] truncate">{a.nama_kegiatan}</TableCell>
                                     <TableCell className="text-center">{a.tahun_kegiatan}</TableCell>
                                     <TableCell>{a.peran}</TableCell>
                                     <TableCell>{a.juara ?? '-'}</TableCell>

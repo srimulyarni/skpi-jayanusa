@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Kategori = { id: number; nama_kategori: string; tipe: string };
 
@@ -36,10 +37,19 @@ export default function AktivitasIndex({ aktivitas }: { aktivitas: Aktivitas[] }
     const [openDelete, setOpenDelete] = useState(false);
     const [selected, setSelected] = useState<Aktivitas | null>(null);
 
+    useTour({
+        tourKey: 'has_seen_mahasiswa_aktivitas_tour',
+        steps: [
+            { element: '[data-tour="aktivitas-tambah"]', popover: { title: 'Tambah Aktivitas', description: 'Klik tombol ini untuk menambahkan aktivitas baru yang akan diajukan ke SKPI.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="aktivitas-table"]', popover: { title: 'Daftar Aktivitas', description: 'Daftar semua aktivitas Anda beserta status validasinya. Aktivitas yang disetujui dapat dipilih saat mengajukan SKPI.', side: 'top', align: 'start' } },
+        ],
+    });
+
     function handleDelete() {
         if (!selected) {
 return;
 }
+
         router.delete(`/mahasiswa/aktivitas/${selected.id}`, {
             onSuccess: () => {
                 setOpenDelete(false);
@@ -55,7 +65,7 @@ return;
             <div className="space-y-4 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Aktivitas Saya</h1>
-                    <Button asChild>
+                    <Button asChild data-tour="aktivitas-tambah">
                         <Link href="/mahasiswa/aktivitas/create">
                             <Plus className="mr-2 h-4 w-4" />
                             Tambah Aktivitas
@@ -76,7 +86,7 @@ return;
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="overflow-hidden rounded-md border">
+                    <div className="overflow-hidden rounded-md border" data-tour="aktivitas-table">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -99,7 +109,7 @@ return;
                                                 <Badge variant="outline" className="ml-1 text-[10px]">Lomba</Badge>
                                             )}
                                         </TableCell>
-                                        <TableCell className="font-medium">{a.nama_kegiatan}</TableCell>
+                                        <TableCell className="max-w-[200px] truncate font-medium">{a.nama_kegiatan}</TableCell>
                                         <TableCell>{a.tahun_kegiatan}</TableCell>
                                         <TableCell>{a.peran}</TableCell>
                                         <TableCell>
@@ -124,7 +134,9 @@ return;
                                                                 <Pencil className="h-4 w-4" />
                                                             </Link>
                                                         </Button>
-                                                        <Button size="icon" variant="ghost" onClick={() => { setSelected(a); setOpenDelete(true); }}>
+                                                        <Button size="icon" variant="ghost" onClick={() => {
+ setSelected(a); setOpenDelete(true); 
+}}>
                                                             <Trash2 className="h-4 w-4 text-destructive" />
                                                         </Button>
                                                     </>

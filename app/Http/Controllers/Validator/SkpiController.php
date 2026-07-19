@@ -18,7 +18,15 @@ class SkpiController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
-        $periodeId = $request->input('periode_id');
+        $kode = $request->input('kode');
+
+        if (! $kode) {
+            $aktif = PeriodeSkpi::where('status', 'aktif')
+                ->where('tgl_mulai', '<=', now())
+                ->where('tgl_selesai', '>=', now())
+                ->first();
+            $kode = $aktif?->kode;
+        }
 
         $pengajuan = PengajuanSkpi::with('mahasiswa.jurusan', 'periodeSkpi')
             ->when($search, function ($query, $search) {
@@ -29,18 +37,15 @@ class SkpiController extends Controller
                     });
             })
             ->when($status, fn ($query, $status) => $query->where('status', $status))
-            ->when($periodeId, fn ($query, $id) => $query->where('periode_skpi_id', $id))
+            ->when($kode, fn ($query, $kode) => $query->whereHas('periodeSkpi', fn ($q) => $q->where('kode', $kode)))
             ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak', 'dibatalkan')")
             ->orderByDesc('created_at')
-            ->paginate(15)
+            ->paginate(min((int) $request->input('per_page', 15), 100))
             ->withQueryString();
-
-        $periodes = PeriodeSkpi::orderByDesc('tgl_mulai')->get();
 
         return Inertia::render('validator/skpi/index', [
             'pengajuan' => $pengajuan,
-            'periodes' => $periodes,
-            'filters' => ['search' => $search, 'status' => $status, 'periode_id' => $periodeId],
+            'filters' => ['search' => $search, 'status' => $status, 'kode' => $kode],
         ]);
     }
 

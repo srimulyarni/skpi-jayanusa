@@ -8,9 +8,15 @@ export type User = {
     [key: string]: unknown;
 };
 
+export type PeriodeInfo = {
+    nama: string;
+    kode: string;
+};
+
 export type Auth = {
     user: User;
     isProfileLengkap: boolean;
     kompreStatus: boolean;
     periodeAktif: boolean;
+    periodeInfo: PeriodeInfo | null;
 };

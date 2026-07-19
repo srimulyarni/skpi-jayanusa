@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type IdentitasPt = {
     id: number; kode_institusi: string; nama_pt: string;
@@ -37,13 +38,24 @@ export default function IdentitasPtIndex({
     const [localInstansi, setLocalInstansi] = useState(filters.kode_institusi ?? '__all__');
     const isInitialMount = useRef(true);
 
+    useTour({
+        tourKey: 'has_seen_validator_identitas_pt_tour',
+        steps: [
+            { element: '[data-tour="identitas-tambah"]', popover: { title: 'Tambah Identitas PT', description: 'Klik tombol ini untuk menambahkan identitas perguruan tinggi baru.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="identitas-search"]', popover: { title: 'Pencarian & Filter', description: 'Cari berdasarkan nama/kode dan filter berdasarkan instansi.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="identitas-table"]', popover: { title: 'Daftar Identitas PT', description: 'Tabel identitas perguruan tinggi beserta aksi yang dapat dilakukan.', side: 'top', align: 'start' } },
+        ],
+    });
+
     const apply = () => {
         const params: Record<string, string | undefined> = {
             search: search || undefined,
             kode_institusi: localInstansi === '__all__' ? undefined : localInstansi,
         };
         Object.keys(params).forEach((k) => {
-            if (!params[k]) delete params[k];
+            if (!params[k]) {
+delete params[k];
+}
         });
         router.get('/validator/identitas-pt', params, { preserveState: true, preserveScroll: true, replace: true });
     };
@@ -60,7 +72,9 @@ export default function IdentitasPtIndex({
             kode_institusi: localInstansi === '__all__' ? undefined : localInstansi,
         };
         Object.keys(params).forEach((k) => {
-            if (!params[k]) delete params[k];
+            if (!params[k]) {
+delete params[k];
+}
         });
         router.get('/validator/identitas-pt', params, { preserveState: true, preserveScroll: true, replace: true });
     }, 500);
@@ -71,6 +85,7 @@ export default function IdentitasPtIndex({
 
             return;
         }
+
         debouncedSearch(search);
     }, [search, debouncedSearch]);
 
@@ -92,12 +107,12 @@ return;
             <div className="space-y-4 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Identitas PT</h1>
-                    <Button size="sm" asChild>
+                    <Button size="sm" asChild data-tour="identitas-tambah">
                         <Link href="/validator/identitas-pt/create"><Plus className="mr-1 h-4 w-4" /> Tambah</Link>
                     </Button>
                 </div>
 
-                <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-wrap items-end gap-3" data-tour="identitas-search">
                     <div className="flex flex-col gap-1">
                         <label className="text-xs text-muted-foreground">Cari</label>
                         <Input placeholder="Nama / Kode..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-48" />
@@ -128,7 +143,7 @@ return;
                     )}
                 </div>
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="identitas-table">
                     <Table>
                         <TableHeader>
                             <TableRow>

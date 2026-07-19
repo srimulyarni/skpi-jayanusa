@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useTour } from '@/hooks/use-tour';
 
 type IdentitasPt = { akreditasi_institusi: string; gelar: string | null };
 type Jurusan = { id: number; nama: string; singkatan: string; identitas_pt: IdentitasPt | null };
@@ -29,6 +30,16 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
     const [fotoPreview, setFotoPreview] = useState<string | null>(
         mahasiswa.foto ? `/storage/${mahasiswa.foto}` : null,
     );
+
+    useTour({
+        tourKey: 'has_seen_mahasiswa_profil_tour',
+        steps: [
+            { element: '[data-tour="profil-header"]', popover: { title: 'Profil Saya', description: 'Lengkapi data profil Anda. Data yang ditandai badge API berasal dari sistem akademik.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="profil-foto"]', popover: { title: 'Foto Profil', description: 'Unggah foto profil Anda dalam format JPEG atau PNG.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="profil-form"]', popover: { title: 'Data Diri', description: 'Isi data diri Anda seperti tempat tanggal lahir, alamat, dan nomor HP.', side: 'top', align: 'start' } },
+            { element: '[data-tour="profil-simpan"]', popover: { title: 'Simpan', description: 'Klik tombol ini untuk menyimpan perubahan profil.', side: 'top', align: 'start' } },
+        ],
+    });
     const form = useForm({
         _method: 'PUT' as const,
         foto: null as File | null,
@@ -65,7 +76,7 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
             <Head title="Profil Saya" />
 
             <div className="space-y-6 p-4 md:p-6">
-                <h1 className="text-xl font-semibold">Profil Saya</h1>
+                <h1 className="text-xl font-semibold" data-tour="profil-header">Profil Saya</h1>
 
                 <Card className="mx-auto max-w-2xl">
                     <CardContent className="pt-6">
@@ -86,7 +97,7 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
                                 <Input value={mahasiswa.nama} disabled className="bg-muted" />
                             </div>
 
-                            <div className="sm:col-span-2 grid gap-2">
+                            <div className="sm:col-span-2 grid gap-2" data-tour="profil-foto">
                                 <Label htmlFor="foto">Foto</Label>
                                 <div className="flex items-center gap-4">
                                     <Avatar className="h-16 w-16">
@@ -98,7 +109,7 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
                                 {form.errors.foto && <p className="text-xs text-destructive">{form.errors.foto}</p>}
                             </div>
 
-                            <div className="grid gap-2">
+                            <div className="grid gap-2" data-tour="profil-form">
                                 <Label htmlFor="tempat_lahir">Tempat Lahir</Label>
                                 <Input id="tempat_lahir" value={form.data.tempat_lahir} onChange={(e) => form.setData('tempat_lahir', e.target.value)} />
                                 {form.errors.tempat_lahir && <p className="text-xs text-destructive">{form.errors.tempat_lahir}</p>}
@@ -144,7 +155,7 @@ export default function MahasiswaProfil({ mahasiswa }: { mahasiswa: Mahasiswa })
 
                             <div className="sm:col-span-2">
                                 <div className="flex gap-3 pt-2">
-                                    <Button onClick={() => setOpenKonfirm(true)} disabled={form.processing} className="w-full sm:w-auto">
+                                    <Button onClick={() => setOpenKonfirm(true)} disabled={form.processing} className="w-full sm:w-auto" data-tour="profil-simpan">
                                         Simpan
                                     </Button>
                                 </div>

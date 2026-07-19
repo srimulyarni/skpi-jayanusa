@@ -162,3 +162,19 @@
         @apply bg-background text-foreground;
     }
 }
+
+@keyframes pulse-ring {
+    0% {
+        box-shadow: 0 0 0 0 oklch(0.62 0.17 265 / 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px oklch(0.62 0.17 265 / 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 oklch(0.62 0.17 265 / 0);
+    }
+}
+
+.animate-pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

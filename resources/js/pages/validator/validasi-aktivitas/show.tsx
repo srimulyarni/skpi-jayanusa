@@ -40,8 +40,10 @@ export default function ValidasiAktivitasShow({ aktivitas }: { aktivitas: Aktivi
     function handleReject() {
         if (!catatan.trim()) {
             toast.error('Catatan wajib diisi untuk menolak.');
+
             return;
         }
+
         router.patch(`/validator/validasi-aktivitas/${aktivitas.id}/reject`, { catatan_validator: catatan }, {
             onSuccess: () => {
                 setOpenReject(false);

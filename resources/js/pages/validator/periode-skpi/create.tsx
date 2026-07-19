@@ -6,10 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function PeriodeSkpiCreate() {
-    const [form, setForm] = useState({ nama: '', kode: '', tgl_mulai: '', tgl_selesai: '', max_aktivitas: '', status: 'aktif' });
+    const [form, setForm] = useState({ nama: '', kode: '', tgl_mulai: '', tgl_selesai: '', max_aktivitas: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [processing, setProcessing] = useState(false);
 
@@ -54,16 +53,6 @@ export default function PeriodeSkpiCreate() {
                                 <Label htmlFor="tgl_selesai">Tanggal Selesai</Label>
                                 <Input id="tgl_selesai" type="date" value={form.tgl_selesai} onChange={(e) => setForm((p) => ({ ...p, tgl_selesai: e.target.value }))} />
                                 {errors.tgl_selesai && <p className="text-xs text-destructive">{errors.tgl_selesai}</p>}
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>Status</Label>
-                                <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v }))}>
-                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="aktif">Aktif</SelectItem>
-                                        <SelectItem value="nonaktif">Nonaktif</SelectItem>
-                                    </SelectContent>
-                                </Select>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="max_aktivitas">Maksimal Aktivitas</Label>

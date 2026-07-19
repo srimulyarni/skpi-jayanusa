@@ -20,7 +20,7 @@ class KategoriController extends Controller
             $query->where('nama_kategori', 'like', "%{$search}%");
         })
             ->orderBy('nama_kategori')
-            ->paginate(10)
+            ->paginate(min((int) $request->input('per_page', 10), 100))
             ->withQueryString();
 
         return Inertia::render('validator/kategori/index', [

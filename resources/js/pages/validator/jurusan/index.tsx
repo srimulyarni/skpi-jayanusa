@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type IdentitasPt = { id: number; kode_institusi: string };
 type Jurusan = { id: number; kode: string; nama: string; singkatan: string; identitas_pt: IdentitasPt };
@@ -26,6 +27,15 @@ export default function JurusanIndex({ jurusan, filters }: { jurusan: PaginatedD
     const [selected, setSelected] = useState<Jurusan | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
     const isInitialMount = useRef(true);
+
+    useTour({
+        tourKey: 'has_seen_validator_jurusan_tour',
+        steps: [
+            { element: '[data-tour="jurusan-tambah"]', popover: { title: 'Tambah Jurusan', description: 'Klik tombol ini untuk menambahkan jurusan baru.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="jurusan-search"]', popover: { title: 'Pencarian', description: 'Cari jurusan berdasarkan nama.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="jurusan-table"]', popover: { title: 'Daftar Jurusan', description: 'Tabel jurusan beserta kode, singkatan, institusi, dan aksi.', side: 'top', align: 'start' } },
+        ],
+    });
 
     const debouncedSearch = useDebouncedCallback((value: string) => {
         router.get('/validator/jurusan', { search: value || undefined }, { preserveState: true, preserveScroll: true, replace: true });
@@ -60,14 +70,14 @@ return;
             <div className="space-y-4 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Jurusan</h1>
-                    <Button size="sm" asChild>
+                    <Button size="sm" asChild data-tour="jurusan-tambah">
                         <Link href="/validator/jurusan/create"><Plus className="mr-1 h-4 w-4" /> Tambah</Link>
                     </Button>
                 </div>
 
-                <Input placeholder="Cari jurusan..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+                <Input placeholder="Cari jurusan..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" data-tour="jurusan-search" />
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="jurusan-table">
                     <Table>
                         <TableHeader>
                             <TableRow>

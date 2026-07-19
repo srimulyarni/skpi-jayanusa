@@ -1,14 +1,16 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { Eye, Plus } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { Download, Eye, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Aktivitas = { id: number; nama_kegiatan: string; kategori: { nama_kategori: string } };
-type Periode = { id: number; nama: string; tgl_mulai: string; tgl_selesai: string } | null;
+type Periode = { id: number; nama: string; tgl_mulai: string; tgl_selesai: string; max_aktivitas: number | null } | null;
 type Pengajuan = {
     id: number; no_registrasi: string | null; tgl_pengajuan: string | null;
+    tgl_proses: string | null;
     status: string; catatan_validator: string | null;
     aktivitas: Aktivitas[]; periode_skpi: { nama: string };
 };
@@ -24,6 +26,14 @@ const statusColors: Record<string, string> = {
 export default function SkpiIndex({ pengajuan, kompreStatus, periodeAktif }: { pengajuan: Pengajuan[]; kompreStatus: boolean; periodeAktif: Periode }) {
     const canCreate = kompreStatus && periodeAktif && !pengajuan.some((p) => ['menunggu', 'disetujui'].includes(p.status));
 
+    useTour({
+        tourKey: 'has_seen_mahasiswa_skpi_tour',
+        steps: [
+            { element: '[data-tour="skpi-buat"]', popover: { title: 'Buat Pengajuan', description: 'Klik tombol ini untuk membuat pengajuan SKPI baru.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="skpi-table"]', popover: { title: 'Daftar Pengajuan', description: 'Riwayat pengajuan SKPI Anda beserta status dan tanggal prosesnya.', side: 'top', align: 'start' } },
+        ],
+    });
+
     return (
         <>
             <Head title="Pengajuan SKPI" />
@@ -31,7 +41,7 @@ export default function SkpiIndex({ pengajuan, kompreStatus, periodeAktif }: { p
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Pengajuan SKPI</h1>
                     {canCreate && (
-                        <Button asChild>
+                        <Button asChild data-tour="skpi-buat">
                             <Link href="/mahasiswa/skpi/create"><Plus className="mr-2 h-4 w-4" /> Buat Pengajuan</Link>
                         </Button>
                     )}
@@ -50,8 +60,11 @@ export default function SkpiIndex({ pengajuan, kompreStatus, periodeAktif }: { p
                 )}
 
                 {periodeAktif && (
-                    <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-                        Batas pengajuan: {new Date(periodeAktif.tgl_selesai).toLocaleDateString('id-ID', { dateStyle: 'long' })}
+                    <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 space-y-1">
+                        <p>Batas pengajuan: {new Date(periodeAktif.tgl_selesai).toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
+                        {periodeAktif.max_aktivitas != null && (
+                            <p>Maksimal aktivitas yang diajukan: <strong>{periodeAktif.max_aktivitas}</strong></p>
+                        )}
                     </div>
                 )}
 
@@ -67,16 +80,17 @@ export default function SkpiIndex({ pengajuan, kompreStatus, periodeAktif }: { p
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="overflow-hidden rounded-md border">
+                    <div className="overflow-hidden rounded-md border" data-tour="skpi-table">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-12">No</TableHead>
                                     <TableHead>No. Registrasi</TableHead>
-                                    <TableHead>Tanggal</TableHead>
+                                    <TableHead>Tanggal Pengajuan</TableHead>
                                     <TableHead>Periode</TableHead>
                                     <TableHead>Jumlah Aktivitas</TableHead>
                                     <TableHead>Status</TableHead>
+                                    <TableHead>Tgl. Proses</TableHead>
                                     <TableHead className="w-20">Aksi</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -92,10 +106,16 @@ export default function SkpiIndex({ pengajuan, kompreStatus, periodeAktif }: { p
                                             <Badge variant="outline" className={statusColors[p.status] ?? ''}>{p.status}</Badge>
                                             {p.catatan_validator && <p className="mt-1 text-xs text-destructive">{p.catatan_validator}</p>}
                                         </TableCell>
+                                        <TableCell>{p.tgl_proses ? new Date(p.tgl_proses).toLocaleDateString('id-ID') : '-'}</TableCell>
                                         <TableCell>
-                                            <Button size="icon" variant="ghost" asChild>
-                                                <Link href={`/mahasiswa/skpi/${p.id}`}><Eye className="h-4 w-4" /></Link>
-                                            </Button>
+                                            <div className="flex gap-1">
+                                                <Button size="icon" variant="ghost" asChild>
+                                                    <Link href={`/mahasiswa/skpi/${p.id}`}><Eye className="h-4 w-4" /></Link>
+                                                </Button>
+                                                <Button size="icon" variant="ghost" asChild>
+                                                    <a href={`/mahasiswa/skpi/${p.id}/bukti-pdf/download`}><Download className="h-4 w-4" /></a>
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}

@@ -3,27 +3,28 @@ import {
     Award,
     BookOpen,
     Building2,
+    Calendar,
     ClipboardList,
     FileText,
     LayoutGrid,
     Package,
-    Printer,
     Send,
     Tag,
     User,
     Users,
     BarChart3,
     FileCheck,
-    FileOutput,
     Hand,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
+import { Badge } from '@/components/ui/badge';
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
+    SidebarGroup,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -75,7 +76,15 @@ const ketuaNav: NavGroup[] = [
         label: 'Menu',
         items: [
             { title: 'Dashboard', href: '/ketua/dashboard', icon: LayoutGrid },
-            { title: 'Laporan Penerbitan', href: '/ketua/laporan/penerbitan', icon: Printer },
+        ],
+    },
+    {
+        label: 'Laporan',
+        items: [
+            { title: 'Laporan Pengajuan', href: '/ketua/laporan/pengajuan', icon: FileText },
+            { title: 'Laporan Penerbitan SKPI', href: '/ketua/laporan/penerbitan', icon: FileCheck },
+            { title: 'Laporan Pengambilan', href: '/ketua/laporan/pengambilan', icon: Hand },
+            { title: 'Laporan Aktivitas Siswa', href: '/ketua/laporan/aktivitas', icon: ClipboardList },
         ],
     },
 ];
@@ -83,6 +92,7 @@ const ketuaNav: NavGroup[] = [
 function getMahasiswaNav(isProfileLengkap: boolean, kompreStatus: boolean, periodeAktif: boolean): NavGroup[] {
     const canAjukan = isProfileLengkap && kompreStatus && periodeAktif;
     let disabledMessage = '';
+
     if (!isProfileLengkap) {
         disabledMessage = 'Lengkapi profil terlebih dahulu';
     } else if (!kompreStatus) {
@@ -122,11 +132,12 @@ export function AppSidebar() {
     const isProfileLengkap = auth?.isProfileLengkap ?? false;
     const kompreStatus = auth?.kompreStatus ?? false;
     const periodeAktif = auth?.periodeAktif ?? false;
+    const periodeInfo = auth?.periodeInfo ?? null;
     const navGroups = (navByRole[role] ?? (() => []))(isProfileLengkap, kompreStatus, periodeAktif);
     const dashboardHref = `/${role}/dashboard`;
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="icon" variant="inset" data-tour="sidebar">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -137,6 +148,18 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                {periodeInfo && (
+                    <SidebarGroup className="px-2 py-0">
+                        <div className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-xs">
+                            <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <div className="min-w-0">
+                                <p className="truncate font-medium">{periodeInfo.nama}</p>
+                                <p className="text-muted-foreground">{periodeInfo.kode}</p>
+                            </div>
+                            <Badge variant="secondary" className="ml-auto shrink-0 text-[10px]">Aktif</Badge>
+                        </div>
+                    </SidebarGroup>
+                )}
             </SidebarHeader>
 
             <SidebarContent>

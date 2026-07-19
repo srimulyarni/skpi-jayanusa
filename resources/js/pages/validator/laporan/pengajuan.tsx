@@ -1,11 +1,10 @@
 import { Head } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LaporanFilterPanel } from './partials/filter-panel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LaporanFilterPanel } from './partials/filter-panel';
 
 type Mahasiswa = { nama: string; nobp: string; jurusan: { nama: string } | null };
 type Periode = { id: number; nama: string };

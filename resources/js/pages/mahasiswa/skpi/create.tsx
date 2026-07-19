@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Kategori = { nama_kategori: string; tipe: string };
 type Aktivitas = {
@@ -23,6 +24,15 @@ export default function SkpiCreate({ aktivitas, periode, maxAktivitas }: { aktiv
     const [selected, setSelected] = useState<number[]>([]);
     const [openKonfirm, setOpenKonfirm] = useState(false);
     const [processing, setProcessing] = useState(false);
+
+    useTour({
+        tourKey: 'has_seen_mahasiswa_skpi_create_tour',
+        steps: [
+            { element: '[data-tour="skpi-create-info"]', popover: { title: 'Buat Pengajuan', description: 'Pilih aktivitas yang sudah disetujui untuk diajukan ke SKPI.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="skpi-create-table"]', popover: { title: 'Pilih Aktivitas', description: 'Centang aktivitas yang ingin Anda masukkan ke dalam SKPI.', side: 'top', align: 'start' } },
+            { element: '[data-tour="skpi-create-ajukan"]', popover: { title: 'Ajukan', description: 'Klik tombol ini setelah memilih aktivitas untuk mengajukan SKPI.', side: 'top', align: 'start' } },
+        ],
+    });
 
     function toggle(id: number) {
         setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
@@ -47,6 +57,7 @@ export default function SkpiCreate({ aktivitas, periode, maxAktivitas }: { aktiv
                 if (errors.error) {
                     toast.error(errors.error);
                 }
+
                 setOpenKonfirm(false);
             },
             onFinish: () => setProcessing(false),
@@ -58,7 +69,7 @@ export default function SkpiCreate({ aktivitas, periode, maxAktivitas }: { aktiv
             <Head title="Buat Pengajuan SKPI" />
 
             <div className="space-y-6 p-4 md:p-6">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3" data-tour="skpi-create-info">
                     <Button variant="outline" size="icon" asChild>
                         <Link href="/mahasiswa/skpi"><ArrowLeft className="h-4 w-4" /></Link>
                     </Button>
@@ -82,7 +93,7 @@ export default function SkpiCreate({ aktivitas, periode, maxAktivitas }: { aktiv
                     </Card>
                 ) : (
                     <>
-                        <Card>
+                        <Card data-tour="skpi-create-table">
                             <CardHeader>
                                 <CardTitle className="text-base">
                                     Pilih Aktivitas yang Akan Ditampilkan di SKPI
@@ -121,7 +132,7 @@ export default function SkpiCreate({ aktivitas, periode, maxAktivitas }: { aktiv
                                                         {a.kategori.nama_kategori}
                                                         {a.kategori.tipe === 'lomba' && <Badge variant="outline" className="ml-1 text-[10px]">Lomba</Badge>}
                                                     </TableCell>
-                                                    <TableCell className="font-medium">{a.nama_kegiatan}</TableCell>
+                                                    <TableCell className="max-w-[200px] truncate font-medium">{a.nama_kegiatan}</TableCell>
                                                     <TableCell>{a.tahun_kegiatan}</TableCell>
                                                     <TableCell>{a.peran}</TableCell>
                                                     <TableCell>{a.juara ?? '-'}</TableCell>
@@ -134,7 +145,7 @@ export default function SkpiCreate({ aktivitas, periode, maxAktivitas }: { aktiv
                             </CardContent>
                         </Card>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-3" data-tour="skpi-create-ajukan">
                             <Button onClick={() => setOpenKonfirm(true)} disabled={selected.length === 0 || processing || (maxAktivitas != null && selected.length > maxAktivitas)}>
                                 Ajukan SKPI ({selected.length} aktivitas)
                             </Button>

@@ -26,7 +26,7 @@ class ValidasiAktivitasController extends Controller
             ->when($status, fn ($q) => $q->where('status', $status))
             ->orderByRaw("FIELD(status, 'menunggu', 'ditolak', 'disetujui')")
             ->orderByDesc('created_at')
-            ->paginate(15)
+            ->paginate(min((int) $request->input('per_page', 15), 100))
             ->withQueryString();
 
         return Inertia::render('validator/validasi-aktivitas/index', [

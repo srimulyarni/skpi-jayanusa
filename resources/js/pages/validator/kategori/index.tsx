@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Kategori = { id: number; nama_kategori: string; status: 'aktif' | 'nonaktif' };
 
@@ -36,6 +37,15 @@ export default function KategoriIndex({ kategori, filters }: { kategori: Paginat
     const [selected, setSelected] = useState<Kategori | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
     const isInitialMount = useRef(true);
+
+    useTour({
+        tourKey: 'has_seen_validator_kategori_tour',
+        steps: [
+            { element: '[data-tour="kategori-tambah"]', popover: { title: 'Tambah Kategori', description: 'Klik tombol ini untuk menambahkan kategori kegiatan baru.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="kategori-search"]', popover: { title: 'Pencarian', description: 'Cari kategori berdasarkan nama.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="kategori-table"]', popover: { title: 'Daftar Kategori', description: 'Tabel kategori kegiatan beserta status dan aksi yang dapat dilakukan.', side: 'top', align: 'start' } },
+        ],
+    });
 
     const debouncedSearch = useDebouncedCallback((value: string) => {
         router.get('/validator/kategori', { search: value || undefined }, { preserveState: true, preserveScroll: true, replace: true });
@@ -70,14 +80,14 @@ return;
             <div className="space-y-4 p-4 md:p-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-semibold">Kategori Kegiatan</h1>
-                    <Button size="sm" asChild>
+                    <Button size="sm" asChild data-tour="kategori-tambah">
                         <Link href="/validator/kategori/create"><Plus className="mr-1 h-4 w-4" /> Tambah</Link>
                     </Button>
                 </div>
 
-                <Input placeholder="Cari kategori..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+                <Input placeholder="Cari kategori..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" data-tour="kategori-search" />
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="kategori-table">
                     <Table>
                         <TableHeader>
                             <TableRow>

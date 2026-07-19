@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Validator\DashboardController;
 use App\Http\Controllers\Validator\IdentitasPtController;
 use App\Http\Controllers\Validator\JurusanController;
 use App\Http\Controllers\Validator\KategoriController;
 use App\Http\Controllers\Validator\LaporanController;
+use App\Http\Controllers\Ketua\KetuaDashboardController;
 use App\Http\Controllers\Validator\MahasiswaController;
 use App\Http\Controllers\Validator\PengambilanController;
 use App\Http\Controllers\Validator\PeriodeSkpiController;
@@ -12,6 +14,8 @@ use App\Http\Controllers\Validator\SkpiPdfController;
 use App\Http\Controllers\Validator\ValidasiAktivitasController;
 use App\Http\Controllers\Auth\MahasiswaLoginController;
 use App\Http\Controllers\Mahasiswa\MahasiswaAktivitasController;
+use App\Http\Controllers\Mahasiswa\MahasiswaBuktiPengajuanPdfController;
+use App\Http\Controllers\Mahasiswa\MahasiswaDashboardController;
 use App\Http\Controllers\Mahasiswa\MahasiswaPengajuanSkpiController;
 use App\Http\Controllers\Mahasiswa\MahasiswaProfileController;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +26,7 @@ Route::get('/mahasiswa/login', [MahasiswaLoginController::class, 'show'])->name(
 Route::post('/mahasiswa/login', [MahasiswaLoginController::class, 'store']);
 
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
-    Route::inertia('dashboard', 'mahasiswa/dashboard')->name('dashboard');
+    Route::get('dashboard', MahasiswaDashboardController::class)->name('dashboard');
     Route::get('profil', [MahasiswaProfileController::class, 'edit'])->name('profil.edit');
     Route::put('profil', [MahasiswaProfileController::class, 'update'])->name('profil.update');
 
@@ -42,10 +46,13 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
 
     Route::get('skpi/{skpi}/pdf', [SkpiPdfController::class, 'preview'])->name('skpi.pdf.preview');
     Route::get('skpi/{skpi}/pdf/download', [SkpiPdfController::class, 'download'])->name('skpi.pdf.download');
+
+    Route::get('skpi/{pengajuanSkpi}/bukti-pdf', [MahasiswaBuktiPengajuanPdfController::class, 'preview'])->name('skpi.bukti-pdf.preview');
+    Route::get('skpi/{pengajuanSkpi}/bukti-pdf/download', [MahasiswaBuktiPengajuanPdfController::class, 'download'])->name('skpi.bukti-pdf.download');
 });
 
 Route::middleware(['auth', 'role:validator'])->prefix('validator')->name('validator.')->group(function () {
-    Route::inertia('dashboard', 'validator/dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('kategori', [KategoriController::class, 'index'])->name('kategori.index');
     Route::get('kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
@@ -111,10 +118,18 @@ Route::middleware(['auth', 'role:validator'])->prefix('validator')->name('valida
 });
 
 Route::middleware(['auth', 'role:ketua'])->prefix('ketua')->name('ketua.')->group(function () {
-    Route::inertia('dashboard', 'ketua/dashboard')->name('dashboard');
-    Route::get('laporan', fn () => redirect()->route('ketua.laporan.penerbitan'));
+    Route::get('dashboard', KetuaDashboardController::class)->name('dashboard');
+    Route::get('laporan', fn () => redirect()->route('ketua.laporan.pengajuan'));
+    Route::get('laporan/kategori', [LaporanController::class, 'kategori'])->name('laporan.kategori');
+    Route::get('laporan/kategori/pdf', [LaporanController::class, 'kategoriPdf'])->name('laporan.kategori.pdf');
+    Route::get('laporan/pengajuan', [LaporanController::class, 'pengajuan'])->name('laporan.pengajuan');
+    Route::get('laporan/pengajuan/pdf', [LaporanController::class, 'pengajuanPdf'])->name('laporan.pengajuan.pdf');
     Route::get('laporan/penerbitan', [LaporanController::class, 'penerbitan'])->name('laporan.penerbitan');
     Route::get('laporan/penerbitan/pdf', [LaporanController::class, 'penerbitanPdf'])->name('laporan.penerbitan.pdf');
+    Route::get('laporan/pengambilan', [LaporanController::class, 'pengambilan'])->name('laporan.pengambilan');
+    Route::get('laporan/pengambilan/pdf', [LaporanController::class, 'pengambilanPdf'])->name('laporan.pengambilan.pdf');
+    Route::get('laporan/aktivitas', [LaporanController::class, 'aktivitas'])->name('laporan.aktivitas');
+    Route::get('laporan/aktivitas/pdf', [LaporanController::class, 'aktivitasPdf'])->name('laporan.aktivitas.pdf');
 });
 
 require __DIR__.'/settings.php';

@@ -1,12 +1,13 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Eye, ExternalLink, Search, X } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTour } from '@/hooks/use-tour';
 
 type Mahasiswa = { id: number; nama: string; nobp: string; jurusan: { nama: string } | null };
 type Kategori = { nama_kategori: string; tipe: string };
@@ -26,6 +27,14 @@ const statusColors: Record<string, string> = {
 
 export default function ValidasiAktivitasIndex({ aktivitas, filters }: { aktivitas: Pagination<Aktivitas>; filters: { search: string | null; status: string | null } }) {
     const [search, setSearch] = useState(filters.search ?? '');
+
+    useTour({
+        tourKey: 'has_seen_validator_validasi_aktivitas_tour',
+        steps: [
+            { element: '[data-tour="validasi-search"]', popover: { title: 'Pencarian & Filter', description: 'Cari aktivitas berdasarkan nama/NOBP dan filter berdasarkan status.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="validasi-table"]', popover: { title: 'Daftar Aktivitas', description: 'Tabel aktivitas mahasiswa yang perlu divalidasi. Klik ikon mata untuk detail.', side: 'top', align: 'start' } },
+        ],
+    });
 
     const debouncedSearch = useDebouncedCallback((value: string) => {
         router.get('/validator/validasi-aktivitas', { search: value || undefined, status: filters.status || undefined }, { preserveState: true, preserveScroll: true, replace: true });
@@ -50,7 +59,7 @@ export default function ValidasiAktivitasIndex({ aktivitas, filters }: { aktivit
             <div className="space-y-4 p-4 md:p-6">
                 <h1 className="text-xl font-semibold">Validasi Aktivitas</h1>
 
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex flex-col gap-3 sm:flex-row" data-tour="validasi-search">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input placeholder="Cari nama/NOBP/nama kegiatan..." className="pl-9" value={search} onChange={(e) => handleSearchChange(e.target.value)} />
@@ -67,7 +76,7 @@ export default function ValidasiAktivitasIndex({ aktivitas, filters }: { aktivit
                     </Select>
                 </div>
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="validasi-table">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -94,7 +103,7 @@ export default function ValidasiAktivitasIndex({ aktivitas, filters }: { aktivit
                                         {a.kategori.nama_kategori}
                                         {a.kategori.tipe === 'lomba' && <Badge variant="outline" className="ml-1 text-[10px]">Lomba</Badge>}
                                     </TableCell>
-                                    <TableCell>{a.nama_kegiatan}</TableCell>
+                                    <TableCell className="max-w-[250px] truncate">{a.nama_kegiatan}</TableCell>
                                     <TableCell>
                                         {a.bukti_link ? (
                                             <a href={a.bukti_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary underline">

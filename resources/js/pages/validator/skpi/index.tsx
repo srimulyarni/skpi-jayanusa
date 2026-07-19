@@ -12,14 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import { useTour } from '@/hooks/use-tour';
 
 type Mahasiswa = { nobp: string; nama: string; jurusan: { nama: string } | null };
-type Periode = { id: number; nama: string };
 type Pengajuan = {
     id: number; no_registrasi: string; tgl_pengajuan: string; status: string;
-    catatan_validator: string | null; mahasiswa: Mahasiswa; periode_skpi: Periode;
+    catatan_validator: string | null; mahasiswa: Mahasiswa; periode_skpi: { nama: string };
 };
 
 interface PaginationLink { url: string | null; label: string; active: boolean }
@@ -32,16 +32,24 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive'> = {
     menunggu: 'secondary', disetujui: 'default', ditolak: 'destructive',
 };
 
-export default function SkpiIndex({ pengajuan, periodes, filters }: {
+export default function SkpiIndex({ pengajuan, filters }: {
     pengajuan: PaginatedPengajuan;
-    periodes: Periode[];
-    filters: { search?: string; status?: string; periode_id?: string };
+    filters: { search?: string; status?: string; kode?: string };
 }) {
     const [openTerbitkan, setOpenTerbitkan] = useState(false);
     const [openReject, setOpenReject] = useState(false);
     const [selected, setSelected] = useState<Pengajuan | null>(null);
     const [catatanValidator, setCatatanValidator] = useState('');
     const [search, setSearch] = useState(filters.search ?? '');
+    const [kode, setKode] = useState(filters.kode ?? '');
+
+    useTour({
+        tourKey: 'has_seen_validator_skpi_tour',
+        steps: [
+            { element: '[data-tour="skpi-filter"]', popover: { title: 'Pencarian & Filter', description: 'Cari pengajuan berdasarkan nomor registrasi atau nama mahasiswa. Filter berdasarkan status dan periode.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="skpi-table"]', popover: { title: 'Daftar Pengajuan', description: 'Tabel pengajuan SKPI. Anda dapat menyetujui, menolak, atau menerbitkan SKPI dari sini.', side: 'top', align: 'start' } },
+        ],
+    });
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
@@ -59,16 +67,26 @@ export default function SkpiIndex({ pengajuan, periodes, filters }: {
     }
 
     function reject() {
-        if (!selected) return;
+        if (!selected) {
+return;
+}
+
         router.patch(`/validator/skpi/${selected.id}/reject`, { catatan_validator: catatanValidator }, {
-            onSuccess: () => { setOpenReject(false); setCatatanValidator(''); toast.success('Pengajuan ditolak.'); },
+            onSuccess: () => {
+ setOpenReject(false); setCatatanValidator(''); toast.success('Pengajuan ditolak.'); 
+},
         });
     }
 
     function terbitkan() {
-        if (!selected) return;
+        if (!selected) {
+return;
+}
+
         router.post('/validator/skpi', { pengajuan_skpi_id: selected.id }, {
-            onSuccess: () => { setOpenTerbitkan(false); toast.success('SKPI berhasil diterbitkan!'); },
+            onSuccess: () => {
+ setOpenTerbitkan(false); toast.success('SKPI berhasil diterbitkan!'); 
+},
         });
     }
 
@@ -79,7 +97,7 @@ export default function SkpiIndex({ pengajuan, periodes, filters }: {
             <div className="space-y-4 p-4 md:p-6">
                 <h1 className="text-xl font-semibold">Pengajuan SKPI</h1>
 
-                <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-wrap items-end gap-3" data-tour="skpi-filter">
                     <form onSubmit={handleSearch} className="flex gap-2">
                         <div className="relative">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -103,18 +121,15 @@ export default function SkpiIndex({ pengajuan, periodes, filters }: {
                         </SelectContent>
                     </Select>
 
-                    <Select value={filters.periode_id ?? 'all'} onValueChange={(v) => applyFilters({ periode_id: v === 'all' ? undefined : v })}>
-                        <SelectTrigger className="w-48"><SelectValue placeholder="Semua Periode" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Semua Periode</SelectItem>
-                            {periodes.map((p) => (
-                                <SelectItem key={p.id} value={String(p.id)}>{p.nama}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="grid gap-1">
+                        <Label className="text-xs">Kode Periode</Label>
+                        <Input type="number" value={kode} onChange={(e) => setKode(e.target.value)} placeholder="20261" className="w-32" />
+                    </div>
+                    <Button onClick={() => applyFilters({ kode: kode || undefined })} size="sm">Terapkan</Button>
+                    <Button onClick={() => { setKode(''); applyFilters({ kode: undefined }); }} variant="outline" size="sm">Reset</Button>
                 </div>
 
-                <div className="overflow-hidden rounded-md border">
+                <div className="overflow-hidden rounded-md border" data-tour="skpi-table">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -153,13 +168,17 @@ export default function SkpiIndex({ pengajuan, periodes, filters }: {
                                                     <Button size="sm" onClick={() => approve(p.id)}>
                                                         <CheckCircle className="mr-1 h-4 w-4" /> Setujui
                                                     </Button>
-                                                    <Button size="sm" variant="destructive" onClick={() => { setSelected(p); setOpenReject(true); }}>
+                                                    <Button size="sm" variant="destructive" onClick={() => {
+ setSelected(p); setOpenReject(true); 
+}}>
                                                         <XCircle className="mr-1 h-4 w-4" /> Tolak
                                                     </Button>
                                                 </>
                                             )}
                                             {p.status === 'disetujui' && (
-                                                <Button size="sm" onClick={() => { setSelected(p); setOpenTerbitkan(true); }}>
+                                                <Button size="sm" onClick={() => {
+ setSelected(p); setOpenTerbitkan(true); 
+}}>
                                                     <CheckCircle className="mr-1 h-4 w-4" /> Terbitkan
                                                 </Button>
                                             )}

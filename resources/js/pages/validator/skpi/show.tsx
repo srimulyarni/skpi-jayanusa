@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTour } from '@/hooks/use-tour';
 
 type Kategori = { nama_kategori: string; tipe: string };
 type Aktivitas = {
@@ -36,6 +37,16 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
     const [openReject, setOpenReject] = useState(false);
     const [catatan, setCatatan] = useState('');
 
+    useTour({
+        tourKey: 'has_seen_validator_skpi_show_tour',
+        steps: [
+            { element: '[data-tour="skpi-show-mahasiswa"]', popover: { title: 'Data Mahasiswa', description: 'Informasi mahasiswa yang mengajukan SKPI.', side: 'bottom', align: 'start' } },
+            { element: '[data-tour="skpi-show-pengajuan"]', popover: { title: 'Data Pengajuan', description: 'Detail pengajuan termasuk nomor registrasi dan tanggal proses.', side: 'bottom', align: 'end' } },
+            { element: '[data-tour="skpi-show-aktivitas"]', popover: { title: 'Aktivitas', description: 'Daftar aktivitas yang diajukan beserta status validasinya.', side: 'top', align: 'start' } },
+            { element: '[data-tour="skpi-show-actions"]', popover: { title: 'Aksi', description: 'Tombol untuk menyetujui atau menolak pengajuan SKPI.', side: 'top', align: 'start' } },
+        ],
+    });
+
     function approve() {
         router.patch(`/validator/skpi/${pengajuan.id}/approve`, {}, {
             onSuccess: () => toast.success('Pengajuan disetujui!'),
@@ -43,9 +54,14 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
     }
 
     function reject() {
-        if (!catatan.trim()) return;
+        if (!catatan.trim()) {
+return;
+}
+
         router.patch(`/validator/skpi/${pengajuan.id}/reject`, { catatan_validator: catatan }, {
-            onSuccess: () => { setOpenReject(false); toast.success('Pengajuan ditolak.'); },
+            onSuccess: () => {
+ setOpenReject(false); toast.success('Pengajuan ditolak.'); 
+},
         });
     }
 
@@ -68,7 +84,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                    <Card>
+                    <Card data-tour="skpi-show-mahasiswa">
                         <CardHeader><CardTitle className="text-base">Data Mahasiswa</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             <div className="flex justify-between"><span className="text-muted-foreground">Nama</span><span className="font-medium">{pengajuan.mahasiswa.nama}</span></div>
@@ -77,7 +93,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card data-tour="skpi-show-pengajuan">
                         <CardHeader><CardTitle className="text-base">Data Pengajuan</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             <div className="flex justify-between"><span className="text-muted-foreground">No. Registrasi</span><span className="font-mono">{pengajuan.no_registrasi}</span></div>
@@ -121,7 +137,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                     </Card>
                 )}
 
-                <Card>
+                <Card data-tour="skpi-show-aktivitas">
                     <CardHeader><CardTitle className="text-base">Aktivitas yang Diajukan ({pengajuan.aktivitas.length})</CardTitle></CardHeader>
                     <CardContent>
                         {pengajuan.aktivitas.length ? (
@@ -148,7 +164,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                                                     {a.kategori.nama_kategori}
                                                     {a.kategori.tipe === 'lomba' && <Badge variant="outline" className="ml-1 text-[10px]">Lomba</Badge>}
                                                 </td>
-                                                <td className="p-2 font-medium">{a.nama_kegiatan}</td>
+                                                <td className="max-w-[250px] truncate p-2 font-medium">{a.nama_kegiatan}</td>
                                                 <td className="p-2">{a.tahun_kegiatan}</td>
                                                 <td className="p-2">{a.peran}</td>
                                                 <td className="p-2">{a.juara ?? '-'}</td>
@@ -177,7 +193,7 @@ export default function SkpiShow({ pengajuan }: { pengajuan: Pengajuan }) {
                 </Card>
 
                 {pengajuan.status === 'menunggu' && (
-                    <div className="flex gap-3">
+                    <div className="flex gap-3" data-tour="skpi-show-actions">
                         <Button onClick={approve}>
                             <CheckCircle className="mr-2 h-4 w-4" /> Setujui Pengajuan
                         </Button>

@@ -33,7 +33,6 @@ class PeriodeSkpiController extends Controller
             'tgl_mulai' => ['required', 'date'],
             'tgl_selesai' => ['required', 'date', 'after:tgl_mulai'],
             'max_aktivitas' => ['nullable', 'integer', 'min:1'],
-            'status' => ['required', 'in:aktif,nonaktif'],
         ]);
 
         if (empty($validated['kode'])) {
@@ -42,10 +41,13 @@ class PeriodeSkpiController extends Controller
             $validated['kode'] = $tglMulai->year . $semester;
         }
 
+        $validated['status'] = 'aktif';
+
+        PeriodeSkpi::where('status', 'aktif')->update(['status' => 'nonaktif']);
         PeriodeSkpi::create($validated);
 
         return redirect()->route('validator.periode-skpi.index')
-            ->with('success', 'Periode SKPI berhasil ditambahkan.');
+            ->with('success', 'Periode SKPI berhasil ditambahkan. Periode lain dinonaktifkan.');
     }
 
     public function edit(PeriodeSkpi $periodeSkpi): Response
@@ -70,6 +72,12 @@ class PeriodeSkpiController extends Controller
             $tglMulai = \Carbon\Carbon::parse($validated['tgl_mulai']);
             $semester = $tglMulai->month <= 6 ? 1 : 2;
             $validated['kode'] = $tglMulai->year . $semester;
+        }
+
+        if ($validated['status'] === 'aktif') {
+            PeriodeSkpi::where('id', '!=', $periodeSkpi->id)
+                ->where('status', 'aktif')
+                ->update(['status' => 'nonaktif']);
         }
 
         $periodeSkpi->update($validated);
