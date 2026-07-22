@@ -5,7 +5,6 @@
     <title>Laporan Aktivitas Mahasiswa</title>
     <style>
         @include('pdf.partials.laporan-style')
-        body { page: landscape; }
     </style>
 </head>
 <body>
@@ -17,7 +16,20 @@
         'periode' => $dari && $sampai ? $dari . ' s/d ' . $sampai : null,
     ])
 
-    <table class="data-table">
+    <table class="data-table" style="table-layout:fixed; word-wrap:break-word;">
+        <colgroup>
+            <col style="width:25px">
+            <col style="width:100px">
+            <col style="width:55px">
+            <col style="width:75px">
+            <col style="width:65px">
+            <col>
+            <col style="width:35px">
+            <col style="width:55px">
+            <col style="width:50px">
+            <col style="width:45px">
+            <col style="width:50px">
+        </colgroup>
         <thead>
             <tr>
                 <th class="no">No</th>
