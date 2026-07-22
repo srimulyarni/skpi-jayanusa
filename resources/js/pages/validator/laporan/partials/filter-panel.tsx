@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { Calendar, Filter, Printer, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -56,6 +56,14 @@ export function LaporanFilterPanel({
 
         return rest as Record<string, string>;
     });
+
+    useEffect(() => {
+        const rest = { ...filters };
+        delete rest.dari;
+        delete rest.sampai;
+        delete rest.kode;
+        setExtras(rest as Record<string, string>);
+    }, [filters]);
 
     const presets = getPresets();
 
