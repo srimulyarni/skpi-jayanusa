@@ -48,7 +48,7 @@ export function LaporanFilterPanel({
     const [dari, setDari] = useState(filters.dari ?? '');
     const [sampai, setSampai] = useState(filters.sampai ?? '');
     const [kode, setKode] = useState(filters.kode ?? '');
-    const [, setExtras] = useState<Record<string, string>>(() => {
+    const [extras, setExtras] = useState<Record<string, string>>(() => {
         const rest = { ...filters };
         delete rest.dari;
         delete rest.sampai;
