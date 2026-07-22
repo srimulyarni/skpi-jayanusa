@@ -18,17 +18,17 @@
 
     <table class="data-table" style="table-layout:fixed; word-wrap:break-word;">
         <colgroup>
-            <col style="width:25px">
-            <col style="width:100px">
-            <col style="width:55px">
-            <col style="width:75px">
-            <col style="width:65px">
-            <col>
-            <col style="width:35px">
-            <col style="width:55px">
-            <col style="width:50px">
-            <col style="width:45px">
-            <col style="width:50px">
+            <col style="width:3%">
+            <col style="width:16%">
+            <col style="width:8%">
+            <col style="width:11%">
+            <col style="width:10%">
+            <col style="width:20%">
+            <col style="width:5%">
+            <col style="width:9%">
+            <col style="width:7%">
+            <col style="width:6%">
+            <col style="width:5%">
         </colgroup>
         <thead>
             <tr>
