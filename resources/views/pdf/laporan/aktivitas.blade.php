@@ -5,6 +5,7 @@
     <title>Laporan Aktivitas Mahasiswa</title>
     <style>
         @include('pdf.partials.laporan-style')
+        body { page: landscape; }
     </style>
 </head>
 <body>
