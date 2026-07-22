@@ -3,10 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Laporan Aktivitas Mahasiswa</title>
-    <style>
-        @include('pdf.partials.laporan-style')
-        body { page: landscape; }
-    </style>
+    <style>@include('pdf.partials.aktivitas-style')</style>
 </head>
 <body>
     @include('pdf.partials.kop-surat')
@@ -17,7 +14,7 @@
         'periode' => $dari && $sampai ? $dari . ' s/d ' . $sampai : null,
     ])
 
-    <table class="data-table" style="table-layout:fixed; word-wrap:break-word;">
+    <table class="data-table">
         <colgroup>
             <col style="width:3%">
             <col style="width:16%">
