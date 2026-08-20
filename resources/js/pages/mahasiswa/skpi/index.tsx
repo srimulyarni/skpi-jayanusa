@@ -90,7 +90,7 @@ export default function SkpiIndex({ pengajuan, kompreStatus, periodeAktif }: { p
                                     <TableHead>Periode</TableHead>
                                     <TableHead>Jumlah Aktivitas</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Tgl. Proses</TableHead>
+                                    <TableHead>Tanggal Disetujui</TableHead>
                                     <TableHead className="w-20">Aksi</TableHead>
                                 </TableRow>
                             </TableHeader>
