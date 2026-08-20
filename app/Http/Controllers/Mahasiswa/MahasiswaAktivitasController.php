@@ -53,6 +53,7 @@ class MahasiswaAktivitasController extends Controller
         Aktivitas::create([
             'mahasiswa_id' => $mahasiswa->id,
             ...$validated,
+            'tgl_pengajuan' => now()->toDateString(),
             'status' => 'menunggu',
         ]);
 
@@ -120,6 +121,8 @@ class MahasiswaAktivitasController extends Controller
 
         $aktivitas->update([
             ...$validated,
+            'tgl_pengajuan' => now()->toDateString(),
+            'tgl_disetujui' => null,
             'status' => 'menunggu',
             'catatan_validator' => null,
         ]);

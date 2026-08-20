@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'mahasiswa_id', 'kategori_id', 'nama_kegiatan', 'tahun_kegiatan',
-    'peran', 'bukti_link', 'juara', 'tingkat', 'status', 'catatan_validator',
+    'peran', 'bukti_link', 'juara', 'tingkat', 'tgl_pengajuan',
+    'tgl_disetujui', 'status', 'catatan_validator',
 ])]
 class Aktivitas extends Model
 {
@@ -19,7 +20,10 @@ class Aktivitas extends Model
 
     protected function casts(): array
     {
-        return [];
+        return [
+            'tgl_pengajuan' => 'date:Y-m-d',
+            'tgl_disetujui' => 'date:Y-m-d',
+        ];
     }
 
     protected function namaKegiatan(): \Illuminate\Database\Eloquent\Casts\Attribute

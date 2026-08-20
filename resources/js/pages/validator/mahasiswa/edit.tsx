@@ -168,7 +168,7 @@ export default function MahasiswaEdit({ mahasiswa }: { mahasiswa: Mahasiswa }) {
                             </div>
                             {form.data.kompre_status && (
                                 <div className="grid gap-2">
-                                    <Label htmlFor="kompre_tanggal">Tanggal Kompre</Label>
+                                    <Label htmlFor="kompre_tanggal">Tanggal Lulus</Label>
                                     <Input id="kompre_tanggal" type="date" value={form.data.kompre_tanggal} onChange={(e) => form.setData('kompre_tanggal', e.target.value)} />
                                 </div>
                             )}

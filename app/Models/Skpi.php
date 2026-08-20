@@ -21,7 +21,7 @@ class Skpi extends Model
     protected function casts(): array
     {
         return [
-            'tgl_terbit' => 'date',
+            'tgl_terbit' => 'date:Y-m-d',
         ];
     }
 

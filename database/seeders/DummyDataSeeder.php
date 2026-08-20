@@ -270,6 +270,9 @@ class DummyDataSeeder extends Seeder
             'status' => 'disetujui',
         ]);
 
+        Aktivitas::query()->update(['tgl_pengajuan' => now()->subDays(30)->toDateString()]);
+        Aktivitas::where('status', 'disetujui')->update(['tgl_disetujui' => now()->subDays(25)->toDateString()]);
+
         // --- Periode SKPI ---
         $periodeAktif = PeriodeSkpi::create([
             'nama' => 'Periode Juli 2026',

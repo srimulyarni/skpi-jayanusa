@@ -22,9 +22,9 @@ class Mahasiswa extends Model
     protected function casts(): array
     {
         return [
-            'tanggal_lahir' => 'date',
+            'tanggal_lahir' => 'date:Y-m-d',
             'kompre_status' => 'boolean',
-            'kompre_tanggal' => 'date',
+            'kompre_tanggal' => 'date:Y-m-d',
         ];
     }
 

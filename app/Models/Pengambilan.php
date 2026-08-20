@@ -20,7 +20,7 @@ class Pengambilan extends Model
     protected function casts(): array
     {
         return [
-            'tgl_pengambilan' => 'date',
+            'tgl_pengambilan' => 'date:Y-m-d',
             'diambil_pada' => 'datetime',
         ];
     }

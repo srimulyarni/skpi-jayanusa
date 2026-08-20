@@ -10,20 +10,27 @@ export function UserInfo({
     showRole?: boolean;
 }) {
     const getInitials = useInitials();
+    const displayName = user.nama ?? user.username;
+    const subtitle = [
+        displayName === user.username ? null : user.username,
+        showRole ? user.role : null,
+    ]
+        .filter(Boolean)
+        .join(' · ');
 
     return (
         <>
             <Avatar className="h-8 w-8 overflow-hidden rounded-full">
-                <AvatarImage src={user.avatar} alt={user.username} />
+                <AvatarImage src={user.avatar ?? undefined} alt={displayName} />
                 <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                    {getInitials(user.username)}
+                    {getInitials(displayName)}
                 </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.username}</span>
-                {showRole && (
+                <span className="truncate font-medium">{displayName}</span>
+                {subtitle && (
                     <span className="truncate text-xs text-muted-foreground capitalize">
-                        {user.role}
+                        {subtitle}
                     </span>
                 )}
             </div>

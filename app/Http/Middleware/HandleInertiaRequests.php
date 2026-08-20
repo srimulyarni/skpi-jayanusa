@@ -36,12 +36,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $nama = $user?->username;
+        $avatar = null;
         $isProfileLengkap = false;
         $kompreStatus = false;
         $periodeAktif = false;
         $periodeInfo = null;
-        if ($request->user()?->role === 'mahasiswa') {
-            $mhs = $request->user()->mahasiswa;
+        if ($user?->role === 'mahasiswa') {
+            $mhs = $user->mahasiswa;
+            $nama = $mhs?->nama ?? $nama;
+            $avatar = $mhs?->foto ? '/storage/'.$mhs->foto : null;
             $isProfileLengkap = $mhs
                 && $mhs->tempat_lahir
                 && $mhs->tanggal_lahir
@@ -68,7 +73,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [...$user->toArray(), 'nama' => $nama, 'avatar' => $avatar] : null,
                 'isProfileLengkap' => $isProfileLengkap,
                 'kompreStatus' => $kompreStatus,
                 'periodeAktif' => $periodeAktif,

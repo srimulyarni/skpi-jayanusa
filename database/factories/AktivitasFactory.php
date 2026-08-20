@@ -25,6 +25,8 @@ class AktivitasFactory extends Factory
             'bukti_link' => fake()->optional()->url(),
             'juara' => null,
             'tingkat' => null,
+            'tgl_pengajuan' => now()->toDateString(),
+            'tgl_disetujui' => null,
             'status' => 'menunggu',
             'catatan_validator' => null,
         ];
@@ -34,6 +36,7 @@ class AktivitasFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'disetujui',
+            'tgl_disetujui' => now()->toDateString(),
         ]);
     }
 
@@ -41,6 +44,7 @@ class AktivitasFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'ditolak',
+            'tgl_disetujui' => null,
             'catatan_validator' => 'Ditolak.',
         ]);
     }

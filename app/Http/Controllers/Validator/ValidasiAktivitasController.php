@@ -48,6 +48,7 @@ class ValidasiAktivitasController extends Controller
     {
         $aktivitas->update([
             'status' => 'disetujui',
+            'tgl_disetujui' => now()->toDateString(),
             'catatan_validator' => null,
         ]);
 
@@ -63,6 +64,7 @@ class ValidasiAktivitasController extends Controller
 
         $aktivitas->update([
             'status' => 'ditolak',
+            'tgl_disetujui' => null,
             'catatan_validator' => $validated['catatan_validator'],
         ]);
 

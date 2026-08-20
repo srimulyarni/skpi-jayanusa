@@ -22,8 +22,8 @@ class PengajuanSkpi extends Model
     protected function casts(): array
     {
         return [
-            'tgl_pengajuan' => 'date',
-            'tgl_proses' => 'date',
+            'tgl_pengajuan' => 'date:Y-m-d',
+            'tgl_proses' => 'date:Y-m-d',
         ];
     }
 

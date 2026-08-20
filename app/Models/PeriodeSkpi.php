@@ -18,8 +18,8 @@ class PeriodeSkpi extends Model
     protected function casts(): array
     {
         return [
-            'tgl_mulai' => 'date',
-            'tgl_selesai' => 'date',
+            'tgl_mulai' => 'date:Y-m-d',
+            'tgl_selesai' => 'date:Y-m-d',
             'max_aktivitas' => 'integer',
         ];
     }

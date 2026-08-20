@@ -1,8 +1,9 @@
 export type User = {
     id: number;
     username: string;
+    nama?: string | null;
     role: 'mahasiswa' | 'validator' | 'ketua';
-    avatar?: string;
+    avatar?: string | null;
     created_at: string;
     updated_at: string;
     [key: string]: unknown;

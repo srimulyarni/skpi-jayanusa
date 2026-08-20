@@ -22,6 +22,8 @@ type Aktivitas = {
     bukti_link: string | null;
     juara: string | null;
     tingkat: string | null;
+    tgl_pengajuan: string | null;
+    tgl_disetujui: string | null;
     status: string;
     catatan_validator: string | null;
     kategori: Kategori;
@@ -95,6 +97,8 @@ return;
                                     <TableHead>Nama Kegiatan</TableHead>
                                     <TableHead>Tahun</TableHead>
                                     <TableHead>Peran</TableHead>
+                                    <TableHead>Tanggal Pengajuan</TableHead>
+                                    <TableHead>Tgl. Disetujui</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="w-28">Aksi</TableHead>
                                 </TableRow>
@@ -112,6 +116,8 @@ return;
                                         <TableCell className="max-w-[200px] truncate font-medium">{a.nama_kegiatan}</TableCell>
                                         <TableCell>{a.tahun_kegiatan}</TableCell>
                                         <TableCell>{a.peran}</TableCell>
+                                        <TableCell>{a.tgl_pengajuan ? new Date(a.tgl_pengajuan).toLocaleDateString('id-ID') : '-'}</TableCell>
+                                        <TableCell>{a.tgl_disetujui ? new Date(a.tgl_disetujui).toLocaleDateString('id-ID') : '-'}</TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className={statusColors[a.status] ?? ''}>
                                                 {a.status}
