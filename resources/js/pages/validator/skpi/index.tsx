@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { CheckCircle, Eye, Search, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, Printer, Search, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { DataTablePagination } from '@/components/data-table-pagination';
@@ -17,9 +17,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTour } from '@/hooks/use-tour';
 
 type Mahasiswa = { nobp: string; nama: string; jurusan: { nama: string } | null };
+type SkpiRingkas = { id: number; no_skpi: string; status: string };
 type Pengajuan = {
     id: number; no_registrasi: string; tgl_pengajuan: string; status: string;
     catatan_validator: string | null; mahasiswa: Mahasiswa; periode_skpi: { nama: string };
+    skpi: SkpiRingkas | null;
 };
 
 interface PaginationLink { url: string | null; label: string; active: boolean }
@@ -141,6 +143,7 @@ return;
                                 <TableHead>Jurusan</TableHead>
                                 <TableHead>Tgl Pengajuan</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Penerbitan</TableHead>
                                 <TableHead className="w-48">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -157,6 +160,20 @@ return;
                                     <TableCell>{new Date(p.tgl_pengajuan).toLocaleDateString('id-ID')}</TableCell>
                                     <TableCell>
                                         <Badge variant={statusVariant[p.status] ?? 'secondary'}>{p.status}</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        {p.skpi ? (
+                                            <div className="flex flex-col gap-0.5">
+                                                <Badge variant={p.skpi.status === 'dibatalkan' ? 'destructive' : 'default'} className="w-fit">
+                                                    {p.skpi.status === 'dibatalkan' ? 'Dibatalkan' : 'Sudah Terbit'}
+                                                </Badge>
+                                                <span className="font-mono text-xs text-muted-foreground">{p.skpi.no_skpi}</span>
+                                            </div>
+                                        ) : p.status === 'disetujui' ? (
+                                            <Badge variant="outline" className="text-amber-700">Belum Terbit</Badge>
+                                        ) : (
+                                            <span className="text-muted-foreground">-</span>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex gap-1">
@@ -177,18 +194,25 @@ return;
                                                     </Button>
                                                 </>
                                             )}
-                                            {p.status === 'disetujui' && (
+                                            {p.status === 'disetujui' && !p.skpi && (
                                                 <Button size="sm" onClick={() => {
- setSelected(p); setOpenTerbitkan(true); 
+ setSelected(p); setOpenTerbitkan(true);
 }}>
                                                     <CheckCircle className="mr-1 h-4 w-4" /> Terbitkan
+                                                </Button>
+                                            )}
+                                            {p.skpi && p.skpi.status !== 'dibatalkan' && (
+                                                <Button size="sm" variant="outline" asChild>
+                                                    <a href={`/validator/skpi/${p.skpi.id}/pdf`} target="_blank" rel="noreferrer">
+                                                        <Printer className="mr-1 h-4 w-4" /> PDF
+                                                    </a>
                                                 </Button>
                                             )}
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             )) : (
-                                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Tidak ada data</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">Tidak ada data</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

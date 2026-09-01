@@ -99,14 +99,19 @@ class LaporanController extends Controller
         ])->setOption(['isHtml5ParserEnabled' => true])->stream('laporan-pengajuan.pdf');
     }
 
-    public function penerbitan(Request $request): Response
+    private function penerbitanQuery(Request $request): array
     {
         [$dari, $sampai] = $this->getDateRange($request);
         $kode = $request->input('kode') ?: $this->getKodeDefault();
         $statusAmbil = $request->input('status_ambil');
+        $status = $request->input('status');
 
         $query = Skpi::with(['pengajuanSkpi.mahasiswa.jurusan', 'pengajuanSkpi.periodeSkpi', 'pengambilan'])
-            ->where('status', 'diterbitkan')
+            ->when(
+                $status,
+                fn ($q) => $q->where('status', $status),
+                fn ($q) => $q->whereIn('status', ['diterbitkan', 'dibatalkan'])
+            )
             ->when($dari, fn ($q) => $q->where('tgl_terbit', '>=', $dari))
             ->when($sampai, fn ($q) => $q->where('tgl_terbit', '<=', $sampai))
             ->when($kode, fn ($q) => $q->whereHas('pengajuanSkpi.periodeSkpi', fn ($pq) => $pq->where('kode', $kode)))
@@ -114,34 +119,39 @@ class LaporanController extends Controller
             ->when($statusAmbil === 'belum', fn ($q) => $q->whereHas('pengambilan', fn ($pq) => $pq->where('status', 'belum_diambil')))
             ->orderBy('tgl_terbit');
 
+        $filters = [
+            'dari' => $dari,
+            'sampai' => $sampai,
+            'kode' => $kode,
+            'status_ambil' => $statusAmbil,
+            'status' => $status,
+        ];
+
+        return [$query, $filters];
+    }
+
+    public function penerbitan(Request $request): Response
+    {
+        [$query, $filters] = $this->penerbitanQuery($request);
+
         return Inertia::render('validator/laporan/penerbitan', [
             'data' => $query->get(),
-            'filters' => ['dari' => $dari, 'sampai' => $sampai, 'kode' => $kode, 'status_ambil' => $statusAmbil],
+            'filters' => $filters,
         ]);
     }
 
     public function penerbitanPdf(Request $request)
     {
-        [$dari, $sampai] = $this->getDateRange($request);
-        $kode = $request->input('kode') ?: $this->getKodeDefault();
-        $statusAmbil = $request->input('status_ambil');
-
-        $query = Skpi::with(['pengajuanSkpi.mahasiswa.jurusan', 'pengajuanSkpi.periodeSkpi', 'pengambilan'])
-            ->where('status', 'diterbitkan')
-            ->when($dari, fn ($q) => $q->where('tgl_terbit', '>=', $dari))
-            ->when($sampai, fn ($q) => $q->where('tgl_terbit', '<=', $sampai))
-            ->when($kode, fn ($q) => $q->whereHas('pengajuanSkpi.periodeSkpi', fn ($pq) => $pq->where('kode', $kode)))
-            ->when($statusAmbil === 'sudah', fn ($q) => $q->whereHas('pengambilan', fn ($pq) => $pq->where('status', 'sudah_diambil')))
-            ->when($statusAmbil === 'belum', fn ($q) => $q->whereHas('pengambilan', fn ($pq) => $pq->where('status', 'belum_diambil')))
-            ->orderBy('tgl_terbit');
+        [$query, $filters] = $this->penerbitanQuery($request);
 
         $data = $query->get();
         $filterInfo = [];
-        if ($kode) $filterInfo[] = 'Kode Periode: ' . $kode;
-        if ($statusAmbil) $filterInfo[] = 'Pengambilan: ' . ($statusAmbil === 'sudah' ? 'Sudah Diambil' : 'Belum Diambil');
+        if ($filters['kode']) $filterInfo[] = 'Kode Periode: ' . $filters['kode'];
+        if ($filters['status']) $filterInfo[] = 'Status SKPI: ' . ucfirst($filters['status']);
+        if ($filters['status_ambil']) $filterInfo[] = 'Pengambilan: ' . ($filters['status_ambil'] === 'sudah' ? 'Sudah Diambil' : 'Belum Diambil');
 
         return Pdf::loadView('pdf.laporan.penerbitan', [
-            'data' => $data, 'dari' => $dari, 'sampai' => $sampai,
+            'data' => $data, 'dari' => $filters['dari'], 'sampai' => $filters['sampai'],
             'filterInfo' => $filterInfo, 'identitasPt' => $this->getIdentitasPt(),
         ])->setOption(['isHtml5ParserEnabled' => true])->stream('laporan-penerbitan.pdf');
     }

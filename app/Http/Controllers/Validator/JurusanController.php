@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Validator;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Akademis\JurusanRequest;
+use App\Http\Requests\Validator\JurusanRequest;
 use App\Models\IdentitasPt;
 use App\Models\Jurusan;
 use Illuminate\Http\RedirectResponse;

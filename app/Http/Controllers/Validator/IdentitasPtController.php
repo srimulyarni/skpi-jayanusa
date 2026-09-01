@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Validator;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Akademis\IdentitasPtRequest;
+use App\Http\Requests\Validator\IdentitasPtRequest;
 use App\Models\IdentitasPt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

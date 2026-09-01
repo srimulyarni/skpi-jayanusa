@@ -15,6 +15,37 @@ test('validator can view skpi list', function () {
     $this->actingAs($user)->get(route('validator.skpi.index'))->assertOk();
 });
 
+test('skpi list shows which pengajuan already has skpi', function () {
+    $user = User::factory()->validator()->create();
+    $identitasPt = IdentitasPt::factory()->create();
+    $jurusan = Jurusan::factory()->create(['identitas_pt_id' => $identitasPt->id]);
+    $periode = PeriodeSkpi::factory()->create();
+
+    $sudahTerbit = PengajuanSkpi::factory()->disetujui()->create([
+        'mahasiswa_id' => Mahasiswa::factory()->create(['jurusan_id' => $jurusan->id])->id,
+        'periode_skpi_id' => $periode->id,
+    ]);
+    Skpi::factory()->create([
+        'pengajuan_skpi_id' => $sudahTerbit->id,
+        'identitas_pt_id' => $identitasPt->id,
+        'status' => 'diterbitkan',
+    ]);
+
+    $belumTerbit = PengajuanSkpi::factory()->disetujui()->create([
+        'mahasiswa_id' => Mahasiswa::factory()->create(['jurusan_id' => $jurusan->id])->id,
+        'periode_skpi_id' => $periode->id,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('validator.skpi.index'));
+    $response->assertOk();
+
+    $rows = collect($response->viewData('page')['props']['pengajuan']['data'])->keyBy('id');
+
+    expect($rows[$sudahTerbit->id]['skpi'])->not->toBeNull()
+        ->and($rows[$sudahTerbit->id]['skpi']['status'])->toBe('diterbitkan')
+        ->and($rows[$belumTerbit->id]['skpi'])->toBeNull();
+});
+
 test('validator can issue skpi for approved pengajuan', function () {
     $user = User::factory()->validator()->create();
     $identitasPt = IdentitasPt::factory()->create(['kode_institusi' => 'STMIK']);

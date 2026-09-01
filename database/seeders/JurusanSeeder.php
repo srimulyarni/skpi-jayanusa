@@ -10,15 +10,14 @@ class JurusanSeeder extends Seeder
 {
     public function run(): void
     {
-        $stmik = IdentitasPt::where('kode_institusi', 'STMIK')->first();
-        $amik = IdentitasPt::where('kode_institusi', 'AMIK')->first();
+        $stmik = IdentitasPt::where('kode_institusi', 'STMIK')->firstOrFail();
 
         $data = [
             [
                 'kode' => '000',
                 'nama' => 'Manajemen Informatika',
                 'singkatan' => 'MI',
-                'identitas_pt_id' => $amik->id,
+                'identitas_pt_id' => $stmik->id,
             ],
             [
                 'kode' => '100',

@@ -23,6 +23,7 @@
                 <th>NOBP</th>
                 <th>Jurusan</th>
                 <th>Tgl Terbit</th>
+                <th>Status SKPI</th>
                 <th>Pengambilan</th>
             </tr>
         </thead>
@@ -35,13 +36,18 @@
                     <td>{{ $item->pengajuanSkpi->mahasiswa->nobp ?? '-' }}</td>
                     <td>{{ $item->pengajuanSkpi->mahasiswa->jurusan->nama ?? '-' }}</td>
                     <td style="text-align:center;">{{ $item->tgl_terbit ? $item->tgl_terbit->format('d/m/Y') : '-' }}</td>
+                    <td style="text-align:center;">{{ $item->status === 'dibatalkan' ? 'Dibatalkan' : 'Diterbitkan' }}</td>
                     <td style="text-align:center;">{{ $item->pengambilan?->status === 'sudah_diambil' ? 'Sudah' : 'Belum' }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    <p class="cetak-info">Total: {{ $data->count() }} SKPI diterbitkan</p>
+    <p class="cetak-info">
+        Total: {{ $data->count() }} SKPI &middot;
+        {{ $data->where('status', 'diterbitkan')->count() }} diterbitkan &middot;
+        {{ $data->where('status', 'dibatalkan')->count() }} dibatalkan
+    </p>
 
     @include('pdf.partials.signature-block')
 </body>

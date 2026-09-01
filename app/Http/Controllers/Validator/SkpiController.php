@@ -28,7 +28,7 @@ class SkpiController extends Controller
             $kode = $aktif?->kode;
         }
 
-        $pengajuan = PengajuanSkpi::with('mahasiswa.jurusan', 'periodeSkpi')
+        $pengajuan = PengajuanSkpi::with('mahasiswa.jurusan', 'periodeSkpi', 'skpi')
             ->when($search, function ($query, $search) {
                 $query->where('no_registrasi', 'like', "%{$search}%")
                     ->orWhereHas('mahasiswa', function ($q) use ($search) {
