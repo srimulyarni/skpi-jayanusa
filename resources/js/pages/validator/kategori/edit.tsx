@@ -12,11 +12,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-type Kategori = { id: number; nama_kategori: string; status: 'aktif' | 'nonaktif' };
+type Kategori = { id: number; nama_kategori: string; tipe: 'lomba' | 'lainnya'; status: 'aktif' | 'nonaktif' };
 
 export default function KategoriEdit({ kategori }: { kategori: Kategori }) {
     const [openKonfirm, setOpenKonfirm] = useState(false);
-    const form = useForm({ nama_kategori: kategori.nama_kategori, status: kategori.status });
+    const form = useForm({
+        nama_kategori: kategori.nama_kategori,
+        tipe: kategori.tipe,
+        status: kategori.status,
+    });
 
     function simpan() {
         form.put(`/validator/kategori/${kategori.id}`, {
@@ -51,6 +55,20 @@ export default function KategoriEdit({ kategori }: { kategori: Kategori }) {
                             )}
                         </div>
                         <div className="grid gap-2">
+                            <Label>Tipe Kategori</Label>
+                            <Select value={form.data.tipe} onValueChange={(v: 'lomba' | 'lainnya') => form.setData('tipe', v)}>
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="lainnya">Lainnya</SelectItem>
+                                    <SelectItem value="lomba">Lomba</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                Tipe <strong>Lomba</strong> memunculkan isian Juara dan Tingkat saat mahasiswa menambah aktivitas.
+                            </p>
+                            {form.errors.tipe && <p className="text-sm text-destructive">{form.errors.tipe}</p>}
+                        </div>
+                        <div className="grid gap-2">
                             <Label>Status</Label>
                             <Select value={form.data.status} onValueChange={(v: 'aktif' | 'nonaktif') => form.setData('status', v)}>
                                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -59,6 +77,7 @@ export default function KategoriEdit({ kategori }: { kategori: Kategori }) {
                                     <SelectItem value="nonaktif">Nonaktif</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {form.errors.status && <p className="text-sm text-destructive">{form.errors.status}</p>}
                         </div>
                         <div className="flex gap-3 pt-2">
                             <Button onClick={() => setOpenKonfirm(true)} disabled={form.processing} className="w-full sm:w-auto">

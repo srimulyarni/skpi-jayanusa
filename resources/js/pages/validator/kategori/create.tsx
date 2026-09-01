@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export default function KategoriCreate() {
     const [openKonfirm, setOpenKonfirm] = useState(false);
-    const form = useForm({ nama_kategori: '', status: 'aktif' });
+    const form = useForm({ nama_kategori: '', tipe: 'lainnya', status: 'aktif' });
 
     function simpan() {
         form.post('/validator/kategori', {
@@ -50,6 +50,20 @@ export default function KategoriCreate() {
                             )}
                         </div>
                         <div className="grid gap-2">
+                            <Label>Tipe Kategori</Label>
+                            <Select value={form.data.tipe} onValueChange={(v) => form.setData('tipe', v)}>
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="lainnya">Lainnya</SelectItem>
+                                    <SelectItem value="lomba">Lomba</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                Tipe <strong>Lomba</strong> memunculkan isian Juara dan Tingkat saat mahasiswa menambah aktivitas.
+                            </p>
+                            {form.errors.tipe && <p className="text-sm text-destructive">{form.errors.tipe}</p>}
+                        </div>
+                        <div className="grid gap-2">
                             <Label>Status</Label>
                             <Select value={form.data.status} onValueChange={(v) => form.setData('status', v)}>
                                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -58,6 +72,7 @@ export default function KategoriCreate() {
                                     <SelectItem value="nonaktif">Nonaktif</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {form.errors.status && <p className="text-sm text-destructive">{form.errors.status}</p>}
                         </div>
                         <div className="flex gap-3 pt-2">
                             <Button onClick={() => setOpenKonfirm(true)} disabled={form.processing} className="w-full sm:w-auto">

@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTour } from '@/hooks/use-tour';
 
-type Kategori = { id: number; nama_kategori: string; status: 'aktif' | 'nonaktif' };
+type Kategori = { id: number; nama_kategori: string; tipe: 'lomba' | 'lainnya'; status: 'aktif' | 'nonaktif' };
 
 interface PaginationLink { url: string | null; label: string; active: boolean }
 interface PaginatedData {
@@ -93,6 +93,7 @@ return;
                             <TableRow>
                                 <TableHead className="w-12">No</TableHead>
                                 <TableHead>Nama Kategori</TableHead>
+                                <TableHead>Tipe</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="w-24">Aksi</TableHead>
                             </TableRow>
@@ -102,6 +103,11 @@ return;
                                 <TableRow key={k.id}>
                                     <TableCell>{(kategori.current_page - 1) * kategori.per_page + i + 1}</TableCell>
                                     <TableCell>{k.nama_kategori}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={k.tipe === 'lomba' ? 'default' : 'outline'}>
+                                            {k.tipe === 'lomba' ? 'Lomba' : 'Lainnya'}
+                                        </Badge>
+                                    </TableCell>
                                     <TableCell>
                                         <Badge variant={k.status === 'aktif' ? 'default' : 'secondary'}>{k.status}</Badge>
                                     </TableCell>
@@ -119,7 +125,7 @@ return;
                                     </TableCell>
                                 </TableRow>
                             )) : (
-                                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Tidak ada data</TableCell></TableRow>
+                                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Tidak ada data</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>
