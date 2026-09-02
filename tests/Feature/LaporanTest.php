@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PengajuanSkpi;
 use App\Models\Skpi;
 use App\Models\User;
 
@@ -42,56 +43,56 @@ test('mahasiswa cannot view laporan', function () {
     $this->actingAs($user)->get(route('validator.laporan.kategori'))->assertStatus(403);
 });
 
-test('laporan penerbitan reports skpi status, not pengambilan status', function () {
+test('laporan penerbitan lists every pengajuan, including those without skpi', function () {
     $user = User::factory()->validator()->create();
-    $terbit = Skpi::factory()->create(['status' => 'diterbitkan']);
-    $batal = Skpi::factory()->dibatalkan()->create();
+
+    $belumTerbit = PengajuanSkpi::factory()->disetujui()->create();
+    $sudahTerbit = PengajuanSkpi::factory()->disetujui()->create();
+    Skpi::factory()->create(['pengajuan_skpi_id' => $sudahTerbit->id, 'status' => 'diterbitkan']);
+    $dibatalkan = PengajuanSkpi::factory()->disetujui()->create();
+    Skpi::factory()->dibatalkan()->create(['pengajuan_skpi_id' => $dibatalkan->id]);
 
     $response = $this->actingAs($user)->get(route('validator.laporan.penerbitan'));
     $response->assertOk();
 
     $rows = collect($response->viewData('page')['props']['data'])->keyBy('id');
 
-    expect($rows)->toHaveKey($terbit->id)
-        ->and($rows)->toHaveKey($batal->id)
-        ->and($rows[$terbit->id]['status'])->toBe('diterbitkan')
-        ->and($rows[$batal->id]['status'])->toBe('dibatalkan');
+    expect($rows)->toHaveCount(3)
+        ->and($rows[$belumTerbit->id]['skpi'])->toBeNull()
+        ->and($rows[$sudahTerbit->id]['skpi']['status'])->toBe('diterbitkan')
+        ->and($rows[$dibatalkan->id]['skpi']['status'])->toBe('dibatalkan');
 });
 
-test('laporan penerbitan can filter by skpi status', function () {
+test('laporan penerbitan can filter by penerbitan status', function (string $status, string $kunci) {
     $user = User::factory()->validator()->create();
-    $terbit = Skpi::factory()->create(['status' => 'diterbitkan']);
-    $batal = Skpi::factory()->dibatalkan()->create();
+
+    $belumTerbit = PengajuanSkpi::factory()->disetujui()->create();
+    $sudahTerbit = PengajuanSkpi::factory()->disetujui()->create();
+    Skpi::factory()->create(['pengajuan_skpi_id' => $sudahTerbit->id, 'status' => 'diterbitkan']);
+
+    $harapan = ['belum_terbit' => $belumTerbit, 'diterbitkan' => $sudahTerbit];
 
     $response = $this->actingAs($user)
-        ->get(route('validator.laporan.penerbitan', ['status' => 'dibatalkan']));
+        ->get(route('validator.laporan.penerbitan', ['status' => $status]));
     $response->assertOk();
 
     $ids = collect($response->viewData('page')['props']['data'])->pluck('id');
 
-    expect($ids)->toContain($batal->id)
-        ->and($ids)->not->toContain($terbit->id);
-});
+    expect($ids)->toContain($harapan[$kunci]->id)->toHaveCount(1);
+})->with([
+    ['belum_terbit', 'belum_terbit'],
+    ['diterbitkan', 'diterbitkan'],
+]);
 
 test('laporan penerbitan pdf renders', function () {
     $user = User::factory()->validator()->create();
-    Skpi::factory()->create(['status' => 'diterbitkan']);
-    Skpi::factory()->dibatalkan()->create();
+
+    PengajuanSkpi::factory()->disetujui()->create();
+    $terbit = PengajuanSkpi::factory()->disetujui()->create();
+    Skpi::factory()->create(['pengajuan_skpi_id' => $terbit->id, 'status' => 'diterbitkan']);
 
     $response = $this->actingAs($user)->get(route('validator.laporan.penerbitan.pdf'));
 
     $response->assertOk();
     expect($response->headers->get('content-type'))->toContain('application/pdf');
-});
-
-test('laporan penerbitan hides draft skpi by default', function () {
-    $user = User::factory()->validator()->create();
-    $draft = Skpi::factory()->create(['status' => 'draft']);
-    $terbit = Skpi::factory()->create(['status' => 'diterbitkan']);
-
-    $response = $this->actingAs($user)->get(route('validator.laporan.penerbitan'));
-    $ids = collect($response->viewData('page')['props']['data'])->pluck('id');
-
-    expect($ids)->toContain($terbit->id)
-        ->and($ids)->not->toContain($draft->id);
 });

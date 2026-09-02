@@ -10,7 +10,6 @@ use App\Models\Kategori;
 use App\Models\PengajuanSkpi;
 use App\Models\Pengambilan;
 use App\Models\PeriodeSkpi;
-use App\Models\Skpi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -106,18 +105,16 @@ class LaporanController extends Controller
         $statusAmbil = $request->input('status_ambil');
         $status = $request->input('status');
 
-        $query = Skpi::with(['pengajuanSkpi.mahasiswa.jurusan', 'pengajuanSkpi.periodeSkpi', 'pengambilan'])
-            ->when(
-                $status,
-                fn ($q) => $q->where('status', $status),
-                fn ($q) => $q->whereIn('status', ['diterbitkan', 'dibatalkan'])
-            )
-            ->when($dari, fn ($q) => $q->where('tgl_terbit', '>=', $dari))
-            ->when($sampai, fn ($q) => $q->where('tgl_terbit', '<=', $sampai))
-            ->when($kode, fn ($q) => $q->whereHas('pengajuanSkpi.periodeSkpi', fn ($pq) => $pq->where('kode', $kode)))
-            ->when($statusAmbil === 'sudah', fn ($q) => $q->whereHas('pengambilan', fn ($pq) => $pq->where('status', 'sudah_diambil')))
-            ->when($statusAmbil === 'belum', fn ($q) => $q->whereHas('pengambilan', fn ($pq) => $pq->where('status', 'belum_diambil')))
-            ->orderBy('tgl_terbit');
+        $query = PengajuanSkpi::with(['mahasiswa.jurusan', 'periodeSkpi', 'skpi.pengambilan'])
+            ->when($dari, fn ($q) => $q->where('tgl_pengajuan', '>=', $dari))
+            ->when($sampai, fn ($q) => $q->where('tgl_pengajuan', '<=', $sampai))
+            ->when($kode, fn ($q) => $q->whereHas('periodeSkpi', fn ($pq) => $pq->where('kode', $kode)))
+            ->when($status === 'belum_terbit', fn ($q) => $q->whereDoesntHave('skpi'))
+            ->when($status === 'diterbitkan', fn ($q) => $q->whereHas('skpi', fn ($sq) => $sq->where('status', 'diterbitkan')))
+            ->when($status === 'dibatalkan', fn ($q) => $q->whereHas('skpi', fn ($sq) => $sq->where('status', 'dibatalkan')))
+            ->when($statusAmbil === 'sudah', fn ($q) => $q->whereHas('skpi.pengambilan', fn ($pq) => $pq->where('status', 'sudah_diambil')))
+            ->when($statusAmbil === 'belum', fn ($q) => $q->whereHas('skpi.pengambilan', fn ($pq) => $pq->where('status', 'belum_diambil')))
+            ->orderBy('tgl_pengajuan');
 
         $filters = [
             'dari' => $dari,
@@ -147,7 +144,7 @@ class LaporanController extends Controller
         $data = $query->get();
         $filterInfo = [];
         if ($filters['kode']) $filterInfo[] = 'Kode Periode: ' . $filters['kode'];
-        if ($filters['status']) $filterInfo[] = 'Status SKPI: ' . ucfirst($filters['status']);
+        if ($filters['status']) $filterInfo[] = 'Status SKPI: ' . ($filters['status'] === 'belum_terbit' ? 'Belum Terbit' : ucfirst($filters['status']));
         if ($filters['status_ambil']) $filterInfo[] = 'Pengambilan: ' . ($filters['status_ambil'] === 'sudah' ? 'Sudah Diambil' : 'Belum Diambil');
 
         return Pdf::loadView('pdf.laporan.penerbitan', [

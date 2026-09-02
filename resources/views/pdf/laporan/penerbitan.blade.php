@@ -31,22 +31,35 @@
             @foreach($data as $i => $item)
                 <tr>
                     <td class="no">{{ $i + 1 }}</td>
-                    <td style="font-family:monospace;">{{ $item->no_skpi }}</td>
-                    <td>{{ $item->pengajuanSkpi->mahasiswa->nama ?? '-' }}</td>
-                    <td>{{ $item->pengajuanSkpi->mahasiswa->nobp ?? '-' }}</td>
-                    <td>{{ $item->pengajuanSkpi->mahasiswa->jurusan->nama ?? '-' }}</td>
-                    <td style="text-align:center;">{{ $item->tgl_terbit ? $item->tgl_terbit->format('d/m/Y') : '-' }}</td>
-                    <td style="text-align:center;">{{ $item->status === 'dibatalkan' ? 'Dibatalkan' : 'Diterbitkan' }}</td>
-                    <td style="text-align:center;">{{ $item->pengambilan?->status === 'sudah_diambil' ? 'Sudah' : 'Belum' }}</td>
+                    <td style="font-family:monospace;">{{ $item->skpi?->no_skpi ?? '-' }}</td>
+                    <td>{{ $item->mahasiswa->nama ?? '-' }}</td>
+                    <td>{{ $item->mahasiswa->nobp ?? '-' }}</td>
+                    <td>{{ $item->mahasiswa->jurusan->nama ?? '-' }}</td>
+                    <td style="text-align:center;">{{ $item->skpi?->tgl_terbit?->format('d/m/Y') ?? '-' }}</td>
+                    <td style="text-align:center;">
+                        @if (! $item->skpi)
+                            Belum Terbit
+                        @else
+                            {{ $item->skpi->status === 'dibatalkan' ? 'Dibatalkan' : 'Diterbitkan' }}
+                        @endif
+                    </td>
+                    <td style="text-align:center;">
+                        @if (! $item->skpi?->pengambilan)
+                            -
+                        @else
+                            {{ $item->skpi->pengambilan->status === 'sudah_diambil' ? 'Sudah' : 'Belum' }}
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
     <p class="cetak-info">
-        Total: {{ $data->count() }} SKPI &middot;
-        {{ $data->where('status', 'diterbitkan')->count() }} diterbitkan &middot;
-        {{ $data->where('status', 'dibatalkan')->count() }} dibatalkan
+        Total: {{ $data->count() }} pengajuan &middot;
+        {{ $data->where('skpi.status', 'diterbitkan')->count() }} diterbitkan &middot;
+        {{ $data->where('skpi.status', 'dibatalkan')->count() }} dibatalkan &middot;
+        {{ $data->whereNull('skpi')->count() }} belum terbit
     </p>
 
     @include('pdf.partials.signature-block')

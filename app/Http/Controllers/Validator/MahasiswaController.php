@@ -68,6 +68,8 @@ class MahasiswaController extends Controller
                 Storage::disk('public')->delete($mahasiswa->foto);
             }
             $data['foto'] = $request->file('foto')->store('mahasiswa/foto', 'public');
+        } else {
+            unset($data['foto']);
         }
 
         $mahasiswa->update($data);

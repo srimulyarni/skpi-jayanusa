@@ -8,13 +8,18 @@ import { LaporanFilterPanel } from './partials/filter-panel';
 
 type Skpi = {
     id: number; no_skpi: string; tgl_terbit: string; status: string;
-    pengajuan_skpi: { mahasiswa: { nama: string; nobp: string; jurusan: { nama: string } | null } };
     pengambilan: { status: string } | null;
+};
+
+type Baris = {
+    id: number; no_registrasi: string | null; tgl_pengajuan: string;
+    mahasiswa: { nama: string; nobp: string; jurusan: { nama: string } | null } | null;
+    skpi: Skpi | null;
 };
 
 type Filters = { dari?: string; sampai?: string; kode?: string; status_ambil?: string; status?: string };
 
-export default function LaporanPenerbitan({ data, filters }: { data: Skpi[]; filters: Filters }) {
+export default function LaporanPenerbitan({ data, filters }: { data: Baris[]; filters: Filters }) {
     const [statusAmbil, setStatusAmbil] = useState(filters.status_ambil ?? '');
     const [statusSkpi, setStatusSkpi] = useState(filters.status ?? '');
 
@@ -28,8 +33,9 @@ export default function LaporanPenerbitan({ data, filters }: { data: Skpi[]; fil
         router.get('/validator/laporan/penerbitan', { ...filters, status: v === 'all' ? undefined : v }, { preserveState: true, replace: true });
     }
 
-    const totalTerbit = data.filter((s) => s.status === 'diterbitkan').length;
-    const totalBatal = data.filter((s) => s.status === 'dibatalkan').length;
+    const totalTerbit = data.filter((b) => b.skpi?.status === 'diterbitkan').length;
+    const totalBatal = data.filter((b) => b.skpi?.status === 'dibatalkan').length;
+    const totalBelum = data.filter((b) => !b.skpi).length;
 
     return (
         <>
@@ -46,6 +52,7 @@ export default function LaporanPenerbitan({ data, filters }: { data: Skpi[]; fil
                                 <SelectItem value="all">Semua</SelectItem>
                                 <SelectItem value="diterbitkan">Diterbitkan</SelectItem>
                                 <SelectItem value="dibatalkan">Dibatalkan</SelectItem>
+                                <SelectItem value="belum_terbit">Belum Terbit</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -79,23 +86,31 @@ export default function LaporanPenerbitan({ data, filters }: { data: Skpi[]; fil
                         <TableBody>
                             {data.length === 0 ? (
                                 <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">Tidak ada data</TableCell></TableRow>
-                            ) : data.map((s, i) => (
-                                <TableRow key={s.id}>
+                            ) : data.map((b, i) => (
+                                <TableRow key={b.id}>
                                     <TableCell>{i + 1}</TableCell>
-                                    <TableCell className="font-mono text-sm">{s.no_skpi}</TableCell>
-                                    <TableCell className="font-medium">{s.pengajuan_skpi?.mahasiswa?.nama ?? '-'}</TableCell>
-                                    <TableCell>{s.pengajuan_skpi?.mahasiswa?.nobp ?? '-'}</TableCell>
-                                    <TableCell>{s.pengajuan_skpi?.mahasiswa?.jurusan?.nama ?? '-'}</TableCell>
-                                    <TableCell>{new Date(s.tgl_terbit).toLocaleDateString('id-ID')}</TableCell>
+                                    <TableCell className="font-mono text-sm">{b.skpi?.no_skpi ?? '-'}</TableCell>
+                                    <TableCell className="font-medium">{b.mahasiswa?.nama ?? '-'}</TableCell>
+                                    <TableCell>{b.mahasiswa?.nobp ?? '-'}</TableCell>
+                                    <TableCell>{b.mahasiswa?.jurusan?.nama ?? '-'}</TableCell>
+                                    <TableCell>{b.skpi ? new Date(b.skpi.tgl_terbit).toLocaleDateString('id-ID') : '-'}</TableCell>
                                     <TableCell>
-                                        <Badge variant={s.status === 'dibatalkan' ? 'destructive' : 'default'}>
-                                            {s.status === 'dibatalkan' ? 'Dibatalkan' : 'Diterbitkan'}
-                                        </Badge>
+                                        {b.skpi ? (
+                                            <Badge variant={b.skpi.status === 'dibatalkan' ? 'destructive' : 'default'}>
+                                                {b.skpi.status === 'dibatalkan' ? 'Dibatalkan' : 'Diterbitkan'}
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="text-amber-700">Belum Terbit</Badge>
+                                        )}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={s.pengambilan?.status === 'sudah_diambil' ? 'default' : 'outline'}>
-                                            {s.pengambilan?.status === 'sudah_diambil' ? 'Sudah' : 'Belum'}
-                                        </Badge>
+                                        {b.skpi?.pengambilan ? (
+                                            <Badge variant={b.skpi.pengambilan.status === 'sudah_diambil' ? 'default' : 'outline'}>
+                                                {b.skpi.pengambilan.status === 'sudah_diambil' ? 'Sudah' : 'Belum'}
+                                            </Badge>
+                                        ) : (
+                                            <span className="text-muted-foreground">-</span>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -104,7 +119,7 @@ export default function LaporanPenerbitan({ data, filters }: { data: Skpi[]; fil
                 </div>
 
                 <p className="text-sm text-muted-foreground">
-                    Total: {data.length} SKPI · {totalTerbit} diterbitkan · {totalBatal} dibatalkan
+                    Total: {data.length} pengajuan · {totalTerbit} diterbitkan · {totalBatal} dibatalkan · {totalBelum} belum terbit
                 </p>
             </div>
         </>
