@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -35,6 +35,13 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+});
+
+// Back/forward restores page props from history cache, so a record approved in
+// another tab or moments ago would still render its old status and action buttons.
+// Deferred so Inertia finishes restoring before we ask the server for fresh props.
+window.addEventListener('popstate', () => {
+    setTimeout(() => router.reload(), 0);
 });
 
 // This will set light / dark mode on load...
